@@ -355,7 +355,7 @@ void GlacParser::parseHeader(BGZF *bg){
             vector<string> tokensf = allTokens(line,'\t');
             chrKnown.push_back(tokensf[1].substr(3));
         }//else{
-	cout << line << std::endl;
+	//cout << line << std::endl;
 	    // }
 	header+=line+"\n";
 	if(strBeginsWith(line, "#chr")){
@@ -371,7 +371,7 @@ void GlacParser::parseHeader(BGZF *bg){
 		populationNames->push_back(fields[i]);
 		numberPopulations++;
 	    }
-	    header+=line+"\n";
+	    //header+=line+"\n";
 	    
 	    break;
 	}
@@ -725,7 +725,7 @@ bool GlacParser::hasData(){
 
 	    line+=c;
 	}
-	cout<<line<<endl;
+	//cout<<line<<endl;
 
 
 
@@ -761,24 +761,51 @@ bool GlacParser::hasData(){
 		unsigned int indexComma1=0;
 		unsigned int indexComma2=0;		
 		unsigned int indexColon=0;
+		//cout<<i<<" " <<fields[i]<<endl;
 		for(unsigned int k=0;k<fields[i].size();k++){
 		    if(fields[i][k]==',' && indexComma1==0)
 			indexComma1=k;
 		    if(fields[i][k]==',' && indexComma1!=0)
-			indexComma1=k;
+			indexComma2=k;
 		    if(fields[i][k]==':')
 			indexColon=k;
 		}
 		
 		if(indexComma1 == 0 || indexComma2 == 0 || indexColon == 0 ){
-		    cerr << "Error: GlacParser problem with the following line " << line <<" cannot get genotype likelihoods"<<endl;
+		    cerr << "Error: GlacParser problem with the following line " << line <<" cannot get genotype likelihoods ("<<indexComma1<<","<<indexComma2<<","<<indexColon<<endl;
 		    exit(1);	   
 		}
+		// 		cout<<fields[i].substr(0,indexComma1)<<endl;
+		// 		cout<<fields[i].substr(indexComma1+1,indexComma2-indexComma1-1)<<endl;
+		// 		cout<<fields[i].substr(indexComma2+1,indexColon-indexComma2-1) <<endl;
+		// 		exit(1);
+		// // 0,255,0:0
+		// //  1   5 7
+		// uint8_t t =		destringify<uint8_t>( fields[i].substr(0,indexComma1));
+		// cout<<"t "<<t<<endl;
+		// cout<<"###"<<endl;
+		// cout<<( fields[i].substr(0,indexComma1))<<endl;
+		// cout<<( fields[i].substr(indexComma1+1,indexComma2-indexComma1-1))<<endl;
+		// cout<<( fields[i].substr(indexComma2+1,indexColon-indexComma2-1))<<endl;
+		// uint8_t a= uint8_t( destringify<int>( fields[i].substr(indexComma1+1,indexComma2-indexComma1-1)) );
+		// cout<<"i "<< int(a) <<endl;
+		// cout<<(fields[i].substr(indexColon+1))<<endl;
+	        // cout<<"-------"<<endl;
 		
-		SingleGL gl (destringify<uint8_t>( fields[i].substr(0,indexComma1)),
-			     destringify<uint8_t>( fields[i].substr(indexComma1+1,indexComma2)),
-			     destringify<uint8_t>( fields[i].substr(indexComma2+1,indexColon)),
-			     destringify<bool>(fields[i].substr(indexColon+1))   );
+		uint8_t t1 = uint8_t(destringify<int>( fields[i].substr(0,indexComma1)));
+		uint8_t t2 = uint8_t(destringify<int>( fields[i].substr(indexComma1+1,indexComma2-indexComma1-1)));
+		uint8_t t3 = uint8_t(destringify<int>( fields[i].substr(indexComma2+1,indexColon-indexComma2-1)));
+		bool    b  = destringify<bool>(    fields[i].substr(indexColon+1))   ;
+		// cout<<indexComma1<<","<<indexComma2<<","<<indexColon<<endl;
+		// cout<<t1<<endl;
+		// cout<<t2<<endl;
+		// cout<<t3<<endl;
+		// cout<<b<<endl;
+		// cout<<"--------------"<<endl;
+		SingleGL gl (t1,
+			     t2,
+			     t3,
+			     b  );
 		
 		allRecToReturn->vectorGLs->push_back(gl);
 	    }
@@ -788,7 +815,7 @@ bool GlacParser::hasData(){
 		exit(1);	   	    
 	    }
 
-	}else{
+	}else{//if acFormat
 	    allRecToReturn->vectorAlleles = new vector<SingleAllele>();
 	
 	    for(unsigned int i=3;i<fields.size();i++){
@@ -817,11 +844,11 @@ bool GlacParser::hasData(){
 		cerr << "Error: GlacParser problem with the following line " << line <<" number of allele count read is not "<<numberPopulations<<endl;
 		exit(1);	   	    
 	    }
-	}
+	}//end acFormat
 	return true;
 
-	exit(1);
-	return true;
+	//exit(1);
+	//return true;
     }
 
     //    string line;

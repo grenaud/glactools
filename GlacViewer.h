@@ -12,9 +12,10 @@
 using namespace std;
 
 class GlacViewer{
-private:
+ private:
+    bool printheader=false;
 
-public:
+ public:
     GlacViewer();
     GlacViewer(const GlacViewer & other);
     ~GlacViewer();
