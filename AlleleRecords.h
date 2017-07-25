@@ -31,6 +31,7 @@ public:
 	ref        = other.ref;
 	alt        = other.alt;
 	vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
+	vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
 	return *this;
     }
     
@@ -53,9 +54,9 @@ public:
 	os<<stringify(ar.coordinate)<<"\t";
 	os<<ar.ref<<",";
 	os<<ar.alt<<"\t";
-
+	//exit(1);
 	if(ar.glFormat)
-	    os<<"a"<<vectorToString(*(ar.vectorGLs),"\t");
+	    os<<vectorToString(*(ar.vectorGLs),"\t");
 	else
 	    os<<vectorToString(*(ar.vectorAlleles),"\t");
 	//	exit(1);

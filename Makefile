@@ -9,9 +9,9 @@ CXXFLAGS = -Wall -lm -O3 -lz -I htslib/ -I tabixpp/ -I${LIBGAB} -I${LIBGAB}/gzst
 LDFLAGS  =  -lpthread -lm -lbz2 -llzma -lz
 
 
-all: glactools 
+all: libgab/utils.o tabixpp/tabix.o glactools 
 
-%.o: %.cpp libgab/utils.o
+%.o: %.cpp 
 	${CXX} ${CXXFLAGS} $^ -o $@
 
 libgab/utils.h:
@@ -20,6 +20,14 @@ libgab/utils.h:
 
 libgab/utils.o: bamtools/lib/libbamtools.so htslib/libhts.so libgab/utils.h
 	make -C libgab
+
+tabixpp/tabix.hpp:
+	rm -rf tabixpp/
+	git clone --recursive https://github.com/grenaud/tabixpp.git
+
+tabixpp/tabix.o: tabixpp/tabix.hpp htslib/libhts.so
+	make -C tabixpp
+
 
 bamtools/src/api/BamAlignment.h:
 	rm -rf bamtools/

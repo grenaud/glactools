@@ -145,7 +145,9 @@ void GlacParser::parseHeader(BGZF *bg){
     //if(textMode){
     //cout<<"parsed"<<endl;
     const string magicNumberBAM="BAM\1";
-    
+    const string magicNumberACFt="#ACF";
+    const string magicNumberGLFt="#GLF";
+    string firstLineHeadertxtmode="";
     unsigned char  bamtest [4];
     const ssize_t     bamtestlength  = 4;
     ssize_t bytesread;
@@ -162,24 +164,68 @@ void GlacParser::parseHeader(BGZF *bg){
 	    startWithBam=false;
 	}
     }
-	
+    const string magicNumberACF="ACF";
+    bool acfFound=true;
+    const string magicNumberGLF="GLF";
+    bool glfFound=true;
 
+    string toPrintHeader="";
+    unsigned int totalRecords=0;
+    string line;    
+    istringstream f;
     unsigned char  formattest [5];
     if(!startWithBam){//probably just binary
-	// for(unsigned int i=0;i<bamtestlength;i++){
-	//     formattest[i] = bamtest[i];
-	// }
-	// char c;
-	// bytesread = bgzf_read(bg, &c, sizeof(c));
-	// if(bytesread != sizeof(c)){
-	//     cerr<<"Error: GlacParser tried to read "<< sizeof(c) <<" bytes but got "<<bytesread<<endl;
-	//     exit(1);
-	// }
-	//TODO add text case
-	//if(c!='\1'){
-	//}
-	cerr<<"Error: GlacParser cannot find magic number BAM\1"<<endl;
-	exit(1);
+	//cout<<startWithBam<<endl;
+
+
+	bool acftext=true;
+	for(unsigned int i=0;i<bamtestlength;i++){
+	    firstLineHeadertxtmode+=bamtest[i];
+	    if(bamtest[i] != magicNumberACFt[i]){
+		acftext=false;
+	    }
+	}
+	if(acftext){
+
+	    stringMode = false;
+	    tabixMode  = false;
+	    textMode   = true;
+	    binMode    = false;
+
+	    glFormat   = false;
+	    acFormat   = true;
+
+	}else{
+	    
+	    bool glftext=true;
+	    for(unsigned int i=0;i<bamtestlength;i++){
+		if(bamtest[i] != magicNumberGLFt[i]){
+		    glftext=false;
+		}
+	    }
+	    if(glftext){
+		
+		stringMode = false;
+		tabixMode  = false;
+		textMode   = true;
+		binMode    = false;
+
+
+		glFormat   = true;
+		acFormat   = false;				
+	    }else{
+		cerr<<"Error: GlacParser cannot determine format, first 4 bytes: "<<bamtest[0]<<bamtest[1]<<bamtest[2]<<bamtest[3]<<endl;
+		exit(1);		
+	    }
+
+
+	}
+	goto findHEADERtext;
+
+
+
+	// cerr<<"Error: GlacParser cannot find magic number BAM\1"<<endl;
+	// exit(1);
 
 	    
 	// formattest [4] = c;
@@ -190,23 +236,20 @@ void GlacParser::parseHeader(BGZF *bg){
 	    exit(1);
 	}
 
+	stringMode=false;
+	tabixMode =false;
+	textMode  =false;
+	binMode   =true;
+    
     }
 
-    const string magicNumberACF="ACF";
-    bool acfFound=true;
+
     for(unsigned int i=0;i<3;i++){
 	if(formattest[i] != magicNumberACF[i]){
 	    acfFound=false;
 	}
     }
-    const string magicNumberGLF="GLF";
-    bool glfFound=true;
     
-    //TOOD add textMode binMode 
-    stringMode=false;
-    tabixMode =false;
-    textMode  =false;
-    binMode   =true;
  	
     if(!acfFound){
 	//Should find glf
@@ -291,7 +334,6 @@ void GlacParser::parseHeader(BGZF *bg){
     }
     //cout<<"sh "<<sizeHeader<<endl;
     //exit(1);
-    string toPrintHeader="";
 
     for(uint32_t i=0;i<sizeHeader;i++){
         char toread;
@@ -305,11 +347,8 @@ void GlacParser::parseHeader(BGZF *bg){
         toPrintHeader+=toread;
     }
 
-    unsigned int totalRecords=0;
 
-    istringstream f (toPrintHeader);
-    string line;    
-    
+    f.str(toPrintHeader);
     
     while (getline(f, line)) {
         if(strBeginsWith(line,"#SQ")){
@@ -318,6 +357,7 @@ void GlacParser::parseHeader(BGZF *bg){
         }//else{
 	cout << line << std::endl;
 	    // }
+	header+=line+"\n";
 	if(strBeginsWith(line, "#chr")){
 	    defline=line;
 	    vector<string> fields=allTokens(line,'\t');
@@ -353,11 +393,60 @@ void GlacParser::parseHeader(BGZF *bg){
     
     //cout<<sizePops<<endl;
     // exit(1);
-    //todo set firstLine
+    return ;
     
+ findHEADERtext:
+    //cout<<"header"<<endl;
 
     //}
-    // while(getline ( in,line)){
+    //while(getline ( in,line)){
+    //kstring_t * ksstr;
+    //cout<<"1"<<endl;
+    //while( //bgzf_getline(myFilezipped, '\n', ksstr) != -1){
+    line = firstLineHeadertxtmode;
+    //line = string(bamtest);
+    while(1){
+	//line="";
+	while(1){
+	    char c;
+	    bytesread = bgzf_read(bg, &c, sizeof(c));
+	    if(bytesread != sizeof(c)){
+		cerr<<"Error: GlacParser tried to read "<< sizeof(c) <<" bytes but got "<<bytesread<<endl;
+		exit(1);
+	    }
+	    //cout<<"c"<<c<<"#"<<endl;
+	    if(c=='\n'){
+		break;
+	    }
+
+	    line+=c;
+	}
+	header+=line+"\n";
+	//	cout<<line<<endl;
+	// line =string( ks_str(ksstr) );
+	// cout<<"line "<<line<<endl;
+	//exit(1);
+
+	if(strBeginsWith(line, "#chr")){
+	    defline=line;
+	    vector<string> fields=allTokens(line,'\t');
+	    if(fields[0] != "#chr")   { cerr<<"Field #1 of header must be #chr ";    exit(1); }
+	    if(fields[1] != "coord")  { cerr<<"Field #2 of header must be coord ";   exit(1); }
+	    if(fields[2] != "REF,ALT"){ cerr<<"Field #3 of header must be REF,ALT "; exit(1); }
+	    if(fields[3] != "root")   { cerr<<"Field #4 of header must be root ";    exit(1); }
+	    if(fields[4] != "anc")    { cerr<<"Field #5 of header must be anc ";     exit(1); }
+
+	    for(unsigned int i=3;i<fields.size();i++){
+		populationNames->push_back(fields[i]);
+		numberPopulations++;
+	    }
+	    
+
+	    break;
+	}
+	line="";
+    }
+    //exit(1);
     // 	//cout<<"line "<<line<<endl;
     // 	if(line[0] == '#'){
     // 	    // cout<<line;
@@ -400,36 +489,36 @@ void GlacParser::parseHeader(BGZF *bg){
 }
 
 
-// string GlacParser::getHeader(string prefix){
-//     vector<string> fields=allTokens(header,'\n');
-//     vector<string> toreturn;
-//     for(unsigned int i=0;i<fields.size();i++){
-// 	if(!fields[i].empty())
-// 	    toreturn.push_back(prefix+fields[i]);
-//     }
+string GlacParser::getHeader(string prefix){
+    vector<string> fields=allTokens(header,'\n');
+    vector<string> toreturn;
+    for(unsigned int i=0;i<fields.size();i++){
+	if(!fields[i].empty())
+	    toreturn.push_back(prefix+fields[i]);
+    }
 
-//     return vectorToString(toreturn,"\n");
-// }
-
-
-
-// string GlacParser::getHeaderNoDefline(string prefix){
-//     vector<string> fields=allTokens(headerNoDefline,'\n');
-//     vector<string> toreturn;
-//     for(unsigned int i=0;i<fields.size();i++){
-// 	if(!fields[i].empty())
-// 	    toreturn.push_back(prefix+fields[i]);
-//     }
-
-//     return vectorToString(toreturn,"\n");
-// }
+    return vectorToString(toreturn,"\n");
+}
 
 
 
+string GlacParser::getHeaderNoDefline(string prefix){
+    vector<string> fields=allTokens(headerNoDefline,'\n');
+    vector<string> toreturn;
+    for(unsigned int i=0;i<fields.size();i++){
+	if(!fields[i].empty())
+	    toreturn.push_back(prefix+fields[i]);
+    }
 
-// string GlacParser::getDefline(){
-//     return defline;
-// }
+    return vectorToString(toreturn,"\n");
+}
+
+
+
+
+string GlacParser::getDefline(){
+    return defline;
+}
 
 // void GlacParser::repositionIterator(string chrName,int start,int end){
     
@@ -444,7 +533,7 @@ void GlacParser::parseHeader(BGZF *bg){
 
 bool GlacParser::hasData(){
 
-    cout<<"hasData"<<endl;
+    //cout<<"hasData"<<endl;
     if(numberOfTimesHasDataWasCalled!=-1){
 	//	cout<<"delete"<<endl;
 	//cerr<<"del "<<allRecToReturn<<endl;
@@ -454,7 +543,7 @@ bool GlacParser::hasData(){
     }else{
 	numberOfTimesHasDataWasCalled=0;
     }
-    cout<<"hasDatab1 "<<glFormat<<" "<<binMode<<endl;    
+    //cout<<"hasDatab1 "<<glFormat<<" "<<binMode<<endl;    
     numberOfTimesHasDataWasCalled++;
 
     if(binMode){
@@ -555,16 +644,16 @@ bool GlacParser::hasData(){
 	    return true;
 	}//end if acffound
 
-	cout<<"sizePops "<<sizePops<<endl;
-	cout<<"gl "<<glFormat<<endl;
+	// cout<<"sizePops "<<sizePops<<endl;
+	// cout<<"gl "<<glFormat<<endl;
 
 
 	if(glFormat){
 
 	    allRecToReturn->vectorGLs = new vector<SingleGL>();
 		
-	    cout<<"sizePops "<<sizePops<<endl;
-	    cout<<glFormat<<endl;
+	    // cout<<"sizePops "<<sizePops<<endl;
+	    // cout<<glFormat<<endl;
 	    //exit(1);
 	    
 	    for(unsigned j=0;j<(sizePops+2);j++){
@@ -603,17 +692,137 @@ bool GlacParser::hasData(){
 			     raC,
 			     aaC,			     
 			     (cpgC == 1) );
-		cout<<j<<"\tgl="<<gl<<"#"<<endl;
-		exit(1);
+		//cout<<j<<"\tgl="<<gl<<"#"<<endl;
+		//cout<<"j "<<j<<endl;
+		//exit(1);
 		allRecToReturn->vectorGLs->push_back(gl);
-		    
+		
 	    }//each pop
-	    
+	    // cout<<allRecToReturn<<endl;
+	    // cout<<*allRecToReturn<<endl;
 	    return true;
 	}//end glformat
 	
     }//end binMode
 
+    if(textMode){
+	ssize_t bytesread;
+	string line;
+	while(1){
+	    char c;
+	    bytesread = bgzf_read(myFilezipped, &c, sizeof(c));
+	    if(bytesread==0 && line.size() == 0){
+		return false;
+	    }
+	    if(bytesread != sizeof(c)){
+		cerr<<"Error: GlacParser tried to read "<< sizeof(c) <<" bytes but got "<<bytesread<<endl;
+		exit(1);
+	    }
+	    //cout<<"c"<<c<<"#"<<endl;
+	    if(c=='\n'){
+		break;
+	    }
+
+	    line+=c;
+	}
+	cout<<line<<endl;
+
+
+
+	allRecToReturn                = new AlleleRecords(glFormat);
+	//	cerr<<"new "<<allRecToReturn<<endl;
+	//allRecToReturn->vectorAlleles = new vector<SingleAllele>();
+	// cout<<"currentline "<<currentline<<endl;
+	
+	vector<string> fields=allTokens(line,'\t');
+
+	if(fields.size() != (numberPopulations+3)){
+	    cerr << "Error: GlacParser the following line should have "<<(numberPopulations+3)<<" fields " << line <<endl;
+	    exit(1);	   
+	}
+	if(fields[2].length() != 3){
+	    cerr << "Error: GlacParser the following line " << line <<" does not have 2 comma separated alleles"<<endl;
+	    exit(1);	   
+	}
+
+	allRecToReturn->chr        =                           fields[0];
+	allRecToReturn->coordinate = destringify<unsigned int>(fields[1]);
+	allRecToReturn->ref        =                           fields[2][0];
+	allRecToReturn->alt        =                           fields[2][2];
+	if(allRecToReturn->ref == allRecToReturn->alt){
+	    cerr << "Error: GlacParser the following line " << line <<" the reference is equal to the alt allele, exiting"<<endl;
+	    exit(1);	   
+	}
+
+	if(glFormat){
+	    allRecToReturn->vectorGLs = new vector<SingleGL>();
+
+	    for(unsigned int i=3;i<fields.size();i++){
+		unsigned int indexComma1=0;
+		unsigned int indexComma2=0;		
+		unsigned int indexColon=0;
+		for(unsigned int k=0;k<fields[i].size();k++){
+		    if(fields[i][k]==',' && indexComma1==0)
+			indexComma1=k;
+		    if(fields[i][k]==',' && indexComma1!=0)
+			indexComma1=k;
+		    if(fields[i][k]==':')
+			indexColon=k;
+		}
+		
+		if(indexComma1 == 0 || indexComma2 == 0 || indexColon == 0 ){
+		    cerr << "Error: GlacParser problem with the following line " << line <<" cannot get genotype likelihoods"<<endl;
+		    exit(1);	   
+		}
+		
+		SingleGL gl (destringify<uint8_t>( fields[i].substr(0,indexComma1)),
+			     destringify<uint8_t>( fields[i].substr(indexComma1+1,indexComma2)),
+			     destringify<uint8_t>( fields[i].substr(indexComma2+1,indexColon)),
+			     destringify<bool>(fields[i].substr(indexColon+1))   );
+		
+		allRecToReturn->vectorGLs->push_back(gl);
+	    }
+	    
+	    if( allRecToReturn->vectorGLs->size() != numberPopulations){
+		cerr << "Error: GlacParser problem with the following line " << line <<" number of genotype likelihood read is not "<<numberPopulations<<endl;
+		exit(1);	   	    
+	    }
+
+	}else{
+	    allRecToReturn->vectorAlleles = new vector<SingleAllele>();
+	
+	    for(unsigned int i=3;i<fields.size();i++){
+		unsigned int indexComma=0;
+		unsigned int indexColon=0;
+		for(unsigned int k=0;k<fields[i].size();k++){
+		    if(fields[i][k]==',')
+			indexComma=k;
+		    if(fields[i][k]==':')
+			indexColon=k;
+		}
+		
+		if(indexComma == 0 || indexColon == 0 ){
+		    cerr << "Error: GlacParser problem with the following line " << line <<" cannot get allele count"<<endl;
+		    exit(1);	   
+		}
+		
+		SingleAllele sa (destringify<int>( fields[i].substr(0,indexComma)),
+				 destringify<int>( fields[i].substr(indexComma+1,indexColon)),
+			     destringify<bool>(fields[i].substr(indexColon+1))   );
+		
+		allRecToReturn->vectorAlleles->push_back(sa);
+	    }
+	    
+	    if( allRecToReturn->vectorAlleles->size() != numberPopulations){
+		cerr << "Error: GlacParser problem with the following line " << line <<" number of allele count read is not "<<numberPopulations<<endl;
+		exit(1);	   	    
+	    }
+	}
+	return true;
+
+	exit(1);
+	return true;
+    }
 
     //    string line;
     //if(getline ( *myFilezipped,line)){
@@ -716,7 +925,7 @@ bool GlacParser::hasData(){
 
 
 AlleleRecords * GlacParser::getData(){
-    
+    //cout<<"getData"<<allRecToReturn<<endl;
     if(numberOfTimesHasDataWasCalled != 1){
 	cerr<<"The subroutine hasData must have been called once prior to calling getData it was called:  "<<numberOfTimesHasDataWasCalled<<" times " <<endl;
 	exit(1);

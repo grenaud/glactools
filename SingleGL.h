@@ -67,10 +67,10 @@ public:
     friend bool operator!= (const SingleGL & first,const SingleGL & second);
 
     friend ostream& operator<<(ostream& os, const SingleGL & at){
-	//os<<"op<"<<endl;
-	/* cerr<<at.rrGL<<","<<at.raGL<<","<<at.aaGL<<":"<<at.isCpg; */
+	//os<<"test"<<endl;
+	//cout<<at.rrGL<<","<<at.raGL<<","<<at.aaGL<<":"<<at.isCpg; 
 	/* exit(1); */
-	//os<<at.rrGL<<","<<at.raGL<<","<<at.aaGL<<":"<<at.isCpg;
+	os<<int(at.rrGL)<<","<<int(at.raGL)<<","<<int(at.aaGL)<<":"<<at.isCpg;
 	return os;
     }
 

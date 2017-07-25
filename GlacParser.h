@@ -8,7 +8,7 @@
 #include "SingleAllele.h"
 #include "AlleleRecords.h"
 #include "ReadTabix.h"
-
+#include "htslib/kstring.h"
 using namespace std;
 
 
@@ -68,10 +68,10 @@ class GlacParser{
     bool hasData();
     AlleleRecords  * getData();
 
-    /* string getHeader(string prefix=""); */
-    /* string getHeaderNoDefline(string prefix=""); */
+    string getHeader(string prefix="");
+    string getHeaderNoDefline(string prefix="");
 
-    /* string getDefline(); */
+    string getDefline();
     /* void repositionIterator(string chrName,int start,int end); */
 
     /* const vector<string> *   getPopulationsNames() const ; */

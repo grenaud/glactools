@@ -13,6 +13,7 @@ AlleleRecords::AlleleRecords(bool glFormat_){
     ref='N';
     alt='N';
     vectorAlleles=0;
+    vectorGLs=0;
     glFormat = glFormat_;
 }
 
@@ -22,11 +23,15 @@ AlleleRecords::AlleleRecords(const AlleleRecords & other){
     ref        = other.ref;
     alt        = other.alt;
     vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
+    vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
+
 }
 
 AlleleRecords::~AlleleRecords(){
     if(vectorAlleles != 0)
 	delete(vectorAlleles);
+    if(vectorGLs != 0)
+	delete(vectorGLs);
 }
 
 
@@ -60,9 +65,20 @@ bool operator== (const AlleleRecords & first,const AlleleRecords & second){
 	return false;
     }
 
-    for(unsigned int i=0;i<first.vectorAlleles->size();i++){
-	if(first.vectorAlleles->at(i) !=  second.vectorAlleles->at(i) ){
-	    return false;
+    if(first.glFormat != second.glFormat)
+	return false;
+
+    if(first.glFormat){
+	for(unsigned int i=0;i<first.vectorAlleles->size();i++){
+	    if(first.vectorAlleles->at(i) !=  second.vectorAlleles->at(i) ){
+		return false;
+	    }
+	}
+    }else{
+	for(unsigned int i=0;i<first.vectorGLs->size();i++){
+	    if(first.vectorGLs->at(i) !=  second.vectorGLs->at(i) ){
+		return false;
+	    }
 	}
     }
 

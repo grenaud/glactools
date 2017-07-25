@@ -33,8 +33,10 @@ int GlacViewer::run(int argc, char *argv[]){
     while(gp.hasData()){
 
 	test = gp.getData();
+	// cout<<"run"<<endl;
+	// cout<<test<<endl;
 	cout<<*test<<endl;
-	//cout<<test<<endl;
+
     }
 
     return 0;
