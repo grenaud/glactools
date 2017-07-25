@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "vcf2acf.h"
 #include "vcf2glf.h"
+#include "glacindex.h"
+#include "GlacViewer.h"
 
 using namespace std;
 
@@ -29,6 +31,13 @@ int main (int argc, char *argv[]) {
 	"\t--Data import:\n"+                       
 	"\t\tvcf2acf\t\tConvert VCF to acf "+"\n"+
 	"\t\tvcf2glf\t\tConvert VCF to glf "+"\n"+
+	"\n"+
+	"\t--Indexing:\n"+                       
+	"\t\tindex\t\tindex acf/glf file"+"\n"+
+	"\n"+
+	"\t--Viewing:\n"+                       
+	"\t\tview\t\tview all or a region of a acf/glf file "+"\n"+
+
 			      "";
 
                               
@@ -77,11 +86,46 @@ int main (int argc, char *argv[]) {
 	return vcf2glf_.run(argc, argv);
 		    
 	    
+    }else{      if(string(argv[1]) == "index"){
+	glacindex  glindex_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glindex_.usage()<<endl;
+	    return 1;       
+	}
+
+	// char ** tosend =argv;
+	// cout<<tosend[0]<<endl;
+	// tosend++;
+	// cout<<tosend[0]<<endl;
+	argv++;
+	argc--;
+	return glindex_.run(argc, argv);
+		    
+	    
+
+    }else{      if(string(argv[1]) == "view"){
+	GlacViewer  glviewer_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glviewer_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glviewer_.run(argc, argv);
+		    
+	    
     }else{      
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-	}}
+		}}}}
     
     return 0;
 }

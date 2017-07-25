@@ -1,27 +1,28 @@
 /*
- * vcf2acf
+ * vcf2glf
  * Date: Jul-23-2017 
  * Author : Gabriel Renaud gabriel.reno [at sign here ] gmail.com
  *
  */
 
-#include "vcf2acf.h"
+#include "vcf2glf.h"
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 
-
-vcf2acf::vcf2acf(){
-
-}
-
-vcf2acf::~vcf2acf(){
+vcf2glf::vcf2glf(){
 
 }
 
-string vcf2acf::usage() const{
+vcf2glf::~vcf2glf(){
+
+}
+
+string vcf2glf::usage() const{
 
     
-    return string(string("") +"vcf2acf <options> [vcf file] [name sample] "+"\n"+
-		  "\nThis program convert VCF files into acf (prints to the stdout)\n"+                       
+    return string(string("") +"vcf2glf <options> [vcf file] [name sample] "+"\n"+
+		  "\nThis program convert VCF files into glf (prints to the stdout)\n"+                       
 		  //"\t"+"--bytes [#]" +"\t\t"+"Use either 2 or 3 bytes for storing allele count  (default: "+stringify(bytesForAC)+")\n"+
 		  "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+
 		  "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
@@ -32,7 +33,7 @@ string vcf2acf::usage() const{
 		  "\t"+"--minMQ  [mq]" +"\t\t"+"Minimal mapping quality (default: "+stringify(minMQcutoff)+")\n"+
 		  "\t"+"--minMap [minmap]" +"\t"+"Minimal mapability (default: "+stringify(minMapabilitycutoff)+")\n"+
 		  
-		  "\t"+"--minPL [pl]"       +"\t\t" +"Use this as the minimum difference of PL values for alleles      (default: "+stringify(minPLdiffind)+")\n"+ 
+		  // "\t"+"--minPL [pl]"       +"\t\t" +"Use this as the minimum difference of PL values for alleles      (default: "+stringify(minPLdiffind)+")\n"+ 
 		  // "\t"+"--useanc"           +"\t\t" +"Use inferred ancestor instead of chimp      (default: "+stringify(ancAllele)+")\n"+ 
 		  
 		  "\t"+"--allowindel"       +"\t\t" +"Allow sites considered within 5bp of an indel (default: "+booleanAsString(allowCloseIndelProx)+")\n"+
@@ -47,7 +48,7 @@ string vcf2acf::usage() const{
 }
 
 
-int vcf2acf::run(int argc, char *argv[]){
+int vcf2glf::run(int argc, char *argv[]){
     //cout<<"ST "<<string(argv[0])<<endl;
     //last arg is program name
     for(int i=1;i<(argc-3);i++){ 
@@ -69,12 +70,12 @@ int vcf2acf::run(int argc, char *argv[]){
         //     continue;
 	// }
 
-        if( string(argv[i]) == "--minPL"  ){
-            minPLdiffind=destringify<int>(argv[i+1]);
-	    //            specifiedPL  =true;
-            i++;
-            continue;
-	}
+        // if( string(argv[i]) == "--minPL"  ){
+        //     minPLdiffind=destringify<int>(argv[i+1]);
+	//     //            specifiedPL  =true;
+        //     i++;
+        //     continue;
+	// }
 
         if(string(argv[i]) == "--minMap"){
             minMapabilitycutoff=destringify<double>(argv[i+1]);
@@ -165,11 +166,11 @@ int vcf2acf::run(int argc, char *argv[]){
     string namePop  = string(argv[argc-1]);
     // string epoFile  = string(argv[argc-1]);
     // string epoFileidx = epoFile+".tbi";
-    if(bytesForAC != 2 && bytesForAC != 3){
-	cerr<<"Specify either 2 or 3 bytes for the allele count"<<endl;
-    }
+    // if(bytesForAC != 2 && bytesForAC != 3){
+    // 	cerr<<"Specify either 2 or 3 bytes for the allele count"<<endl;
+    // }
 
-    //cerr<<"Name pop "<<namePop<<endl;
+    cerr<<"Name pop "<<namePop<<endl;
     //cerr<<"EPO file "<<(string(argv[argc-1]))<<endl;
 
     // string epoFileidx  = epoFileidx+".tbi";
@@ -241,7 +242,7 @@ int vcf2acf::run(int argc, char *argv[]){
     }else{
 	if( bgzf_write(fpBGZF, &bammagicstr,sizeof(bammagicstr)) != sizeof(bammagicstr) ){   cerr<<"Write error"<<endl;            return 1;   }     
     }
-    char magicstr [5] = {'A','C','F', char(bytesForAC) ,'\1'};
+    char magicstr [5] = {'G','L','F', char(bytesForGL) ,'\1'};
     
     //magicstr="MST";
     //if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
@@ -255,17 +256,18 @@ int vcf2acf::run(int argc, char *argv[]){
     //HEADER
 
     string header="";
-    //cout<<"#ACF"<<endl;    
-    header+="#ACF\n";
+    //cout<<"#GLF"<<endl;    
+    header+="#GLF\n";
     string programLine;
     for(int i=0;i<(argc);i++){ 
 	programLine+=(string(argv[i])+" ");
     }
     //cout<<"#PG:"<<programLine<<endl;
-    header+="#PG:"+programLine+"\n";;
-    header+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";;
+    header+="#PG:"+programLine+"\n";
+    //cout<<"#GITVERSION: "<<returnGitHubVersion(argv[0],"")<<endl;
+    header+="#GITVERSION: "+returnGitHubVersion(argv[0],"")+"\n";
     //cout<<"#DATE: "<<getDateString()<<endl;
-    header+="#DATE: "+getDateString()+"\n";;
+    header+="#DATE: "+getDateString()+"\n";
 
 
     
@@ -290,7 +292,6 @@ int vcf2acf::run(int argc, char *argv[]){
             return 1;
         }
     }
-
     header+="#chr\tcoord\tREF,ALT\troot\tanc\t"+namePop+"\n";
 
     //toflush<<mp.getDefline()<<endl;
@@ -341,9 +342,9 @@ int vcf2acf::run(int argc, char *argv[]){
 	    
 
 	    
-	    pair<int,int> pairCount= toprint->returnLikelyAlleleCountForRefAlt(minPLdiffind);
+	    //pair<int,int> pairCount= toprint->returnLikelyAlleleCountForRefAlt(minPLdiffind);
 	    //cerr<<pairCount.first<<"\t"<<pairCount.second<<endl;
-	    if(pairCount.first != 0 || pairCount.second != 0 ){
+	    //if(pairCount.first != 0 || pairCount.second != 0 ){
 		char alt=(toprint->getAlt()=="."?'N':toprint->getAlt()[0]);
 		string chimpString;
 		string ancString;
@@ -353,11 +354,11 @@ int vcf2acf::run(int argc, char *argv[]){
 
 		//unresolved ancestral allele (A,C,G,T)
 		//if(!isResolvedDNA(allel_chimp)){
-		//chimpString="0,0:0";					
+		chimpString="0,0:0";					
 
 
 		//if(!isResolvedDNA(allel_anc)){
-		//ancString="0,0:0";					
+		ancString="0,0:0";					
 
 		
 		if(chr2index.find(toprint->getChr()) == chr2index.end()){
@@ -386,7 +387,7 @@ int vcf2acf::run(int argc, char *argv[]){
 		
 
 		uint8_t  tempCh;
-		uint16_t tempSh;
+		//uint16_t tempSh;
 
 		//ref 1 byte
 		tempCh= uint8_t(base2int(toprint->getRef()[0]));
@@ -407,24 +408,25 @@ int vcf2acf::run(int argc, char *argv[]){
 		}
 
 
-		for(unsigned j=0;j<2;j++){//root anc
-		    //2 bytes
-		    tempSh= uint16_t( 0 );
-		    //if(write(1,&tempSh,sizeof(tempSh))  == -1 ){   cerr<<"Write error"<<endl;       return 1;   }
+
+		for(int i=0;i<2;i++){
+		    //1 byte RR
+		    tempCh= uint8_t( 0 );
+		    //if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;           return 1;   }
 		    if(uncompressed){
-			if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+			if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
 		    }else{
-			if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return 1;   }  
+			if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
 		    }
 
 
-		    //2 bytes
-		    tempSh= uint16_t( 0 );
-		    //if(write(1,&tempSh,sizeof(tempSh))  == -1 ){   cerr<<"Write error"<<endl;       return 1;   }
+		    //1 byte RA
+		    tempCh= uint8_t( 0 );
+		    //if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;           return 1;   }
 		    if(uncompressed){
-			if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+			if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
 		    }else{
-			if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return 1;   }  
+			if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
 		    }
 
 		    //1 byte
@@ -436,24 +438,44 @@ int vcf2acf::run(int argc, char *argv[]){
 			if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
 		    }
 
+		    //1 byte
+		    tempCh= uint8_t( 0 );
+		    //if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;       return 1;   }
+		    if(uncompressed){
+			if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+		    }else{
+			if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
+		    }
+
+
 		}
-		//2 bytes
-		tempSh= uint16_t( pairCount.first );
-		//if(write(1,&tempSh,sizeof(tempSh))  == -1 ){   cerr<<"Write error"<<endl;       return 1;   }
+		
+		//1 byte RR
+		tempCh= uint8_t( MIN(toprint-> getPLHomoRef(),255) );
+		//if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;           return 1;   }
 		if(uncompressed){
-		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+		    if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
 		}else{
-		    if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return 1;   }  
+		    if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
 		}
 
 
-		//2 bytes
-		tempSh= uint16_t( pairCount.second );
-		//if(write(1,&tempSh,sizeof(tempSh))  == -1 ){   cerr<<"Write error"<<endl;       return 1;   }
+		//1 byte RA
+		tempCh= uint8_t( MIN(toprint->getPLHetero(),255) );
+		//if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;           return 1;   }
 		if(uncompressed){
-		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+		    if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
 		}else{
-		    if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return 1;   }  
+		    if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
+		}
+
+		//1 byte
+		tempCh= uint8_t( MIN(toprint->getPLHomoAlt(),255) );
+		//if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;       return 1;   }
+		if(uncompressed){
+		    if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+		}else{
+		    if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return 1;   }  
 		}
 
 		//1 byte
@@ -484,7 +506,7 @@ int vcf2acf::run(int argc, char *argv[]){
 		//     chimpString<<"\t"<<
 		//     ancString<<"\t"<<
 		//     pairCount.first<<","<<pairCount.second<<":"<<(toprint->isCpg()?"1":"0")<<endl;	
-	    }
+		// }
 	    //<<endl;
 	}
 
