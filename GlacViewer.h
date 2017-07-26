@@ -13,7 +13,12 @@ using namespace std;
 
 class GlacViewer{
  private:
-    bool printheader=false;
+    bool printheader =false;
+    bool printdefline=false;
+    bool printBin      =false;
+    bool uncompressed  =false;
+    int bytesForAC=2;
+    int bytesForGL=1;
 
  public:
     GlacViewer();

@@ -11,7 +11,7 @@
 #include "utils.h"
 #include "vcf2acf.h"
 #include "vcf2glf.h"
-#include "glacindex.h"
+#include "GlacIndex.h"
 #include "GlacViewer.h"
 
 using namespace std;
@@ -87,7 +87,7 @@ int main (int argc, char *argv[]) {
 		    
 	    
     }else{      if(string(argv[1]) == "index"){
-	glacindex  glindex_;
+	GlacIndex  glindex_;
 
 	if( argc==2 ||
 	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )

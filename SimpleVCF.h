@@ -42,7 +42,6 @@ private:
     bool heterozygous2ndALT;  //if GT == "0/2" meaning has ref and second alt
     bool homozygous2ndALT;  //if GT == "0/2" meaning has ref and second alt
 
-    bool deleteCore;
 
     /* bool resolvedSingleBasePairREF; */
     /* bool resolvedSingleBasePairALT; */
@@ -109,6 +108,8 @@ private:
     //! Returns true if the allele char represented by the char is present, see hasAllele for use with int
     inline bool isThisAllelePresent(char bp) const ;
     CoreVCF *  corevcf;
+    bool deleteCore;
+
     void init(const vector<string> & fields, CoreVCF *  corevcf_);
     
 public:

@@ -220,7 +220,7 @@ int vcf2glf::run(int argc, char *argv[]){
 
     
     string bgzf_file = "/dev/stdout";
-    BGZF * fpBGZF;
+    BGZF * fpBGZF=NULL;
     if(!uncompressed){
 	fpBGZF = bgzf_open(bgzf_file.c_str(), "w");
     

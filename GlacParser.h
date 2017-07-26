@@ -8,11 +8,23 @@
 #include "SingleAllele.h"
 #include "AlleleRecords.h"
 #include "ReadTabix.h"
+
+#include "htslib/sam.h"
+#include "htslib/bgzf.h"
+#include "htslib/hts.h"
+
+#include "hts_internal.h"
+#include "htslib/hfile.h"
+#include "htslib/hts_endian.h"
 #include "htslib/kstring.h"
+
+
 using namespace std;
 
 
 
+static char sizeBytesACF;
+static char sizeBytesGLF;
 
 
 class GlacParser{
@@ -22,7 +34,7 @@ class GlacParser{
     unsigned int numberPopulations;
     //igzstream   * myFilezipped;
     BGZF *myFilezipped; 
-
+hts_itr_t *iter;//for iterator for indexing
 
     /* ifstream    * myFile; */
     AlleleRecords * allRecToReturn;
@@ -47,9 +59,7 @@ class GlacParser{
     bool acFormat;
     bool glFormat;
 
-    char sizeBytesACF;
-    char sizeBytesGLF;
-    uint32_t sizePops;
+uint32_t sizePops;
 
     vector<string> chrKnown;
     //void parseHeader(istream & in);
@@ -58,7 +68,7 @@ class GlacParser{
 
  public:
     GlacParser(string filename);
-    //GlacParser(string file,string indexForFile,string chrName,int start,int end);
+    GlacParser(string file,string indexForFile,string chrName,int start,int end,bool justChr=false);
     /* GlacParser(string file,string indexForFile); */
 
     //GlacParser(const vector<string> * dataToRead,const vector<string> & populationNames_);
@@ -68,11 +78,15 @@ class GlacParser{
     bool hasData();
     AlleleRecords  * getData();
 
-    string getHeader(string prefix="");
-    string getHeaderNoDefline(string prefix="");
+    string getHeader(string prefix="") const;
+    string getHeaderNoDefline(string prefix="") const;
 
-    string getDefline();
-    /* void repositionIterator(string chrName,int start,int end); */
+    string getDefline() const;
+/* void repositionIterator(string chrName,int start,int end); */
+bool isACFormat() const;
+bool isGLFormat() const;
+uint32_t getSizePops() const;
+size_t getSizeRecord() const; //size of 1 record in binary
 
     /* const vector<string> *   getPopulationsNames() const ; */
 };

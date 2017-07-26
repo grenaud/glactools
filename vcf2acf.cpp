@@ -20,7 +20,7 @@ vcf2acf::~vcf2acf(){
 string vcf2acf::usage() const{
 
     
-    return string(string("") +"vcf2acf <options> [vcf file] [name sample] "+"\n"+
+    return string(string("") +"vcf2acf [options] <vcf file> <name sample> "+"\n"+
 		  "\nThis program convert VCF files into acf (prints to the stdout)\n"+                       
 		  //"\t"+"--bytes [#]" +"\t\t"+"Use either 2 or 3 bytes for storing allele count  (default: "+stringify(bytesForAC)+")\n"+
 		  "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+
@@ -219,18 +219,18 @@ int vcf2acf::run(int argc, char *argv[]){
 
     
     string bgzf_file = "/dev/stdout";
-    BGZF * fpBGZF;
+    BGZF * fpBGZF=NULL;
     if(!uncompressed){
 	fpBGZF = bgzf_open(bgzf_file.c_str(), "w");
     
 
 	
-    if (fpBGZF == NULL) { // region invalid or reference name not found
-    	cerr<<"Cannot write to "<<bgzf_file<<endl;
-    	exit(1);
-    }else{
-    	
-    }
+	if (fpBGZF == NULL) { // region invalid or reference name not found
+	    cerr<<"Cannot write to "<<bgzf_file<<endl;
+	    exit(1);
+	}else{
+	    
+	}
     }
 
 

@@ -19,9 +19,10 @@ using namespace std;
 class AlleleRecords{
 private:
     bool glFormat;  
-public:
 
+public:
     AlleleRecords(bool glFormat_=false);
+    AlleleRecords(uint32_t sizePops_,bool glFormat_);
 
     AlleleRecords(const AlleleRecords & other);
     ~AlleleRecords();
@@ -30,15 +31,21 @@ public:
 	coordinate = other.coordinate;
 	ref        = other.ref;
 	alt        = other.alt;
-	vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
-	vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
+	if(other.glFormat){
+	    vectorAlleles = 0;
+	    vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
+	}else{
+	    vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
+	    vectorGLs     = 0;
+	}
 	return *this;
     }
     
 
     string chr;
     uint16_t chri;
-    unsigned int coordinate;
+    uint32_t coordinate;
+    uint32_t sizePops;
     char ref;
     char alt;
     vector<SingleAllele> * vectorAlleles;
@@ -47,7 +54,9 @@ public:
     //bool buildFromData(char * buffer,
     bool everyRecordNonNull() const;
     bool everyNonChimpAncRecordNonNull() const;
-
+    bool isGlFormat() const;
+    void writeBinary(char * buffer) const;
+    uint32_t getSizePops() const;
 
     friend ostream& operator<<(ostream& os, const AlleleRecords & ar){	  
 	os<<ar.chr<<"\t";

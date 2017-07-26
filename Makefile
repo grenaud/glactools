@@ -1,5 +1,5 @@
 
-CXX      = g++ -std=c++11
+CXX      = g++ -std=c++11  -g -pg 
 #LIBGAB   = libgab/
 BAMTOOLS= $(realpath bamtools/)
 LIBGAB= $(realpath libgab/)
@@ -44,7 +44,7 @@ htslib/hts_internal.h:
 	git clone --recursive https://github.com/samtools/htslib.git
 
 
-glactools:	glactools.o glacindex.o vcf2acf.o vcf2glf.o AlleleRecords.o SingleAllele.o SingleGL.o GlacViewer GlacParser VCFreader.o SimpleVCF.o CoreVCF.o ReadTabix.o SetVCFFilters.o FilterVCF.o glactoolsOperations.o tabixpp/tabix.o htslib/libhts.a ${LIBGAB}/utils.o  libgab//gzstream/gzstream.o
+glactools:	glactools.o GlacIndex.o vcf2acf.o vcf2glf.o AlleleRecords.o SingleAllele.o SingleGL.o GlacViewer GlacParser VCFreader.o SimpleVCF.o CoreVCF.o ReadTabix.o SetVCFFilters.o FilterVCF.o glactoolsOperations.o tabixpp/tabix.o htslib/libhts.a ${LIBGAB}/utils.o  libgab//gzstream/gzstream.o
 	${CXX} -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 clean :

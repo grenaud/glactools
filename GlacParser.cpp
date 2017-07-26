@@ -9,34 +9,330 @@
 
 
 
-// GlacParser::GlacParser(string file,string indexForFile,string chrName,int start,int end){
-//     //for rand() ins SingleAllele
-//     timeval time;
-//     gettimeofday(&time, NULL);
-//     srand(  long((time.tv_sec * 1000) + (time.tv_usec / 1000)) );
+static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *beg, int *end){
+    // bam1_t *b = bv;
+    // int ret;
+    AlleleRecords * ptrar = (AlleleRecords *) (bv);
+
+    uint32_t sizePops=ptrar->getSizePops();
+    //                    5b record (2b+2b+1)
+    size_t sizeSingleAC = (2*sizeBytesACF+1);
+    //                  8b base,5b record (2b+2b+1)
+    size_t sizeRecord = 8+ (sizeSingleAC)*(sizePops+2);//+2 for root/anc
+    char buffer [sizeRecord];
+    // cout<<"sp "<<sizePops<<"\t"<<sizeRecord<<endl;
+    // exit(1);
 
 
-//     rt =new ReadTabix (file,indexForFile,chrName,start,end);
-//     string headertemp=rt->getHeader();
+    //cout<<"glac_readrec  ignored "<<ignored<<" bv "<<bv<<" tid "<<*tid<<" beg "<<*beg<<" end "<<*end<<endl;
+    //printf("glac_readrec %d\n",fp);
 
-//     istringstream is(headertemp);
-  
-//     //reading the header
-//     numberPopulations=0;
-//     populationNames=new vector<string>();
+    //cout<<ptrar<<"\t"<<sizeof(ptrar->chri)<<endl;
+    //myFilezipped.read((char*)&buffer,        sizeof(buffer));
+    //COPY data
+    //cout<<sizeRecord<<endl;
+    size_t bytesread = bgzf_read(fp, &buffer, sizeRecord);
+    if(bytesread != sizeRecord){
+	cerr<<"GlacParser: tried to read "<<sizeRecord<<" but got "<<bytesread<<endl;
+	exit(1);
+    }
+    //cout<<"bytesread "<<bytesread<<endl;        
+    // if ((ret = bam_read1(fp, b)) >= 0) {
+    //     *tid = b->core.tid;
+    //     *beg = b->core.pos;
+    //     *end = bam_endpos(b);
+    // }
+    size_t offset = 0;
 
-//     parseHeader(is);
+    //uint16_t chr; //2
+    //memcpy((char*)&chr,           buffer+offset,    sizeof(chr));
+    memcpy((char*)&ptrar->chri,        buffer+offset,    sizeof(ptrar->chri));
+    //cout<<"chr "<<ptrar->chri<<endl;
 
-//     if(defline.empty()){
-// 	cerr << "Error: GlacParser cannot get definition line"  <<endl;
-// 	exit(1);
-//     }
 
-//     numberOfTimesHasDataWasCalled=-1;
-//     tabixMode  = true;
-//     textMode   = false;
-//     stringMode = false;
-// }
+    offset+=sizeof(ptrar->chri);
+    //uint32_t coordinate ; //4
+    //memcpy((char*)&coordinate,    buffer+offset,    sizeof(coordinate));
+    memcpy((char*)&ptrar->coordinate,  buffer+offset,    sizeof(ptrar->coordinate));
+    //cout<<"coor "<<ptrar->coordinate<<endl;
+
+    offset+=sizeof(ptrar->coordinate);
+
+    char ref; //1
+    memcpy((char*)&ref,           buffer+offset,    sizeof(ref));
+    //memcpy((char*)&ptrar->ref,         buffer+offset,    sizeof(ptrar->ref));
+    ptrar->ref = "NACGT"[(unsigned char)ref];
+    offset+=sizeof(ptrar->ref);
+    //cout<<"ref  "<<"NACGT"[ptrar->ref]<<endl;
+    char alt; //1
+    memcpy((char*)&alt,           buffer+offset,    sizeof(alt));
+    //memcpy((char*)&ptrar->alt,         buffer+offset,    sizeof(ptrar->alt));
+    ptrar->alt = "NACGT"[(unsigned char)alt];
+    offset+=sizeof(ptrar->alt);    
+    // cout<<"alt  "<<"NACGT"[ptrar->alt]<<endl;
+    // cout<<"chr "<<ptrar->chri<<endl;    
+    //    cout<<"chr "<<ptrar->chri<<"\t";
+    //cout<<ptrar->coordinate<<endl;
+    //cout<<"NACGT"[ptrar->ref]<<","<<"NACGT"[ptrar->alt]<<"\t";
+
+    *beg=int(ptrar->coordinate);
+    *end=int(ptrar->coordinate);
+    *tid=int(ptrar->chri);
+
+    ptrar->vectorAlleles = new vector<SingleAllele>();
+    
+    for(unsigned j=0;j<(sizePops+2);j++){
+	//cout<<j<<" "<<sizePops<<endl;
+	uint16_t refC; //2
+	uint16_t altC; //2
+	char     cpgC; //1
+	//5 = 2+2+1
+	memcpy((char*)&refC,       buffer+8 +5*j, sizeof(refC));
+	memcpy((char*)&altC,       buffer+10+5*j, sizeof(altC));
+	memcpy((char*)&cpgC,       buffer+12+5*j, sizeof(cpgC));
+
+	// cout<<refC<<endl;
+	// cout<<altC<<endl;
+	// cout<<(cpgC==1)<<endl;
+	 // if(j < (sizePops -1 ))
+	 //     cout<<"\t";
+
+	// memcpy((char*)&ptrar->vectorAlleles->[j=refC,       buffer+8 +5*j, sizeof(ptrar->refC));
+	// memcpy((char*)&ptrar->altC,       buffer+10+5*j, sizeof(ptrar->altC));
+	// memcpy((char*)&ptrar->cpgC,       buffer+12+5*j, sizeof(ptrar->cpgC));
+	//ptrar->vectorAlleles->at(j).setRefCount(refC);
+	//ptrar->vectorAlleles->at(j).setAltCount(altC);
+	//ptrar->vectorAlleles->at(j).setIsCpg(   cpgC);
+	SingleAllele sa (int( refC ),
+			 int( altC ),
+			 (cpgC == 1) );
+	//cout<<j<<"\t"<<sa<<endl;
+	ptrar->vectorAlleles->push_back(sa);		         
+    }
+    //cout<<endl;
+    //cout<<"test#"<<*ptrar<<"#"<<endl;
+    
+
+    return sizeRecord;
+}
+
+
+
+
+
+
+static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *beg, int *end){
+    // bam1_t *b = bv;
+    // int ret;
+    AlleleRecords * ptrar = (AlleleRecords *) (bv);
+
+    uint32_t sizePops=ptrar->getSizePops();
+    //                     4b record (1+1+1+1)
+    size_t sizeSingleGL = (3*sizeBytesGLF+1);
+    //                  8b base,4b record (1+1+1+1)
+    size_t sizeRecord = 8+ sizeSingleGL*(sizePops+2);//+2 for root/anc
+    char buffer [sizeRecord];
+
+
+    //cout<<"glac_readrec  ignored "<<ignored<<" bv "<<bv<<" tid "<<*tid<<" beg "<<*beg<<" end "<<*end<<endl;
+    //printf("glac_readrec %d\n",fp);
+
+    //cout<<ptrar<<"\t"<<sizeof(ptrar->chri)<<endl;
+    //myFilezipped.read((char*)&buffer,        sizeof(buffer));
+    //COPY data
+    //cout<<sizeRecord<<endl;
+    size_t bytesread = bgzf_read(fp, &buffer, sizeRecord);
+    if(bytesread != sizeRecord){
+	cerr<<"GlacParser: tried to read "<<sizeRecord<<" but got "<<bytesread<<endl;
+	exit(1);
+    }
+    //cout<<"bytesread "<<bytesread<<endl;        
+    // if ((ret = bam_read1(fp, b)) >= 0) {
+    //     *tid = b->core.tid;
+    //     *beg = b->core.pos;
+    //     *end = bam_endpos(b);
+    // }
+    size_t offset = 0;
+
+    //uint16_t chr; //2
+    //memcpy((char*)&chr,           buffer+offset,    sizeof(chr));
+    memcpy((char*)&ptrar->chri,        buffer+offset,    sizeof(ptrar->chri));
+    //cout<<"chr "<<ptrar->chri<<endl;
+
+
+    offset+=sizeof(ptrar->chri);
+    //uint32_t coordinate ; //4
+    //memcpy((char*)&coordinate,    buffer+offset,    sizeof(coordinate));
+    memcpy((char*)&ptrar->coordinate,  buffer+offset,    sizeof(ptrar->coordinate));
+    //cout<<"coor "<<ptrar->coordinate<<endl;
+
+    offset+=sizeof(ptrar->coordinate);
+
+    char ref; //1
+    memcpy((char*)&ref,           buffer+offset,    sizeof(ref));
+    //memcpy((char*)&ptrar->ref,         buffer+offset,    sizeof(ptrar->ref));
+    ptrar->ref = "NACGT"[(unsigned char)ref];
+    offset+=sizeof(ptrar->ref);
+    //cout<<"ref  "<<"NACGT"[ptrar->ref]<<endl;
+    char alt; //1
+    memcpy((char*)&alt,           buffer+offset,    sizeof(alt));
+    //memcpy((char*)&ptrar->alt,         buffer+offset,    sizeof(ptrar->alt));
+    ptrar->alt = "NACGT"[(unsigned char)alt];
+    offset+=sizeof(ptrar->alt);    
+    // cout<<"alt  "<<"NACGT"[ptrar->alt]<<endl;
+    // cout<<"chr "<<ptrar->chri<<endl;    
+    //    cout<<"chr "<<ptrar->chri<<"\t";
+    //cout<<ptrar->coordinate<<endl;
+    //cout<<"NACGT"[ptrar->ref]<<","<<"NACGT"[ptrar->alt]<<"\t";
+
+    *beg=int(ptrar->coordinate);
+    *end=int(ptrar->coordinate);
+    *tid=int(ptrar->chri);
+
+    ptrar->vectorGLs = new vector<SingleGL>();
+    
+    for(unsigned j=0;j<(sizePops+2);j++){
+	//cout<<j<<" "<<sizePops<<endl;
+	uint8_t rrC;//1b
+	uint8_t raC;//1b
+	uint8_t aaC;//1b
+	char   cpgC; //1
+
+	memcpy((char*)&rrC,        buffer+ 8 +4*j, sizeof(rrC));
+	memcpy((char*)&raC,        buffer+ 9 +4*j, sizeof(raC));
+	memcpy((char*)&aaC,        buffer+10 +4*j, sizeof(aaC));
+	memcpy((char*)&cpgC,       buffer+11 +4*j, sizeof(cpgC));
+
+	// cout<<refC<<endl;
+	// cout<<altC<<endl;
+	// cout<<(cpgC==1)<<endl;
+	 // if(j < (sizePops -1 ))
+	 //     cout<<"\t";
+
+	// memcpy((char*)&ptrar->vectorAlleles->[j=refC,       buffer+8 +5*j, sizeof(ptrar->refC));
+	// memcpy((char*)&ptrar->altC,       buffer+10+5*j, sizeof(ptrar->altC));
+	// memcpy((char*)&ptrar->cpgC,       buffer+12+5*j, sizeof(ptrar->cpgC));
+	//ptrar->vectorAlleles->at(j).setRefCount(refC);
+	//ptrar->vectorAlleles->at(j).setAltCount(altC);
+	//ptrar->vectorAlleles->at(j).setIsCpg(   cpgC);
+
+	SingleGL gl (rrC,
+		     raC,
+		     aaC,			     
+		     (cpgC == 1) );
+	ptrar->vectorGLs->push_back(gl);
+
+    }
+    //cout<<endl;
+    //cout<<"test#"<<*ptrar<<"#"<<endl;
+    
+
+    return sizeRecord;
+}
+
+
+
+GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int start_,int end_,bool justChr){
+    //cout<<chrName<<"\t"<<start<<"\t"<<end<<endl;
+    //for rand() ins SingleAllele
+    timeval time;
+    gettimeofday(&time, NULL);
+    srand(  long((time.tv_sec * 1000) + (time.tv_usec / 1000)) );
+
+
+    
+
+    //     rt =new ReadTabix (file,indexForFile,chrName,start,end);
+    //     string headertemp=rt->getHeader();
+    
+    //     istringstream is(headertemp);
+    bool isbgzip=bgzf_is_bgzf(bgzf_file.c_str());
+
+    myFilezipped = bgzf_open(bgzf_file.c_str(), "r");
+
+    //reading the header
+    numberPopulations=0;
+    populationNames=new vector<string>();
+
+    parseHeader(myFilezipped);
+
+    if(defline.empty()){
+	cerr << "Error: GlacParser cannot get definition line" << bgzf_file <<endl;
+	exit(1);
+    }
+
+    //loading index
+    htsFile *fp = hts_open(bgzf_file.c_str(),"r");
+    
+
+    hts_idx_t *idx = sam_index_load(fp, bgzf_fileidx.c_str()); // load index
+    if (idx == 0) { // index is unavailable
+    	cerr<<"Cannot load index "<<bgzf_fileidx<<endl;
+    	exit(1);
+    }else{
+    	//cerr<<"index loaded succesfully\n"; //need to have bai index
+    }
+
+
+    int tid=0;
+    for(int i=0;i<int(chrKnown.size());i++){
+	if(chrKnown[i] == chrName){
+	    tid=i;
+	    break;
+	}
+    }
+     
+
+    if(start_>end_){
+	cerr<<"GlacParser: start coordinate "<<start_<<" is greater than "<<end_<<endl;
+	exit(1);
+    }
+
+    int beg=(start_-1);//-1 to make it include the start coord
+    int end=end_;
+    if(justChr){
+	beg=0;
+	end=INT_MAX;
+    }
+    //hts_itr_t *iter;
+    if(acFormat && sizeBytesACF==2)
+	iter= hts_itr_query(idx, tid, beg, end, glac_readrecACF2b); 
+
+    if(glFormat && sizeBytesGLF==1)
+	iter= hts_itr_query(idx, tid, beg, end, glac_readrecGLF1b); //TODO change for glf
+
+    //cout<<"TID "<<tid<<" beg "<<beg<<" end "<<end<<endl;
+
+    if (iter == NULL) { // region invalid or reference name not found
+    	cerr<<"GlacParser: query failed to "<<"TID "<<tid<<" beg "<<beg<<" end "<<end<<endl;
+    	exit(1);
+    }else{
+    	//cerr<<"query success!"<<iter->finished<<endl;
+    }
+
+    if(bgzf_close(myFilezipped) != 0){
+	cerr<<"GlacParser: Cannot close input file "<<endl;	    
+    }
+
+    //should we close htsfile?    
+    myFilezipped = bgzf_open(bgzf_file.c_str(), "r");
+    //int result;
+
+    //exit(1);
+
+    //cout<<defline<<endl;
+    //     parseHeader(is);    
+    //     if(defline.empty()){
+    // 	cerr << "Error: GlacParser cannot get definition line"  <<endl;
+    // 	exit(1);
+    //     }
+    
+    numberOfTimesHasDataWasCalled=-1;
+    binMode    = false;
+    tabixMode  = true;
+    textMode   = false;
+    stringMode = false;
+ }
 
 
 // GlacParser::GlacParser(const vector<string> * dataToRead_,const vector<string> & populationNames_){
@@ -118,22 +414,30 @@ GlacParser::GlacParser(string filename){
 }
 
 GlacParser::~GlacParser(){
-    //cerr<<"destructor GlacParser"<<endl;
+    //cerr<<"destructor GlacParser "<<tabixMode<<" "<<binMode<<" "<<textMode<<" "<<numberOfTimesHasDataWasCalled<<endl;
+
     if(numberOfTimesHasDataWasCalled == 0){//last called was getData
 	//delete(allRecToReturn->vectorAlleles);
 	delete(allRecToReturn);
 	numberdel++;
     }
 
+    //TODO
     if(tabixMode){
-	delete rt; //calling the destructor
-    }
+	// 	delete rt; //calling the destructor
+     }
 
+    if(binMode){
+	if(bgzf_close(myFilezipped) != 0){
+	    cerr<<"GlacParser: Cannot close input file "<<endl;	    
+	}
+    }
 
     delete(populationNames);
     if(textMode){
 	delete(myFilezipped);
     }
+
     // else
     // 	delete(myFile);
 }
@@ -489,7 +793,7 @@ void GlacParser::parseHeader(BGZF *bg){
 }
 
 
-string GlacParser::getHeader(string prefix){
+string GlacParser::getHeader(string prefix) const{
     vector<string> fields=allTokens(header,'\n');
     vector<string> toreturn;
     for(unsigned int i=0;i<fields.size();i++){
@@ -502,7 +806,7 @@ string GlacParser::getHeader(string prefix){
 
 
 
-string GlacParser::getHeaderNoDefline(string prefix){
+string GlacParser::getHeaderNoDefline(string prefix) const{
     vector<string> fields=allTokens(headerNoDefline,'\n');
     vector<string> toreturn;
     for(unsigned int i=0;i<fields.size();i++){
@@ -516,7 +820,7 @@ string GlacParser::getHeaderNoDefline(string prefix){
 
 
 
-string GlacParser::getDefline(){
+string GlacParser::getDefline() const{
     return defline;
 }
 
@@ -546,6 +850,26 @@ bool GlacParser::hasData(){
     //cout<<"hasDatab1 "<<glFormat<<" "<<binMode<<endl;    
     numberOfTimesHasDataWasCalled++;
 
+    if(tabixMode){
+
+	//AlleleRecords * ar = new AlleleRecords();    
+	allRecToReturn                = new AlleleRecords(sizePops,glFormat);
+	//cout<<"ar addr"<<allRecToReturn<<endl;
+	int result = hts_itr_next(myFilezipped, iter, allRecToReturn, 0);
+
+	    
+	//cout<<"result "<<result<<endl;
+	if(result ==-1){
+	    return false;
+	}
+	//check if allRecToReturn begin is good
+	allRecToReturn->chr = chrKnown[allRecToReturn->chri]; //TODO avoid string copy
+	//cout<<"hasData() "<<allRecToReturn->chr<<endl;
+	return true;
+	//}
+
+    }
+
     if(binMode){
 	numbernew++;
 	//cout<<"hasDatab3"<<endl;
@@ -557,6 +881,7 @@ bool GlacParser::hasData(){
 	char alt;
 	
 	//cout<<"hasDatab2"<<endl;
+	//uint16_t 2b
 	bytesread = bgzf_read(myFilezipped, &allRecToReturn->chri, sizeof(allRecToReturn->chri));
 	if(bytesread == 0){//end of file
 	    return false;
@@ -567,26 +892,28 @@ bool GlacParser::hasData(){
 	}
 	//cout<<chrKnown[allRecToReturn->chri]<<endl;
 	allRecToReturn->chr = chrKnown[allRecToReturn->chri]; //TODO avoid string copy
+	//uint32_t 4b
 	bytesread = bgzf_read(myFilezipped, &allRecToReturn->coordinate, sizeof(allRecToReturn->coordinate));
 	if(bytesread != sizeof(allRecToReturn->coordinate)){
 	    cerr<<"Error: GlacParser tried to read "<< sizeof(allRecToReturn->coordinate) <<" bytes but got "<<bytesread<<endl;
 	    exit(1);
 	}
 	//cout<<allRecToReturn->coordinate<<endl;
-
+	//char 1b
 	bytesread = bgzf_read(myFilezipped, &ref, sizeof(ref));
 	if(bytesread != sizeof(ref)){
 	    cerr<<"Error: GlacParser tried to read "<< sizeof(ref) <<" bytes but got "<<bytesread<<endl;
 	    exit(1);
 	}
-	allRecToReturn->ref        =                           "NACGT"[ref];
+	allRecToReturn->ref        =                           "NACGT"[(unsigned char)ref];
 	//cout<<"NACGT"[ref]<<endl;
+	//char 1b
 	bytesread = bgzf_read(myFilezipped, &alt, sizeof(alt));
 	if(bytesread != sizeof(alt)){
 	    cerr<<"Error: GlacParser tried to read "<< sizeof(alt) <<" bytes but got "<<bytesread<<endl;
 	    exit(1);
 	}
-	allRecToReturn->alt        =                           "NACGT"[alt];
+	allRecToReturn->alt        =                           "NACGT"[(unsigned char)alt];
 	//cout<<"NACGT"[alt]<<endl;
 	if(allRecToReturn->ref == allRecToReturn->alt){
 	    cerr << "Error: GlacParser the following line " << currentline <<" the reference is equal to the alt allele, exiting"<<endl;
@@ -595,7 +922,7 @@ bool GlacParser::hasData(){
 	
 	if(acFormat){
 		
-	    if(sizeBytesACF ==2 ){
+	    if(sizeBytesACF ==2 ){ //uint16_t
 		
 		
 		allRecToReturn->vectorAlleles = new vector<SingleAllele>();
@@ -603,22 +930,26 @@ bool GlacParser::hasData(){
 		//cout<<"sizePops "<<sizePops<<endl;
 		
 		for(unsigned j=0;j<(sizePops+2);j++){
-		    short refC;
-		    short altC;
+		    // short refC;
+		    // short altC;
+		    uint16_t refC;
+		    uint16_t altC;
+
 		    char  cpgC;
-		    
+		    //2b
 		    bytesread = bgzf_read(myFilezipped, &refC, sizeof(refC));
 		    if(bytesread != sizeof(refC)){
 			cerr<<"Error: GlacParser tried to read "<< sizeof(refC) <<" bytes but got "<<bytesread<<endl;
 			exit(1);
 		    }
 
+		    //2b
 		    bytesread = bgzf_read(myFilezipped, &altC, sizeof(altC));
 		    if(bytesread != sizeof(altC)){
 			cerr<<"Error: GlacParser tried to read "<< sizeof(altC) <<" bytes but got "<<bytesread<<endl;
 			exit(1);
 		    }
-		    
+		    //1b
 		    bytesread = bgzf_read(myFilezipped, &cpgC, sizeof(cpgC));
 		    if(bytesread != sizeof(cpgC)){
 			cerr<<"Error: GlacParser tried to read "<< sizeof(cpgC) <<" bytes but got "<<bytesread<<endl;
@@ -964,8 +1295,39 @@ AlleleRecords * GlacParser::getData(){
 }
 
 
+bool GlacParser::isACFormat() const{
+    return acFormat;
+}
 
+bool GlacParser::isGLFormat() const{
+    return glFormat;
+}
 
+uint32_t GlacParser::getSizePops() const{
+    return sizePops;
+}
+
+size_t GlacParser::getSizeRecord() const{
+    if(acFormat){
+	//                    5b record (2b+2b+1)
+	size_t sizeSingleAC = (2*sizeBytesACF+1);
+	//                  8b base,5b record (2b+2b+1)
+	size_t sizeRecord = 8+ (sizeSingleAC)*sizePops;
+	return sizeRecord;
+    }else{
+
+	if(glFormat){
+	    //                     4b record (1+1+1+1)
+	    size_t sizeSingleGL = (3*sizeBytesGLF+1);
+	    //                  8b base,4b record (1+1+1+1)
+	    size_t sizeRecord = 8+ sizeSingleGL*sizePops;
+	    return sizeRecord;
+	}else{
+	    cerr<<"GlacParser: wrong state in getSizeRecord()"<<endl;
+	    exit(1);
+	}
+    }
+}
 
 // const vector<string> * GlacParser::getPopulationsNames() const{
 //     return populationNames;

@@ -17,13 +17,34 @@ AlleleRecords::AlleleRecords(bool glFormat_){
     glFormat = glFormat_;
 }
 
+AlleleRecords::AlleleRecords(uint32_t sizePops_,bool glFormat_){
+    chr="NA";
+    coordinate=0;
+    ref='N';
+    alt='N';
+    vectorAlleles=0;
+    vectorGLs=0;
+    glFormat = glFormat_;
+    sizePops = sizePops_;
+    // if(glFormat)
+    // 	vectorGLs     = new vector<SingleGL>     (sizePops) ;
+    // else
+    // 	vectorAlleles = new vector<SingleAllele> (sizePops);
+
+}
+
 AlleleRecords::AlleleRecords(const AlleleRecords & other){
     chr        = other.chr;
     coordinate = other.coordinate;
     ref        = other.ref;
     alt        = other.alt;
-    vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
-    vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
+    if(other.glFormat){
+	vectorAlleles = 0;
+	vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
+    }else{
+	vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
+	vectorGLs     = 0;
+    }
 
 }
 
@@ -52,6 +73,10 @@ bool AlleleRecords::everyNonChimpAncRecordNonNull() const{
     return !toReturn;
 }
 
+
+bool AlleleRecords::isGlFormat() const{
+    return glFormat;
+}
 
 
 bool operator== (const AlleleRecords & first,const AlleleRecords & second){
@@ -83,4 +108,11 @@ bool operator== (const AlleleRecords & first,const AlleleRecords & second){
     }
 
     return true;
+}
+
+uint32_t AlleleRecords::getSizePops() const{
+    return sizePops;
+}
+
+void AlleleRecords::writeBinary(char * buffer) const{
 }
