@@ -334,7 +334,7 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
     stringMode = false;
  }
 
-
+//TODO to implement for parallele
 // GlacParser::GlacParser(const vector<string> * dataToRead_,const vector<string> & populationNames_){
 //     //populationNames = populationNames_;
 //     populationNames = new vector<string>( populationNames_);
@@ -363,22 +363,31 @@ GlacParser::GlacParser(string filename){
     numbernew=0;
     numberdel=0;
 
-    bool isbgzip=bgzf_is_bgzf(filename.c_str());
+    bool isbgzip;
 
-    myFilezipped = bgzf_open(filename.c_str(), "r");
+    //cout<<"parser:"<<filename<<"#"<<endl;
+    //filename="-";
+    bool openSTDIN = (filename == "-" || filename == "/dev/stdin");//is there a better way to do this?
+    if(openSTDIN){
+	//cerr<<"stdin"<<endl;
+	myFilezipped=bgzf_dopen(0, "r");
+    }else{
+	isbgzip     =bgzf_is_bgzf(filename.c_str());
+	myFilezipped=bgzf_open(filename.c_str(), "r");
+    }    
 
-    if(myFilezipped == NULL){
+    if(myFilezipped == 0){
         cerr<<"Error: GlacParser failed to open file "<< filename <<endl;
         exit (1);
     }
 
-    if(isbgzip){
+    if(!openSTDIN && isbgzip){
 	int has_EOF = bgzf_check_EOF(myFilezipped);
 	if (has_EOF == 0) {
 	    cerr<<"Warning: No EOF marker, likely due to an I/O error "<<endl;	
 	}else{
 	    //cerr<<"EOF found"<<endl;
-	}
+	}    
     }
     // myFilezipped=new igzstream();
     // myFilezipped->open( filename.c_str() );
@@ -474,12 +483,13 @@ void GlacParser::parseHeader(BGZF *bg){
     bool glfFound=true;
 
     string toPrintHeader="";
-    unsigned int totalRecords=0;
+    //unsigned int totalRecords=0;
     string line;    
     istringstream f;
     unsigned char  formattest [5];
+    //cerr<<"startWithBam "<<startWithBam<<endl;
+
     if(!startWithBam){//probably just binary
-	//cout<<startWithBam<<endl;
 
 
 	bool acftext=true;
@@ -916,7 +926,7 @@ bool GlacParser::hasData(){
 	allRecToReturn->alt        =                           "NACGT"[(unsigned char)alt];
 	//cout<<"NACGT"[alt]<<endl;
 	if(allRecToReturn->ref == allRecToReturn->alt){
-	    cerr << "Error: GlacParser the following line " << currentline <<" the reference is equal to the alt allele, exiting"<<endl;
+	    cerr << "Error: GlacParser the line at "<<allRecToReturn->chr<<":"<<allRecToReturn->coordinate<<" reference allele: "<<allRecToReturn->ref<<" is equal to the alt allele: " << allRecToReturn->alt<<" , exiting"<<endl;
 	    exit(1);	   
 	}
 	

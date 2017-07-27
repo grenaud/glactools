@@ -7,7 +7,12 @@
 
 #ifndef GlacViewer_h
 #define GlacViewer_h
+
 #include <string>
+#include <cinttypes>
+
+#include "GlacWriter.h"
+
 
 using namespace std;
 

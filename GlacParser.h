@@ -1,7 +1,7 @@
 #ifndef GlacParser_h
 #define GlacParser_h
 
-#include <gzstream.h>
+//#include <gzstream.h>
 #include <sys/time.h> //for srand
 
 #include "utils.h"
@@ -59,7 +59,7 @@ hts_itr_t *iter;//for iterator for indexing
     bool acFormat;
     bool glFormat;
 
-uint32_t sizePops;
+    uint32_t sizePops;
 
     vector<string> chrKnown;
     //void parseHeader(istream & in);
@@ -83,11 +83,10 @@ uint32_t sizePops;
 
     string getDefline() const;
 /* void repositionIterator(string chrName,int start,int end); */
-bool isACFormat() const;
-bool isGLFormat() const;
-uint32_t getSizePops() const;
+    bool isACFormat() const;
+    bool isGLFormat() const;
+    uint32_t getSizePops() const;
 size_t getSizeRecord() const; //size of 1 record in binary
-
     /* const vector<string> *   getPopulationsNames() const ; */
 };
 

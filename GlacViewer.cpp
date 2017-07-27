@@ -25,7 +25,8 @@ string GlacViewer::usage() const{
 		  "\n"+
 		  "\t"+"-b" + "\t\t\t"+"Produce binary compressed output (default: "+booleanAsString(uncompressed)+")\n"+
                   "\t"+"-u" + "\t\t\t"+"Produce binary but uncompressed output (default: "+booleanAsString(uncompressed)+")\n"+
-
+		  "\n"+
+                  "\t"+"" + ""+"For text output:\n"+		  
                   "\t"+"-h" + "\t\t\t"+"Produce defline     (default: "+booleanAsString(printdefline)+")\n"+
                   "\t"+"-H" + "\t\t\t"+"Produce full header (default: "+booleanAsString(printheader)+")\n");
 
@@ -41,6 +42,12 @@ int GlacViewer::run(int argc, char *argv[]){
 
     for(int i=1;i<(argc);i++){ 
 	//cout<<i<<"\t"<<string(argv[i])<<endl;
+	if((string(argv[i]) == "-") &&
+	   ( i==(argc-1) || i==(argc-2) )
+	   ){
+            lastOpt=i;
+            break;	    
+	}
 
         if(string(argv[i])[0] != '-' ){
             lastOpt=i;
@@ -70,7 +77,7 @@ int GlacViewer::run(int argc, char *argv[]){
         cerr<<"Error: unknown option "<<string(argv[i])<<endl;
         return 1;	
     }
-
+    
     if(printBin && uncompressed){
         cerr<<"Error: cannot use both -u and -b"<<endl;
         return 1;	
@@ -84,93 +91,52 @@ int GlacViewer::run(int argc, char *argv[]){
     }
     
     if(lastOpt == (argc-1)){//no region given
-    
+
 	string glacfile  = string(argv[lastOpt]);
+	//cerr<<"glacfile "<<glacfile<<endl;
 	//todo region retrieve
 	GlacParser gp (glacfile);
-	AlleleRecords * test;
+	AlleleRecords * ar;
+		
 
-	string bgzf_file = "/dev/stdout";
-	BGZF * fpBGZF    = NULL;
-	if(printBin && !uncompressed){
-	    fpBGZF = bgzf_open(bgzf_file.c_str(), "w");
-	    	    	
-	    if (fpBGZF == NULL) { // region invalid or reference name not found
-		cerr<<"Cannot write to "<<bgzf_file<<endl;
-		exit(1);
-	    }else{		
-	    }
-	}
-
-	size_t sizeRecord ;
+	GlacWriter * gw=NULL;
 
 	if(uncompressed || printBin){//if binary
-	    sizeRecord = gp.getSizeRecord();
-	    char bammagicstr [4] = {'B','A','M','\1'};    
-
-	    if(uncompressed){
-		if(write(1,&bammagicstr,sizeof(bammagicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-	    }else{
-		if( bgzf_write(fpBGZF, &bammagicstr,sizeof(bammagicstr)) != sizeof(bammagicstr) ){   cerr<<"Write error"<<endl;   return 1;   }     
+	    gw = new GlacWriter(gp.getSizePops(),
+				gp.isGLFormat(),
+				gp.isACFormat()?2:1,
+				uncompressed);
+	    if(!gw->writeHeader(gp.getHeader())){
+		cerr<<"GlacViewer: error writing header "<<endl;
+		exit(1);
 	    }
 
-	    if(gp.isACFormat()){
-		char magicstr [5] = {'A','C','F', char(bytesForAC) ,'\1'};
-		if(uncompressed){
-		    if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-		}else{
-		    if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   }     
-		}
-	    }else{		
-		char magicstr [5] = {'G','L','F', char(bytesForGL) ,'\1'};   
-		if(uncompressed){
-		    if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-		}else{
-		    if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   } 
-		}
-	    }
-	    
-	    uint32_t sizeHeader= gp.getHeader().size();
-	    if(uncompressed){
-		if(write(1,&sizeHeader,sizeof(sizeHeader)) == -1 ){   cerr<<"Write error"<<endl;        return 1;   } 
-	    }else{
-		if( bgzf_write(fpBGZF, &sizeHeader,sizeof(sizeHeader)) != sizeof(sizeHeader) ){   cerr<<"Write error"<<endl; return 1;   }     
-	    }
-
-	    for(uint32_t i=0;i<sizeHeader;i++){
-		char towrite=char(gp.getHeader()[i]);
-		if(uncompressed){
-		    if(write(1,&towrite,sizeof(towrite)) == -1 ){   cerr<<"Write error"<<endl;  return 1;   } 
-		}else{
-		    if( bgzf_write(fpBGZF, &towrite,sizeof(towrite)) != sizeof(towrite) ){   cerr<<"Write error"<<endl; return 1;   }     
-		}
-	    }
-
-	    uint32_t sizePops=gp.getSizePops();
-	    if(uncompressed){
-		if(write(1,&sizePops,sizeof(sizePops)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
-	    }else{
-		if( bgzf_write(fpBGZF, &sizePops,sizeof(sizePops)) != sizeof(sizePops) ){   cerr<<"Write error"<<endl;            return 1;   }     
-	    }
 	}else{//end if binary	
 	    if(printheader)
 		cout<<gp.getHeader()<<endl;
 	    if(printdefline)
 		cout<<gp.getDefline()<<endl;
 	}
-	//TODO stopped here wednesday
-	char buffer [ gp.getSizeRecord() ];
 
 	
 	while(gp.hasData()){
 
-	    test = gp.getData();
+	    ar = gp.getData();
 	    // cout<<"run"<<endl;
-	    // cout<<test<<endl;
-	    cout<<*test<<endl;
-	    
+	    // cout<<ar<<endl;
+	    if(uncompressed || printBin){//if binary
+		if(!gw->writeAlleleRecord(ar)){
+		    cerr<<"GlacViewer: error writing header "<<endl;
+		    exit(1);
+		}
+
+	    }else{
+		cout<<*ar<<endl;
+	    }	    
 	}
-	
+
+	delete(gw);
+
 	return 0;
     }else{//else region given
 
@@ -205,87 +171,111 @@ int GlacViewer::run(int argc, char *argv[]){
 	    //cout<<justChr<<endl;
 	    GlacParser gp (glacfile,glacfile+".bai",chrName, start, end, justChr);
 
-	    string bgzf_file = "/dev/stdout";
-	    BGZF * fpBGZF    = NULL;
-	    if(printBin && !uncompressed){
-		fpBGZF = bgzf_open(bgzf_file.c_str(), "w");
-	    	    	
-		if (fpBGZF == NULL) { // region invalid or reference name not found
-		    cerr<<"Cannot write to "<<bgzf_file<<endl;
+	    //string bgzf_file = "/dev/stdout";
+	    //BGZF * fpBGZF    = NULL;
+	    GlacWriter * gw=NULL;
+
+	    if(printBin || uncompressed){
+		gw = new GlacWriter(gp.getSizePops(),
+				    gp.isGLFormat(),
+				    gp.isACFormat()?2:1,
+				    uncompressed);
+		if(!gw->writeHeader(gp.getHeader())){
+		    cerr<<"GlacViewer: error writing header "<<endl;
 		    exit(1);
-		}else{		
 		}
-	    }
-
-	    size_t sizeRecord ;
-
-	    if(uncompressed || printBin){//if binary
-		sizeRecord = gp.getSizeRecord();
-		char bammagicstr [4] = {'B','A','M','\1'};    
-
-		if(uncompressed){
-		    if(write(1,&bammagicstr,sizeof(bammagicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-		}else{
-		    if( bgzf_write(fpBGZF, &bammagicstr,sizeof(bammagicstr)) != sizeof(bammagicstr) ){   cerr<<"Write error"<<endl;   return 1;   }     
-		}
-
-		if(gp.isACFormat()){
-		    char magicstr [5] = {'A','C','F', char(bytesForAC) ,'\1'};
-		    if(uncompressed){
-			if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-		    }else{
-			if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   }     
-		    }
-		}else{		
-		    char magicstr [5] = {'G','L','F', char(bytesForGL) ,'\1'};   
-		    if(uncompressed){
-			if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-		    }else{
-			if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   } 
-		    }
-		}
-	    
-		uint32_t sizeHeader= gp.getHeader().size();
-		if(uncompressed){
-		    if(write(1,&sizeHeader,sizeof(sizeHeader)) == -1 ){   cerr<<"Write error"<<endl;        return 1;   } 
-		}else{
-		    if( bgzf_write(fpBGZF, &sizeHeader,sizeof(sizeHeader)) != sizeof(sizeHeader) ){   cerr<<"Write error"<<endl; return 1;   }     
-		}
-
-		for(uint32_t i=0;i<sizeHeader;i++){
-		    char towrite=char(gp.getHeader()[i]);
-		    if(uncompressed){
-			if(write(1,&towrite,sizeof(towrite)) == -1 ){   cerr<<"Write error"<<endl;  return 1;   } 
-		    }else{
-			if( bgzf_write(fpBGZF, &towrite,sizeof(towrite)) != sizeof(towrite) ){   cerr<<"Write error"<<endl; return 1;   }     
-		    }
-		}
-
-		uint32_t sizePops=gp.getSizePops();
-		if(uncompressed){
-		    if(write(1,&sizePops,sizeof(sizePops)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
-		}else{
-		    if( bgzf_write(fpBGZF, &sizePops,sizeof(sizePops)) != sizeof(sizePops) ){   cerr<<"Write error"<<endl;            return 1;   }     
-		}
-	    }else{//end if binary	
-
+		// fpBGZF = bgzf_open(bgzf_file.c_str(), "	    	    	
+		// if (fpBGZF == NULL) { // region invalid or reference name not found
+		//     cerr<<"Cannot write to "<<bgzf_file<<endl;
+		//     exit(1);
+		// }else{		
+		// }
+	    }else{
 		if(printheader)
 		    cout<<gp.getHeader()<<endl;
 		if(printdefline)
 		    cout<<gp.getDefline()<<endl;
 	    }
 
-	    AlleleRecords * test;
+	    // size_t sizeRecord ;
+
+	    // if(uncompressed || printBin){//if binary
+	    // 	sizeRecord = gp.getSizeRecord();
+	    // 	char bammagicstr [4] = {'B','A','M','\1'};    
+
+	    // 	if(uncompressed){
+	    // 	    if(write(1,&bammagicstr,sizeof(bammagicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
+	    // 	}else{
+	    // 	    if( bgzf_write(fpBGZF, &bammagicstr,sizeof(bammagicstr)) != sizeof(bammagicstr) ){   cerr<<"Write error"<<endl;   return 1;   }     
+	    // 	}
+
+	    // 	if(gp.isACFormat()){
+	    // 	    char magicstr [5] = {'A','C','F', char(bytesForAC) ,'\1'};
+	    // 	    if(uncompressed){
+	    // 		if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
+	    // 	    }else{
+	    // 		if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   }     
+	    // 	    }
+	    // 	}else{		
+	    // 	    char magicstr [5] = {'G','L','F', char(bytesForGL) ,'\1'};   
+	    // 	    if(uncompressed){
+	    // 		if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
+	    // 	    }else{
+	    // 		if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   } 
+	    // 	    }
+	    // 	}
+	    
+	    // 	uint32_t sizeHeader= gp.getHeader().size();
+	    // 	if(uncompressed){
+	    // 	    if(write(1,&sizeHeader,sizeof(sizeHeader)) == -1 ){   cerr<<"Write error"<<endl;        return 1;   } 
+	    // 	}else{
+	    // 	    if( bgzf_write(fpBGZF, &sizeHeader,sizeof(sizeHeader)) != sizeof(sizeHeader) ){   cerr<<"Write error"<<endl; return 1;   }     
+	    // 	}
+
+	    // 	for(uint32_t i=0;i<sizeHeader;i++){
+	    // 	    char towrite=char(gp.getHeader()[i]);
+	    // 	    if(uncompressed){
+	    // 		if(write(1,&towrite,sizeof(towrite)) == -1 ){   cerr<<"Write error"<<endl;  return 1;   } 
+	    // 	    }else{
+	    // 		if( bgzf_write(fpBGZF, &towrite,sizeof(towrite)) != sizeof(towrite) ){   cerr<<"Write error"<<endl; return 1;   }     
+	    // 	    }
+	    // 	}
+
+	    // 	uint32_t sizePops=gp.getSizePops();
+	    // 	if(uncompressed){
+	    // 	    if(write(1,&sizePops,sizeof(sizePops)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
+	    // 	}else{
+	    // 	    if( bgzf_write(fpBGZF, &sizePops,sizeof(sizePops)) != sizeof(sizePops) ){   cerr<<"Write error"<<endl;            return 1;   }     
+	    // 	}
+	    // }else{//end if binary	
+
+	    // 	if(printheader)
+	    // 	    cout<<gp.getHeader()<<endl;
+	    // 	if(printdefline)
+	    // 	    cout<<gp.getDefline()<<endl;
+	    // }
+
+	    AlleleRecords * ar;
 	    while(gp.hasData()){
 
-		test = gp.getData();
+		ar = gp.getData();
 		// cout<<"run"<<endl;
-		// cout<<test<<endl;
-		cout<<*test<<endl;
-		//cout<<"GlacViewer return= "<<*test<<endl;
-	    
-	    }
+		// cout<<ar<<endl;
+		//cout<<*ar<<endl;
+		//cout<<"GlacViewer return= "<<*ar<<endl;
+		if(uncompressed || printBin){//if binary
+		    if(!gw->writeAlleleRecord(ar)){
+			cerr<<"GlacViewer: error writing header "<<endl;
+			exit(1);
+		    }
 
+		}else{
+		    cout<<*ar<<endl;
+		}	    
+		
+	    }
+	    //cout<<"deleting gw"<<endl;
+	    delete(gw);
 	    //cout<<"l"<<endl;
 	    return 0;
 	}else{
