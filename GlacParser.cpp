@@ -368,6 +368,8 @@ GlacParser::GlacParser(string filename){
     //cout<<"parser:"<<filename<<"#"<<endl;
     //filename="-";
     bool openSTDIN = (filename == "-" || filename == "/dev/stdin");//is there a better way to do this?
+    //cerr<<openSTDIN<<endl;
+    //exit(1);
     if(openSTDIN){
 	//cerr<<"stdin"<<endl;
 	myFilezipped=bgzf_dopen(0, "r");

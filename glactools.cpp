@@ -9,8 +9,8 @@
 #include <fstream>
 
 #include "utils.h"
-#include "vcf2acf.h"
-#include "vcf2glf.h"
+#include "Vcf2ACF.h"
+#include "Vcf2GLF.h"
 #include "GlacIndex.h"
 #include "GlacViewer.h"
 
@@ -29,8 +29,8 @@ int main (int argc, char *argv[]) {
 	"\n"+                       
 	"\tCommands:\n"+                       
 	"\t--Data import:\n"+                       
-	"\t\tvcf2acf\t\tConvert VCF to acf "+"\n"+
-	"\t\tvcf2glf\t\tConvert VCF to glf "+"\n"+
+	"\t\tvcf2acf\t\tConvert single sample VCF to acf "+"\n"+
+	"\t\tvcf2glf\t\tConvert single sample VCF to glf "+"\n"+
 	"\n"+
 	"\t--Indexing:\n"+                       
 	"\t\tindex\t\tindex acf/glf file"+"\n"+
@@ -49,7 +49,7 @@ int main (int argc, char *argv[]) {
     }
 
     if(string(argv[1]) == "vcf2acf"){
-	vcf2acf  vcf2acf_;
+	Vcf2ACF  vcf2acf_;
 
 	if( argc==2 ||
 	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
@@ -68,7 +68,7 @@ int main (int argc, char *argv[]) {
 	
 
     }else{      if(string(argv[1]) == "vcf2glf"){
-	vcf2glf  vcf2glf_;
+	Vcf2GLF  vcf2glf_;
 
 	if( argc==2 ||
 	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )

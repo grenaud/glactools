@@ -122,11 +122,10 @@ int GlacViewer::run(int argc, char *argv[]){
 	while(gp.hasData()){
 
 	    ar = gp.getData();
-	    // cout<<"run"<<endl;
-	    // cout<<ar<<endl;
+
 	    if(uncompressed || printBin){//if binary
 		if(!gw->writeAlleleRecord(ar)){
-		    cerr<<"GlacViewer: error writing header "<<endl;
+		    cerr<<"GlacViewer: error record "<<*ar<<endl;
 		    exit(1);
 		}
 
@@ -171,8 +170,7 @@ int GlacViewer::run(int argc, char *argv[]){
 	    //cout<<justChr<<endl;
 	    GlacParser gp (glacfile,glacfile+".bai",chrName, start, end, justChr);
 
-	    //string bgzf_file = "/dev/stdout";
-	    //BGZF * fpBGZF    = NULL;
+
 	    GlacWriter * gw=NULL;
 
 	    if(printBin || uncompressed){
@@ -184,12 +182,6 @@ int GlacViewer::run(int argc, char *argv[]){
 		    cerr<<"GlacViewer: error writing header "<<endl;
 		    exit(1);
 		}
-		// fpBGZF = bgzf_open(bgzf_file.c_str(), "	    	    	
-		// if (fpBGZF == NULL) { // region invalid or reference name not found
-		//     cerr<<"Cannot write to "<<bgzf_file<<endl;
-		//     exit(1);
-		// }else{		
-		// }
 	    }else{
 		if(printheader)
 		    cout<<gp.getHeader()<<endl;
@@ -197,75 +189,14 @@ int GlacViewer::run(int argc, char *argv[]){
 		    cout<<gp.getDefline()<<endl;
 	    }
 
-	    // size_t sizeRecord ;
-
-	    // if(uncompressed || printBin){//if binary
-	    // 	sizeRecord = gp.getSizeRecord();
-	    // 	char bammagicstr [4] = {'B','A','M','\1'};    
-
-	    // 	if(uncompressed){
-	    // 	    if(write(1,&bammagicstr,sizeof(bammagicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-	    // 	}else{
-	    // 	    if( bgzf_write(fpBGZF, &bammagicstr,sizeof(bammagicstr)) != sizeof(bammagicstr) ){   cerr<<"Write error"<<endl;   return 1;   }     
-	    // 	}
-
-	    // 	if(gp.isACFormat()){
-	    // 	    char magicstr [5] = {'A','C','F', char(bytesForAC) ,'\1'};
-	    // 	    if(uncompressed){
-	    // 		if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-	    // 	    }else{
-	    // 		if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   }     
-	    // 	    }
-	    // 	}else{		
-	    // 	    char magicstr [5] = {'G','L','F', char(bytesForGL) ,'\1'};   
-	    // 	    if(uncompressed){
-	    // 		if(write(1,&magicstr,sizeof(magicstr)) == -1 ){   cerr<<"Write error"<<endl;            return 1;   }     
-	    // 	    }else{
-	    // 		if( bgzf_write(fpBGZF, &magicstr,sizeof(magicstr)) != sizeof(magicstr) ){   cerr<<"Write error"<<endl;  return 1;   } 
-	    // 	    }
-	    // 	}
-	    
-	    // 	uint32_t sizeHeader= gp.getHeader().size();
-	    // 	if(uncompressed){
-	    // 	    if(write(1,&sizeHeader,sizeof(sizeHeader)) == -1 ){   cerr<<"Write error"<<endl;        return 1;   } 
-	    // 	}else{
-	    // 	    if( bgzf_write(fpBGZF, &sizeHeader,sizeof(sizeHeader)) != sizeof(sizeHeader) ){   cerr<<"Write error"<<endl; return 1;   }     
-	    // 	}
-
-	    // 	for(uint32_t i=0;i<sizeHeader;i++){
-	    // 	    char towrite=char(gp.getHeader()[i]);
-	    // 	    if(uncompressed){
-	    // 		if(write(1,&towrite,sizeof(towrite)) == -1 ){   cerr<<"Write error"<<endl;  return 1;   } 
-	    // 	    }else{
-	    // 		if( bgzf_write(fpBGZF, &towrite,sizeof(towrite)) != sizeof(towrite) ){   cerr<<"Write error"<<endl; return 1;   }     
-	    // 	    }
-	    // 	}
-
-	    // 	uint32_t sizePops=gp.getSizePops();
-	    // 	if(uncompressed){
-	    // 	    if(write(1,&sizePops,sizeof(sizePops)) == -1 ){   cerr<<"Write error"<<endl;          return 1;   } 
-	    // 	}else{
-	    // 	    if( bgzf_write(fpBGZF, &sizePops,sizeof(sizePops)) != sizeof(sizePops) ){   cerr<<"Write error"<<endl;            return 1;   }     
-	    // 	}
-	    // }else{//end if binary	
-
-	    // 	if(printheader)
-	    // 	    cout<<gp.getHeader()<<endl;
-	    // 	if(printdefline)
-	    // 	    cout<<gp.getDefline()<<endl;
-	    // }
 
 	    AlleleRecords * ar;
 	    while(gp.hasData()){
 
 		ar = gp.getData();
-		// cout<<"run"<<endl;
-		// cout<<ar<<endl;
-		//cout<<*ar<<endl;
-		//cout<<"GlacViewer return= "<<*ar<<endl;
 		if(uncompressed || printBin){//if binary
 		    if(!gw->writeAlleleRecord(ar)){
-			cerr<<"GlacViewer: error writing header "<<endl;
+			cerr<<"GlacViewer: error record "<<*ar<<endl;
 			exit(1);
 		    }
 
@@ -274,9 +205,9 @@ int GlacViewer::run(int argc, char *argv[]){
 		}	    
 		
 	    }
-	    //cout<<"deleting gw"<<endl;
+
 	    delete(gw);
-	    //cout<<"l"<<endl;
+
 	    return 0;
 	}else{
 	    cerr<<"GlacViewer: specify file [reg] or just the file"<<endl;
