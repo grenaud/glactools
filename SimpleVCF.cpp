@@ -47,7 +47,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
     
     int fieldIndex  = corevcf->getFieldIndexAndIncrease();
 #ifdef DEBUG
-    cerr<<"fieldIndex "<<fieldIndex<<endl;
+    cout<<"fieldIndex "<<fieldIndex<<endl;
 #endif
 
     //FORMAT FIELDS
@@ -55,8 +55,8 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
     rawFormatValues = fields[fieldIndex];
 
 #ifdef DEBUG
-    cerr<<"rawFormatNames  "<<rawFormatNames<<endl;
-    cerr<<"rawFormatValues "<<rawFormatValues<<endl;
+    cout<<"rawFormatNames  "<<rawFormatNames<<endl;
+    cout<<"rawFormatValues "<<rawFormatValues<<endl;
 #endif
 
     formatFieldNames  = allTokens(rawFormatNames ,':');
@@ -176,7 +176,10 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 
 	if(formatFieldNames[i] == "DP"){ 
 	    indexDepth        =i; 
-	    formatFieldDP=destringify<int>  (formatFieldValues[i]); 
+	    if(!formatFieldValues[i].empty())
+		formatFieldDP=destringify<int>  (formatFieldValues[i]); 
+	    else
+		formatFieldDP=-1;//if the DP field is missing
 	    continue;
 	}
 

@@ -1,10 +1,10 @@
 /*
- * glactoolsOperations
+ * GlactoolsOperations
  * Author : Gabriel Renaud gabriel.reno [at sign here ] gmail.com
  *
  */
 
-#include "glactoolsOperations.h"
+#include "GlactoolsOperations.h"
 
 
 

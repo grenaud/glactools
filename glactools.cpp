@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "Vcf2ACF.h"
 #include "Vcf2GLF.h"
+#include "VcfMulti2ACF.h"
+
 #include "GlacIndex.h"
 #include "GlacViewer.h"
 
@@ -29,8 +31,11 @@ int main (int argc, char *argv[]) {
 	"\n"+                       
 	"\tCommands:\n"+                       
 	"\t--Data import:\n"+                       
-	"\t\tvcf2acf\t\tConvert single sample VCF to acf "+"\n"+
-	"\t\tvcf2glf\t\tConvert single sample VCF to glf "+"\n"+
+	"\t\tvcf2acf\t\t Convert single sample VCF to acf "+"\n"+
+	"\t\tvcf2glf\t\t Convert single sample VCF to glf "+"\n"+
+	"\t\tvcfm2acf\t\tConvert multi  sample VCF to acf "+"\n"+
+	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
+
 	"\n"+
 	"\t--Indexing:\n"+                       
 	"\t\tindex\t\tindex acf/glf file"+"\n"+
@@ -84,6 +89,24 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return vcf2glf_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "vcfm2acf"){
+	VcfMulti2ACF  vcfmulti2acf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<vcfmulti2acf_.usage()<<endl;
+	    return 1;       
+	}
+	// char ** tosend =argv;
+
+	// cout<<tosend[0]<<endl;
+	// tosend++;
+	// cout<<tosend[0]<<endl;
+	argv++;
+	argc--;
+	return vcfmulti2acf_.run(argc, argv);
 		    
 	    
     }else{      if(string(argv[1]) == "index"){
@@ -125,7 +148,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-		}}}}
+		    }}}}}
     
     return 0;
 }

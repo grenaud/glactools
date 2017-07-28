@@ -8,6 +8,7 @@
 #ifndef SimpleVCF_h
 #define SimpleVCF_h
 
+//#define DEBUG 
 #include <string> 
 #include <vector> 
 #include <map>
