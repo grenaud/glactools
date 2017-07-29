@@ -38,19 +38,31 @@ SingleGL::~SingleGL(){
 
 
 
-uint8_t SingleGL::getrrGL(){
+uint8_t SingleGL::getrrGL() const{
     return rrGL;
 }
 
-uint8_t SingleGL::getraGL(){
+uint8_t SingleGL::getraGL() const{
     return raGL;
 }
 
-uint8_t SingleGL::getaaGL(){
+uint8_t SingleGL::getaaGL() const{
     return aaGL;
 }
 
-bool SingleGL::getIsCpg(){
+void SingleGL::setrrGL(uint8_t rrGL_){
+    rrGL = rrGL_;
+}
+
+void SingleGL::setraGL(uint8_t raGL_){
+    raGL = raGL_;
+}
+
+void SingleGL::setaaGL(uint8_t aaGL_){
+    aaGL = aaGL_;
+}
+
+bool SingleGL::getIsCpg() const{
     return isCpg;
 }
 

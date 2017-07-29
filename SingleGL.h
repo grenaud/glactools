@@ -28,15 +28,18 @@ public:
     ~SingleGL();
     /* SingleGL & operator= (const SingleGL & other); */
 
-    uint8_t getrrGL();
-    uint8_t getraGL();
-    uint8_t getaaGL();
+    uint8_t getrrGL() const;
+    uint8_t getraGL() const;
+    uint8_t getaaGL() const;
+    void setrrGL(uint8_t rrGL_);
+    void setraGL(uint8_t raGL_);
+    void setaaGL(uint8_t aaGL_);
 
     /* int getTotalCount(); */
     /* bool alleleCountNull(); */
 
     /* bool isHeterozygous(); */
-    bool   getIsCpg();
+    bool   getIsCpg() const;
     /* char generateRandomAlleleBias(const char ref,const char alt); */
     /* char generateRandomAllele(const char ref,const char alt); */
 

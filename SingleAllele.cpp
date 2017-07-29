@@ -35,24 +35,24 @@ SingleAllele::~SingleAllele(){
 }
 
 
-int SingleAllele::getTotalCount(){
+int SingleAllele::getTotalCount() const{
     return totalCount;
 }
 
-bool SingleAllele::alleleCountNull(){
+bool SingleAllele::alleleCountNull() const{
     return (totalCount==0);
 }
 
 
-int SingleAllele::getRefCount(){
+int SingleAllele::getRefCount() const{
     return refCount;
 }
 
-int SingleAllele::getAltCount(){
+int SingleAllele::getAltCount() const{
     return altCount;
 }
 
-bool SingleAllele::getIsCpg(){
+bool SingleAllele::getIsCpg() const{
     return isCpg;
 }
 

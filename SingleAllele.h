@@ -27,13 +27,13 @@ public:
     ~SingleAllele();
     /* SingleAllele & operator= (const SingleAllele & other); */
 
-    int getRefCount();
-    int getAltCount();
-    int getTotalCount();
-    bool alleleCountNull();
+    int getRefCount() const;
+    int getAltCount() const;
+    int getTotalCount() const;
+    bool alleleCountNull() const;
 
     bool isHeterozygous();
-    bool   getIsCpg();
+    bool   getIsCpg() const;
     char generateRandomAlleleBias(const char ref,const char alt);
     char generateRandomAllele(const char ref,const char alt);
 
