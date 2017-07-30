@@ -5,7 +5,7 @@ BAMTOOLS= $(realpath bamtools/)
 LIBGAB= $(realpath libgab/)
 
 
-CXXFLAGS = -Wall -lm -O3 -lz -I htslib/ -I tabixpp/ -I${LIBGAB} -I${LIBGAB}/gzstream/ -c
+CXXFLAGS = -Wall -lm -O3 -lz -Ihtslib/ -Ibamtools/include/ -Ibamtools/src/ -I tabixpp/ -I${LIBGAB} -I${LIBGAB}/gzstream/ -c
 LDFLAGS  =  -lpthread -lm -lbz2 -llzma -lz
 
 
@@ -44,7 +44,7 @@ htslib/hts_internal.h:
 	git clone --recursive https://github.com/samtools/htslib.git
 
 
-glactools:	glactools.o GlacIndex.o GlacWriter.o MultiVCFreader.o GLF2ACF.o VcfMulti2ACF.o T3andme2ACF.o Vcf2ACF.o Vcf2GLF.o AlleleRecords.o SingleAllele.o SingleGL.o GlacViewer GlacParser VCFreader.o SimpleVCF.o CoreVCF.o ReadTabix.o SetVCFFilters.o FilterVCF.o glactoolsOperations.o tabixpp/tabix.o htslib/libhts.a ${LIBGAB}/utils.o  libgab//gzstream/gzstream.o
+glactools:	glactools.o GlacIndex.o GlacWriter.o MultiVCFreader.o GLF2ACF.o VcfMulti2ACF.o T3andme2ACF.o Vcf2ACF.o Vcf2GLF.o AlleleRecords.o SingleAllele.o BAM2ACF.o SingleGL.o GlacViewer GlacParser VCFreader.o SimpleVCF.o CoreVCF.o ReadTabix.o SetVCFFilters.o FilterVCF.o glactoolsOperations.o tabixpp/tabix.o htslib/libhts.a ${LIBGAB}/utils.o bamtools/build/src/utils/CMakeFiles/BamTools-utils.dir/*cpp.o bamtools/lib/libbamtools.a  libgab/gzstream/gzstream.o
 	${CXX} -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 clean :
