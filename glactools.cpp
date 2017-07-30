@@ -10,6 +10,7 @@
 
 #include "utils.h"
 #include "Vcf2ACF.h"
+#include "GLF2ACF.h"
 #include "Vcf2GLF.h"
 #include "VcfMulti2ACF.h"
 
@@ -35,7 +36,9 @@ int main (int argc, char *argv[]) {
 	"\t\tvcf2glf\t\t Convert single sample VCF to glf "+"\n"+
 	"\t\tvcfm2acf\t\tConvert multi  sample VCF to acf "+"\n"+
 	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
-
+	"\n"+
+	"\t--GLF/ACF conversion:\n"+                       
+	"\t\tglf2acf\t\tConvert glf to acf "+"\n"+
 	"\n"+
 	"\t--Indexing:\n"+                       
 	"\t\tindex\t\tindex acf/glf file"+"\n"+
@@ -62,11 +65,6 @@ int main (int argc, char *argv[]) {
 	    cerr<<vcf2acf_.usage()<<endl;
 	    return 1;       
 	}
-	// char ** tosend =argv;
-
-	// cout<<tosend[0]<<endl;
-	// tosend++;
-	// cout<<tosend[0]<<endl;
 	argv++;
 	argc--;
 	return vcf2acf_.run(argc, argv);
@@ -81,11 +79,6 @@ int main (int argc, char *argv[]) {
 	    cerr<<vcf2glf_.usage()<<endl;
 	    return 1;       
 	}
-	// char ** tosend =argv;
-
-	// cout<<tosend[0]<<endl;
-	// tosend++;
-	// cout<<tosend[0]<<endl;
 	argv++;
 	argc--;
 	return vcf2glf_.run(argc, argv);
@@ -99,16 +92,26 @@ int main (int argc, char *argv[]) {
 	    cerr<<vcfmulti2acf_.usage()<<endl;
 	    return 1;       
 	}
-	// char ** tosend =argv;
 
-	// cout<<tosend[0]<<endl;
-	// tosend++;
-	// cout<<tosend[0]<<endl;
 	argv++;
 	argc--;
 	return vcfmulti2acf_.run(argc, argv);
 		    
-	    
+    }else{      if(string(argv[1]) == "glf2acf"){
+	GLF2ACF  glf2acf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glf2acf_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glf2acf_.run(argc, argv);
+		    
+	    	    
     }else{      if(string(argv[1]) == "index"){
 	GlacIndex  glindex_;
 
@@ -119,10 +122,7 @@ int main (int argc, char *argv[]) {
 	    return 1;       
 	}
 
-	// char ** tosend =argv;
-	// cout<<tosend[0]<<endl;
-	// tosend++;
-	// cout<<tosend[0]<<endl;
+
 	argv++;
 	argc--;
 	return glindex_.run(argc, argv);
@@ -148,7 +148,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-		    }}}}}
+			}}}}}}
     
     return 0;
 }

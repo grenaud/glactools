@@ -112,8 +112,9 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     }else{
 	if( bgzf_write(fpBGZF, &toWrite->chri,sizeof(toWrite->chri)) != sizeof(toWrite->chri) ){   cerr<<"Write error"<<endl;   return false;   }  
     }
-    
-    
+#ifdef DEBUGWRITEAR
+    cerr<<"chri "<<toWrite->chri<<endl;    
+#endif
     //write coordinate 4 bytes
     //uint32_t c = uint32_t(toprint->getPosition());
     //if(write(1,&c,    sizeof(c))  == -1 )    {   cerr<<"Write error"<<endl;         return false;   }
@@ -122,7 +123,9 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     }else{
 	if( bgzf_write(fpBGZF, &toWrite->coordinate,sizeof(toWrite->coordinate)) != sizeof(toWrite->coordinate) ){   cerr<<"Write error"<<endl;  return false;   }  
     }
-		
+#ifdef DEBUGWRITEAR
+    cerr<<"coordinate "<<toWrite->coordinate<<endl;    		
+#endif
 
     uint8_t  tempCh;
     uint16_t tempSh;
@@ -130,7 +133,9 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     //ref 1 byte
     tempCh= uint8_t(base2int(toWrite->ref));
     //if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;           return false;   }
-    //cerr<<"ref "<<"NACGT"[tempCh]<<endl;
+#ifdef DEBUGWRITEAR
+    cerr<<"ref "<<"NACGT"[tempCh]<<endl;
+#endif
     if(uncompressed){
 	if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
     }else{
@@ -139,7 +144,10 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     
     //alt 1 byte
     tempCh= uint8_t(base2int(toWrite->alt));
-    //cerr<<"alt "<<"NACGT"[tempCh]<<endl;
+#ifdef DEBUGWRITEAR
+    cerr<<"alt "<<"NACGT"[tempCh]<<endl;
+#endif
+
     if(uncompressed){
 	if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
     }else{
@@ -149,6 +157,9 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 
     // cout<<"sizePops "<<sizePops<<endl;
     // exit(1);
+#ifdef DEBUGWRITEAR
+    cerr<<"glformat "<<glFormat<<endl;
+#endif
     
     if(!glFormat){//not GLF so ACF
 	if(int(toWrite->vectorAlleles->size()) != int(sizePops+2)){
@@ -156,10 +167,16 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 	    return false;
 	}
 
+#ifdef DEBUGWRITEAR
+	cerr<<"not gl"<<endl;
+#endif
 	if(bytesForRecord==2){
 	    for(uint32_t j=0;j<(sizePops+2);j++){//root anc
 		//2 bytes
 		tempSh= uint16_t( toWrite->vectorAlleles->at(j).getRefCount() );
+#ifdef DEBUGWRITEAR
+		cerr<<j<<" ref count"<<tempSh<<endl;
+#endif
 
 		if(uncompressed){
 		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
@@ -169,6 +186,9 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 
 		//2 bytes
 		tempSh= uint16_t( toWrite->vectorAlleles->at(j).getAltCount() );
+#ifdef DEBUGWRITEAR
+		cerr<<j<<" alt count"<<tempSh<<endl;
+#endif
 
 		if(uncompressed){
 		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
@@ -178,6 +198,11 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 
 		//1 byte
 		tempCh= uint8_t( toWrite->vectorAlleles->at(j).getIsCpg() );
+
+#ifdef DEBUGWRITEAR
+		cerr<<j<<" alt count"<<tempCh<<endl;
+#endif
+
 		if(uncompressed){
 		    if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
 		}else{

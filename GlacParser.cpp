@@ -670,7 +670,10 @@ void GlacParser::parseHeader(BGZF *bg){
         if(strBeginsWith(line,"#SQ")){
             vector<string> tokensf = allTokens(line,'\t');
             chrKnown.push_back(tokensf[1].substr(3));
-        }//else{
+	    headerSQ+=line+"\n";
+        }else{
+	    headerNoSQNoDefline+=line+"\n";
+	}
 	//cout << line << std::endl;
 	    // }
 	header+=line+"\n";
@@ -829,7 +832,25 @@ string GlacParser::getHeaderNoDefline(string prefix) const{
     return vectorToString(toreturn,"\n");
 }
 
+string GlacParser::getHeaderSQ(string prefix) const{
+   vector<string> fields=allTokens(headerSQ,'\n');
+    vector<string> toreturn;
+    for(unsigned int i=0;i<fields.size();i++){
+	if(!fields[i].empty())
+	    toreturn.push_back(prefix+fields[i]);
+    }
+    return vectorToString(toreturn,"\n");
+}
 
+string GlacParser::getHeaderNoSQNoDefline(string prefix) const{
+   vector<string> fields=allTokens(headerNoSQNoDefline,'\n');
+    vector<string> toreturn;
+    for(unsigned int i=0;i<fields.size();i++){
+	if(!fields[i].empty())
+	    toreturn.push_back(prefix+fields[i]);
+    }
+    return vectorToString(toreturn,"\n");
+}
 
 
 string GlacParser::getDefline() const{

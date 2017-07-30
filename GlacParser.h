@@ -40,6 +40,8 @@ hts_itr_t *iter;//for iterator for indexing
     AlleleRecords * allRecToReturn;
     int numberOfTimesHasDataWasCalled;
     string header;
+    string headerNoSQNoDefline;
+    string headerSQ;
     string headerNoDefline;
     const vector<string> * dataToRead;
     unsigned int dataToReadInd;
@@ -79,6 +81,8 @@ hts_itr_t *iter;//for iterator for indexing
     AlleleRecords  * getData();
 
     string getHeader(string prefix="") const;
+    string getHeaderNoSQNoDefline(string prefix="") const;
+    string getHeaderSQ(string prefix="") const;
     string getHeaderNoDefline(string prefix="") const;
 
     string getDefline() const;

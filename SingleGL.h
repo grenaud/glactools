@@ -55,7 +55,7 @@ public:
 
     void setIsCpg(bool isCpg);
     string toString();
-
+    pair<int,int> returnLikelyAlleleCountForRefAlt(int minPLdiffind=33) const;
     //SingleGL &  operator= (const SingleGL & other);
 
     /* SingleGL & operator= (const SingleGL & other){ */

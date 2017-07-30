@@ -82,7 +82,45 @@ string  SingleGL::toString(){
     return toReturn;
 }
 
+pair<int,int> SingleGL::returnLikelyAlleleCountForRefAlt(int minPLdiffind) const{
 
+        
+    if ( (raGL-rrGL) >= minPLdiffind && (aaGL-rrGL) >= minPLdiffind) {  //high likelihood of homo ref, produce 2 alleles ref
+	// refAlleles+=2;
+	// altAlleles+=0;
+	return pair<int,int>(2,0);
+    } else{
+	if ((raGL-aaGL) >= minPLdiffind && (rrGL-aaGL) >= minPLdiffind) {  //high likelihood of homo alt, produce 2 alleles alt
+	    // refAlleles+=0;
+	    // altAlleles+=2;
+	    return pair<int,int>(0,2);
+	} else {
+	    if ((rrGL-raGL) >= minPLdiffind && (aaGL-raGL) >= minPLdiffind) { //high likelihood of hetero, produce 1 allele of each
+		// refAlleles+=1;
+		// altAlleles+=1;
+		return pair<int,int>(1,1);
+	    }else{
+		if ((rrGL-aaGL) >= minPLdiffind && (raGL-aaGL) <minPLdiffind ) { //high likelihood of at least one alt, produce 1 allele alt 
+		    // refAlleles+=0;
+		    // altAlleles+=1;
+		    return pair<int,int>(0,1);
+		}else{
+		    if ( (aaGL-rrGL) >= minPLdiffind && (raGL-rrGL) < minPLdiffind ) { // high likelihood of at least one ref, produce 1 allele ref
+			// refAlleles+=1;
+			// altAlleles+=0;
+			return pair<int,int>(1,0);
+		    }else{
+			// refAlleles+=0;
+			// altAlleles+=0;
+			return pair<int,int>(0,0);
+		    }
+		}
+	    }
+	}
+    }// end all cases
+
+    return pair<int,int>(0,0);
+}
 
 
 

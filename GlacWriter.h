@@ -8,6 +8,7 @@
 #ifndef GlacWriter_h
 #define GlacWriter_h
 
+//#define DEBUGWRITEAR
 #include <cinttypes>
 #include "htslib/bgzf.h"
 
