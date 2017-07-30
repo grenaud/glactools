@@ -19,7 +19,7 @@ GLF2ACF::~GLF2ACF(){
 string GLF2ACF::usage() const{
 
     
-    return string(string("") +"glf2acf [options] <glf file>  "+"\n"+
+    return string(string("glactools") +" glf2acf [options] <glf file>  "+"\n"+
                   "\nThis program converts a GLF file containing genotype likelihoods into ACF with allele counts (prints to the stdout)\n"+    
 		  
                   "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+

@@ -1,0 +1,67 @@
+
+
+-- done --
+vcf2mistar*
+vcf2mistarNoEpo*
+vcfcompute*
+vcfMulti2mistar*
+
+-- totest --
+23andme2mistar*
+bam2mistar*
+bam2mistarNoEpo*
+mistar2bed*
+mistar2BinaryPLINK*
+mistar2fasta*
+mistar2gphocs*
+mistar2nexus*
+mistar2treemix*
+mistarcat*
+
+-- todo --
+
+mistarmeld*
+mistarunion*
+
+mistarintersect*
+
+mistarstats*
+mistarfilter*
+mistarfreqSpec*
+
+mistarcomputeParallel2*
+mistar2AlleleMatrix*
+
+axt2mistar*
+closestMistar*
+epo2mistar*
+
+-- ignored --
+mistar2segtor*
+mistar2binary*
+
+avgCoaMS*
+bamtable2mistar*
+boostrapSubGroups*
+filterVCF*
+generateCoords*
+mergeBAMTable*
+
+mistarcompress*
+mistarcompute*
+mistarcomputeParallel*
+mistardecompress*
+
+mistaruniq*
+mpileup2mistar*
+ms2mistar*
+ms2nj*
+testComputation*
+testMistar*
+testMistarTabix*
+testMS*
+testNewickParser*
+testVCF*
+
+
+-format convert

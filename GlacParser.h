@@ -90,8 +90,10 @@ hts_itr_t *iter;//for iterator for indexing
     bool isACFormat() const;
     bool isGLFormat() const;
     uint32_t getSizePops() const;
-size_t getSizeRecord() const; //size of 1 record in binary
-    /* const vector<string> *   getPopulationsNames() const ; */
+    size_t getSizeRecord() const; //size of 1 record in binary
+
+    const vector<string> *   getPopulationsNames() const ;
+
 };
 
 

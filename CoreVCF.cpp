@@ -56,6 +56,7 @@ CoreVCF::CoreVCF(const vector<string> & fields){
     
     //boolean flags for insert
     isIndel=isInsert(ref) || isInsert(alt);
+    
     //cerr<<"isIndel "<<isIndel<<endl;
     //boolean flags for a single bp in ref or alt
     resolvedSingleBasePairREF=validOneBP(ref); //true if ref = A,C,G or T
@@ -74,6 +75,8 @@ CoreVCF::CoreVCF(const vector<string> & fields){
     fieldIndexINFO    = fieldIndex;
     infoFieldRaw      = fields[fieldIndex++] ;
     haveInfoField=false;
+    //if INDEL MARKED
+    isIndel = isIndel || strBeginsWith(infoFieldRaw,"INDEL");
 
 
     //increasing to skip GT FIELD

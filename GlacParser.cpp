@@ -246,10 +246,12 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
     //     string headertemp=rt->getHeader();
     
     //     istringstream is(headertemp);
-    bool isbgzip=bgzf_is_bgzf(bgzf_file.c_str());
+    //bool isbgzip=bgzf_is_bgzf(bgzf_file.c_str());
+
+
 
     myFilezipped = bgzf_open(bgzf_file.c_str(), "r");
-
+    bool isbgzip=(bgzf_compression(myFilezipped)==2);
     //reading the header
     numberPopulations=0;
     populationNames=new vector<string>();
@@ -373,9 +375,11 @@ GlacParser::GlacParser(string filename){
     if(openSTDIN){
 	//cerr<<"stdin"<<endl;
 	myFilezipped=bgzf_dopen(0, "r");
+	isbgzip     =bgzf_compression(myFilezipped);
     }else{
-	isbgzip     =bgzf_is_bgzf(filename.c_str());
+	//isbgzip     =bgzf_is_bgzf(filename.c_str());
 	myFilezipped=bgzf_open(filename.c_str(), "r");
+	isbgzip     =bgzf_compression(myFilezipped);
     }    
 
     if(myFilezipped == 0){
@@ -1362,9 +1366,9 @@ size_t GlacParser::getSizeRecord() const{
     }
 }
 
-// const vector<string> * GlacParser::getPopulationsNames() const{
-//     return populationNames;
-// }
+const vector<string> * GlacParser::getPopulationsNames() const{
+    return populationNames;
+}
 
 
 
