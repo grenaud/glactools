@@ -13,6 +13,7 @@
 #include "GLF2ACF.h"
 #include "Vcf2GLF.h"
 #include "VcfMulti2ACF.h"
+#include "T3andme2ACF.h"
 
 #include "GlacIndex.h"
 #include "GlacViewer.h"
@@ -35,6 +36,9 @@ int main (int argc, char *argv[]) {
 	"\t\tvcf2acf\t\t Convert single sample VCF to acf "+"\n"+
 	"\t\tvcf2glf\t\t Convert single sample VCF to glf "+"\n"+
 	"\t\tvcfm2acf\t\tConvert multi  sample VCF to acf "+"\n"+
+	"\t\tbam2acf\t\t Convert single sample BAM to acf "+"\n"+
+	"\t\t23andme2acf\t\t Convert 23 and me data to acf "+"\n"+
+
 	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
 	"\n"+
 	"\t--GLF/ACF conversion:\n"+                       
@@ -112,6 +116,20 @@ int main (int argc, char *argv[]) {
 	return glf2acf_.run(argc, argv);
 		    
 	    	    
+    }else{      if(string(argv[1]) == "23andme2acf"){
+	T3andme2ACF  t3andme2acf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<t3andme2acf_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return t3andme2acf_.run(argc, argv);
+		    	    	    
     }else{      if(string(argv[1]) == "index"){
 	GlacIndex  glindex_;
 
@@ -148,7 +166,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-			}}}}}}
+			    }}}}}}}
     
     return 0;
 }
