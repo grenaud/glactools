@@ -806,46 +806,7 @@ void GlacParser::parseHeader(BGZF *bg){
 	}
 	line="";
     }
-    //exit(1);
-    // 	//cout<<"line "<<line<<endl;
-    // 	if(line[0] == '#'){
-    // 	    // cout<<line;
-    // 	    if(firstLine){
-    // 		if(line != "#MISTAR"){
-    // 		    cerr << "Error: GlacParser first line must be #MISTAR found: " << line <<endl;
-    // 		    exit(1);	    
-    // 		}		
-    // 		firstLine=false;
-    // 		continue;
-    // 	    }
 
-	    
-    // 	    if(strBeginsWith(line, "#chr")){
-    // 		defline=line;
-    // 		vector<string> fields=allTokens(line,'\t');
-    // 		if(fields[0] != "#chr")   { cerr<<"Field #1 of header must be #chr ";    exit(1); }
-    // 		if(fields[1] != "coord")  { cerr<<"Field #2 of header must be coord ";   exit(1); }
-    // 		if(fields[2] != "REF,ALT"){ cerr<<"Field #3 of header must be REF,ALT "; exit(1); }
-    // 		if(fields[3] != "root")   { cerr<<"Field #4 of header must be root ";    exit(1); }
-    // 		if(fields[4] != "anc")    { cerr<<"Field #5 of header must be anc ";     exit(1); }
-
-    // 		for(unsigned int i=3;i<fields.size();i++){
-    // 		    populationNames->push_back(fields[i]);
-    // 		    numberPopulations++;
-    // 		}
-    // 		header+=line+"\n";
-
-    // 		break;
-    // 	    }else{
-    // 		header+=line+"\n";
-    // 		headerNoDefline+=line+"\n";
-    // 	    }
-	    
-    // 	}else{
-    // 	    cerr << "Error: GlacParser cannot get header"  <<endl;
-    // 	    exit(1);
-    // 	}
-    // }
 }
 
 

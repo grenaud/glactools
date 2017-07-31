@@ -44,7 +44,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
         }
 
         cerr<<"Error unknown option "<<argv[i]<<endl;
-        exit(1);
+        return 1;
     }
 
 
@@ -101,7 +101,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 		currentGr    = bedRegionsToFilter->at(dataRow->chr) ;
 		currentIndex = coordinateOfVec->at(   dataRow->chr) ;
 		if(currentIndex!=0){
-		    cerr<<"There seems to be a mix of chromosomes in the mistar file, needs to be sorted chr: "<<chrName<<endl;
+		    cerr<<"There seems to be a mix of chromosomes in the ACF file, needs to be sorted chr: "<<chrName<<endl;
 		    return 1;
 		}
 	    }
@@ -111,25 +111,25 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 	}else{// not new chr
 
 	    if(previousCoordinate == dataRow->coordinate){
-		cerr<<"WARNING: There seems to be a unsorted coordinate in the mistar file, needs to be sorted coordinate: "<<chrName<<":"<<previousCoordinate<<endl;
+		cerr<<"WARNING: There seems to be a unsorted coordinate in the ACF file, needs to be sorted coordinate: "<<chrName<<":"<<previousCoordinate<<endl;
 		//return 1;
 		continue;
 	    }
 
 	    if(previousCoordinate >  dataRow->coordinate){
-		cerr<<"ERROR: There seems to be a unsorted coordinate in the mistar file, needs to be sorted coordinate: "<<chrName<<":"<<previousCoordinate<<endl;
+		cerr<<"ERROR: There seems to be a unsorted coordinate in the ACF file, needs to be sorted coordinate: "<<chrName<<":"<<previousCoordinate<<endl;
 		return 1;
 	    }
 	}
 
 	if(!chrFoundInBed )
-	    goto nextmistarrecord;
+	    goto nextacfrecord;
 
 	
 
 	while(1){
 	    if(currentIndex == currentGr->size())//end of bed file
-		goto nextmistarrecord;
+		goto nextacfrecord;
 	    //ignore
 	    //        |---------|
 	    // *     
@@ -151,7 +151,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 		}
 
 
-		goto nextmistarrecord;
+		goto nextacfrecord;
 	    }
 
 	    //print
@@ -215,8 +215,8 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 			//cout<<"MISSING"<<chrPrinted<<":"<<previousCoordinatePrinted<<endl;
 
 			if( dataRow->coordinate <= (previousCoordinatePrinted+1)){
-			    cerr<<"ERROR: mistar file does not appear to be sorted, died at coordinate "<<dataRow->chr<<":"<<dataRow->coordinate<<endl;
-			    exit(1);
+			    cerr<<"ERROR: ACF file does not appear to be sorted, died at coordinate "<<dataRow->chr<<":"<<dataRow->coordinate<<endl;
+			    return 1;
 			}
 			
 			//print Ns in between 
@@ -273,7 +273,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 			//undefined site
 			if( (dataRow->vectorAlleles->at(j).getRefCount() + dataRow->vectorAlleles->at(j).getAltCount()) > 2) {
 			    cerr<<"ERROR: population "<<j<<" has more than 2 alleles at coordinate "<<dataRow->chr<<":"<<dataRow->coordinate<<endl;
-			    exit(1);
+			    return 1;
 			}
 
 			if( (dataRow->vectorAlleles->at(j).getRefCount() + dataRow->vectorAlleles->at(j).getAltCount()) != 2) {
@@ -337,7 +337,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 		
 		//
 		keptRecords++;				
-		goto nextmistarrecord;
+		goto nextacfrecord;
 	    }//end in bed record
 
 	    //we are running behind in the bed file
@@ -365,11 +365,11 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 		if(currentIndex<currentGr->size()){//we move to next iteration			    
 		    currentIndex++;
 		}else{
-		    goto nextmistarrecord; //we have reached the end of the vector, do nothing until next chr
+		    goto nextacfrecord; //we have reached the end of the vector, do nothing until next chr
 		}
 	    }
 	}
-    nextmistarrecord:
+    nextacfrecord:
 	// cout<<dataRow->coordinate<<endl;		    
 
 	totalRecords++;

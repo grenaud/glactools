@@ -8,14 +8,17 @@
 #ifndef GlacIntersect_h
 #define GlacIntersect_h
 
+//#define DEBUG
 #include <string>
 
 #include "utils.h"
 #include "GlacWriter.h"
 #include "GlacParser.h"
 #include "AlleleRecords.h"
+#include "GlactoolsOperations.h"
 
 using namespace std;
+
 
 class GlacIntersect{
 private:

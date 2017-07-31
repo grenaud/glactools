@@ -598,12 +598,12 @@ void SimpleVCF::print(ostream& os) const{
 
 bool SimpleVCF::isThisAllelePresent(char bp) const {
 
+    //cout<<"r "<<corevcf->resolvedSingleBasePairREF<<" a "<<corevcf->resolvedSingleBasePairALT<<" "<<bp<<" "<<homozygousREF<<" "<<heterozygous<<" "<<homozygousALT<<endl;
+
     if(corevcf->resolvedSingleBasePairREF && corevcf->resolvedSingleBasePairALT){ //only look at sites with a single bp
 	if( homozygousREF ){ return (corevcf->ref[0] == bp); }
 	if( homozygousALT ){ return (corevcf->alt[0] == bp); }
-	if( heterozygous ){ 
-	    return ( (corevcf->ref[0] == bp) || (corevcf->alt[0] == bp));
-	}
+	if( heterozygous ){  return ( (corevcf->ref[0] == bp) || (corevcf->alt[0] == bp)); }
     } 
     return false;
 

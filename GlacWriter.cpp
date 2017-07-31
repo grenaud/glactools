@@ -132,15 +132,16 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 
     uint8_t  tempCh;
     uint16_t tempSh;
+
+#ifdef DEBUGWRITEREFALT
+    //cerr<<"ref "<<"NACGT"[tempCh]<<endl;
+    cerr<<"ref "<<toWrite->ref<<"\t"<<int(tempCh)<<endl;
+#endif
     
     //ref 1 byte
     tempCh= uint8_t(base2int(toWrite->ref));
     tempCh=tempCh<<4;//shift by 4 bits
     //if(write(1,&tempCh,sizeof(tempCh))  == -1 ){   cerr<<"Write error"<<endl;           return false;   }
-#ifdef DEBUGWRITEAR
-    //cerr<<"ref "<<"NACGT"[tempCh]<<endl;
-    cerr<<"ref "<<toWrite->ref<<"\t"<<int(tempCh)<<endl;
-#endif
     
 
 
@@ -152,12 +153,13 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     
     //alt 1 byte
     //tempCh= uint8_t(base2int(toWrite->alt));
-    tempCh = tempCh | uint8_t(base2int(toWrite->alt));
-
-#ifdef DEBUGWRITEAR
+#ifdef DEBUGWRITEREFALT
     //cerr<<"alt "<<"NACGT"[tempCh]<<endl;
     cerr<<"ref+alt "<<toWrite->alt<<"\t"<<int(tempCh)<<endl;
 #endif
+
+    tempCh = tempCh | uint8_t(base2int(toWrite->alt));
+
 
     if(uncompressed){
 	if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 

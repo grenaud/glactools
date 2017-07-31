@@ -82,6 +82,20 @@ string  SingleGL::toString(){
     return toReturn;
 }
 
+bool SingleGL::alleleCountNull() const{
+    if ( (rrGL == 0) &&
+	 (raGL == 0) &&
+	 (aaGL == 0) )
+	return true;
+
+    if ( (rrGL == UINT8_MAX) &&
+	 (raGL == UINT8_MAX) &&
+	 (aaGL == UINT8_MAX) )
+	return true;
+	 
+    return false;
+}
+
 pair<int,int> SingleGL::returnLikelyAlleleCountForRefAlt(int minPLdiffind) const{
 
         

@@ -8,6 +8,7 @@
 #ifndef VCFreader_h
 #define VCFreader_h
 
+//#define DEBUG
 #include <list>
 #include <fstream> 
 #include <memory> 

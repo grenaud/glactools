@@ -40,7 +40,8 @@ public:
 	}
 	return *this;
     }
-    
+    void copyCoreFields(const AlleleRecords & other);
+
 
     string chr;
     uint16_t chri;

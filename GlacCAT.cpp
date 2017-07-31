@@ -67,7 +67,7 @@ int GlacCAT::run(int argc, char *argv[]){
 	}
     }
 
-
+    delete(gw);
 
     return 0;
 }

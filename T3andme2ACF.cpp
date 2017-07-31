@@ -486,7 +486,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
     //    delete(filtersVCF);
     if(rtEPO != NULL)
 	delete(rtEPO);
-
+    delete(gw);
     cerr<<"Program "<<argv[0]<<" looked at  "<<totalRec<<" records, wrote "<<writtenRec<<" terminated gracefully"<<endl;
 
     return 0;

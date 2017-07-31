@@ -28,6 +28,15 @@ string GlacIndex::usage() const{
 }
 
 int GlacIndex::run(int argc, char *argv[]){
+    if(argc == 1 ||
+       (argc == 2 && (string(argv[1]) == "-h" || string(argv[1]) == "--help") )
+       ){
+	cerr << "Usage "<<usage()<<endl;
+	return 1;       
+    }
+
+
+
     string bgzf_file  = string(argv[argc-1]);
     BGZF * fpBGZF = bgzf_open(bgzf_file.c_str(), "r");
 

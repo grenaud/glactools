@@ -36,7 +36,7 @@ public:
     void setaaGL(uint8_t aaGL_);
 
     /* int getTotalCount(); */
-    /* bool alleleCountNull(); */
+    bool alleleCountNull() const;//equivalent from SingleAllele
 
     /* bool isHeterozygous(); */
     bool   getIsCpg() const;

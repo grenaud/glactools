@@ -167,6 +167,7 @@ int GlacViewer::run(int argc, char *argv[]){
 		start   = destringify<int>( region.substr(indexColon+1,indexDash-indexColon-1));
 		end     = destringify<int>( region.substr(indexDash+1));
 	    }
+	    end = end+1;//I don't know why but this seems to work to give inclusive bounds
 	    //cout<<justChr<<endl;
 	    GlacParser gp (glacfile,glacfile+".bai",chrName, start, end, justChr);
 

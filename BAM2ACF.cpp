@@ -614,7 +614,7 @@ int BAM2ACF::run(int argc, char *argv[]){
      pileup.Flush();
      reader.Close();
      fastaReference.Close();
-
+     delete(gw);
      delete cv;
     
      

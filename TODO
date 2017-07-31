@@ -1,3 +1,4 @@
+
 multithread bgzf?
 
 -- done --
@@ -17,26 +18,23 @@ mistar2gphocs*
 mistar2nexus*
 mistar2treemix*
 mistarcat*
+mistarintersect*
+mistarunion*
 
 -- todo --
 
+
 mistarmeld*
-mistarunion*
-
-mistarintersect*
-
 mistarstats*
 mistarfilter*
 mistarfreqSpec*
-
 mistarcomputeParallel2*
-mistar2AlleleMatrix*
-
 axt2mistar*
 closestMistar*
 epo2mistar*
 
 -- ignored --
+mistar2AlleleMatrix*
 mistar2segtor*
 mistar2binary*
 

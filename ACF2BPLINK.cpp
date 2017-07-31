@@ -15,7 +15,7 @@ ACF2BPLINK::~ACF2BPLINK(){
 
 string ACF2BPLINK::usage() const{
     string usage=string("glactools")+" acf2bplink  [options] <ACF file> [out prefix]"+
-	"\nThis program takes a mistar matrix and prints the genotype and SNP file as binary PLINK files\n\n"+
+	"\nThis program takes a ACF file and prints the genotype and SNP file as binary PLINK files\n\n"+
 	"\tOptions\n"+			
        "\t\t"+"--noanc"+"\t"+"Do not print the root/anc (Default: "+boolStringify(printRoot)+" )\n\n\n";
     return usage;

@@ -229,8 +229,9 @@ bool VCFreader::hasData(){
 	    SimpleVCF * svcf = new  SimpleVCF(currentline);
 #ifdef DEBUG		
 	    cout<<"new2 "<<svcf<<endl;
+	    cout<<"size "<<queueOfVCFs.size()<<endl;
 #endif
-	    // cout<<"size "<<queueOfVCFs.size()<<endl;
+
 	    if(queueOfVCFs.size() != 0 ){
 		flagCpG( queueOfVCFs.back(),svcf);
 	    }	    
@@ -266,6 +267,7 @@ bool VCFreader::hasData(){
 
 
 inline void VCFreader::flagCpG(SimpleVCF * previous,SimpleVCF * current){ //pass by address
+    //cout<<"flagCpG "<<previous->getPosition()<<"\t"<<previous->hasAtLeastOneC()<<"\t"<<current->getPosition()<<"\t"<<current->hasAtLeastOneG()<<endl;
     if( ( (previous->getPosition()+1) == current->getPosition())  &&   //one position behind
 	(  previous->getChr()         == current->getChr()    )   &&   //on same chr
 	(previous->hasAtLeastOneC()   && current->hasAtLeastOneG()) ){  //previous has at least one C, current has at least one G

@@ -424,9 +424,10 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
     //epoFileFP.close();
     //delete(filtersVCF);
+    delete(gw);
     if(rtEPO!=NULL)
 	delete(rtEPO);
-    cerr<<"Program terminated gracefully"<<endl;
+    cerr<<"Program glactools vcfm2acf terminated gracefully"<<endl;
     return 0;
 }
 

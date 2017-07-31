@@ -1,14 +1,15 @@
 /*
- * GlacCAT
+ * GlacMeld
  * Date: Jul-30-2017 
  * Author : Gabriel Renaud gabriel.reno [at sign here] gmail.com
  *
  */
 
-#ifndef GlacCAT_h
-#define GlacCAT_h
+#ifndef GlacMeld_h
+#define GlacMeld_h
 
 #include <string>
+#include <set>
 
 #include "utils.h"
 #include "GlacWriter.h"
@@ -17,16 +18,17 @@
 
 using namespace std;
 
-class GlacCAT{
+class GlacMeld{
 private:
     bool uncompressed=0;    
-    int minPLdiffind=33;
+    //int minPLdiffind=33;
+    bool keepOrig=false;
 
 public:
-    GlacCAT();
-    GlacCAT(const GlacCAT & other);
-    ~GlacCAT();
-    GlacCAT & operator= (const GlacCAT & other);
+    GlacMeld();
+    GlacMeld(const GlacMeld & other);
+    ~GlacMeld();
+    GlacMeld & operator= (const GlacMeld & other);
     
     string usage() const;
     int run(int argc, char *argv[]);

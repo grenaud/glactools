@@ -34,10 +34,12 @@ AlleleRecords::AlleleRecords(uint32_t sizePops_,bool glFormat_){
 }
 
 AlleleRecords::AlleleRecords(const AlleleRecords & other){
+    //cout<<"copy"<<endl;
     chr        = other.chr;
     coordinate = other.coordinate;
     ref        = other.ref;
     alt        = other.alt;
+
     if(other.glFormat){
 	vectorAlleles = 0;
 	vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
@@ -55,6 +57,22 @@ AlleleRecords::~AlleleRecords(){
 	delete(vectorGLs);
 }
 
+void AlleleRecords::copyCoreFields(const AlleleRecords & other){
+    chr        = other.chr;
+    chri       = other.chri;
+    coordinate = other.coordinate;
+    ref        = other.ref;
+    alt        = other.alt;
+    glFormat   = other.glFormat;
+    sizePops = 0;
+    if(other.glFormat){
+	vectorAlleles = 0;
+	vectorGLs     = new vector<SingleGL>     ( );
+    }else{
+	vectorAlleles = new vector<SingleAllele> (  );
+	vectorGLs     = 0;
+    }
+}
 
 bool AlleleRecords::everyRecordNonNull() const{
     bool toReturn=false;

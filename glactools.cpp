@@ -18,6 +18,10 @@
 #include "T3andme2ACF.h"
 
 #include "Glac2BED.h"
+#include "GlacMeld.h"
+#include "GlacIntersect.h"
+#include "GlacUnion.h"
+
 #include "GlacCAT.h"
 #include "ACF2BPLINK.h" 
 #include "ACF2FASTA.h"
@@ -58,12 +62,12 @@ int main (int argc, char *argv[]) {
 	"\t\tacf2treemix\t\tConvert an ACF file to treemix "+"\n"+
 	"\n"+
 	"\t--File transformations:\n"+                       
-	"\t\tglaccat\t\t\tConcatenate (GL|AC)f files"+"\n"+
-	"\t\tglacintersect\t\tIntersection of (GL|AC)f files"+"\n"+
-	"\t\tglacunion\t\tUnion of (GL|AC)f files"+"\n"+
+	"\t\tcat\t\t\tConcatenate (GL|AC)f files"+"\n"+
+	"\t\tintersect\t\tIntersection of (GL|AC)f files"+"\n"+
+	"\t\tunion\t\t\tUnion of (GL|AC)f files"+"\n"+
 	"\n"+
 	"\t--Population transformations:\n"+                       
-	"\t\tglacmeld\t\t"+"\n"+
+	"\t\tmeld\t\t\t"+"Merge multiple populations as one for ACF files\n"+
 	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
 	"\n"+
 	"\t--GLF/ACF conversion:\n"+                       
@@ -254,7 +258,7 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return acf2treemix_.run(argc, argv);
 
-    }else{      if(string(argv[1]) == "glaccat"){
+    }else{      if(string(argv[1]) == "cat"){
 	GlacCAT  glaccat_;
 
 	if( argc==2 ||
@@ -267,6 +271,48 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glaccat_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "meld"){
+	GlacMeld  glacmeld_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacmeld_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacmeld_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "intersect"){
+	GlacIntersect  glacintersect_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacintersect_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacintersect_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "union"){
+	GlacUnion  glacunion_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacunion_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacunion_.run(argc, argv);
 
 		    	    	    
     }else{      if(string(argv[1]) == "index"){
@@ -307,7 +353,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-							    }}}}}}}}}}}}}}}
+									}}}}}}}}}}}}}}}}}}
     
     return 0;
 }
