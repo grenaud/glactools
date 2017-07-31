@@ -3,6 +3,7 @@
 
 //#include <gzstream.h>
 #include <sys/time.h> //for srand
+#include <climits>
 
 #include "utils.h"
 #include "SingleAllele.h"
@@ -22,6 +23,8 @@
 using namespace std;
 
 
+static uint8_t maskRef=240; //11110000
+static uint8_t maskAlt=15; //00001111
 
 static char sizeBytesACF;
 static char sizeBytesGLF;
@@ -69,8 +72,8 @@ hts_itr_t *iter;//for iterator for indexing
     /* bool getNextLine(); */
 
  public:
-    GlacParser(string filename);
-    GlacParser(string file,string indexForFile,string chrName,int start,int end,bool justChr=false);
+    GlacParser(string filename,int compressionThreads=1);
+    GlacParser(string file,string indexForFile,string chrName,int start,int end,bool justChr=false,int compressionThreads=1);
     /* GlacParser(string file,string indexForFile); */
 
     //GlacParser(const vector<string> * dataToRead,const vector<string> & populationNames_);

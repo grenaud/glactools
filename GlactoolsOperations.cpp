@@ -104,162 +104,162 @@ void initFiles(vector<GlactoolsParser * > & vectorOfMP,
 */
 
 
-bool sanityCheck(vector<MistarParser * > & vectorOfGP,
-		 vector<bool> & hasData,
-		 vector<bool> & hasCoordinate,
-		 vector<AlleleRecords *> & vecAlleleRecords,
-		 string & chr1,
-		 unsigned int & coordCurrent,
-		 string & chrcheck ,
-		 char & refAllele,
-		 bool force  ){
+// bool sanityCheck(vector<MistarParser * > & vectorOfGP,
+// 		 vector<bool> & hasData,
+// 		 vector<bool> & hasCoordinate,
+// 		 vector<AlleleRecords *> & vecAlleleRecords,
+// 		 string & chr1,
+// 		 unsigned int & coordCurrent,
+// 		 string & chrcheck ,
+// 		 char & refAllele,
+// 		 bool force  ){
   
 	    
-    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
+//     for(unsigned int i=0;i<vectorOfGP.size();i++){ 
 
-	if(hasData[i] && hasCoordinate[i]){
-	    if(refAllele == '\0'){
-		chrcheck   = vecAlleleRecords[i]->chr;
-		refAllele  = vecAlleleRecords[i]->ref;
-		if( chrcheck   != chr1){
-		    cerr<<"sanityCheck()1 Chromosomes differ between "<<(* vecAlleleRecords[0])<<" and "<<(*vecAlleleRecords[i])<<endl;
-		    exit(1);   
-		}
+// 	if(hasData[i] && hasCoordinate[i]){
+// 	    if(refAllele == '\0'){
+// 		chrcheck   = vecAlleleRecords[i]->chr;
+// 		refAllele  = vecAlleleRecords[i]->ref;
+// 		if( chrcheck   != chr1){
+// 		    cerr<<"sanityCheck()1 Chromosomes differ between "<<(* vecAlleleRecords[0])<<" and "<<(*vecAlleleRecords[i])<<endl;
+// 		    exit(1);   
+// 		}
 
-	    }else{
-		if( chrcheck   != vecAlleleRecords[i]->chr){
-		    cerr<<"sanityCheck()2 Chromosomes differ between "<<(* vecAlleleRecords[0])<<" and "<<(*vecAlleleRecords[i])<<endl;
-		    exit(1);   
-		}
+// 	    }else{
+// 		if( chrcheck   != vecAlleleRecords[i]->chr){
+// 		    cerr<<"sanityCheck()2 Chromosomes differ between "<<(* vecAlleleRecords[0])<<" and "<<(*vecAlleleRecords[i])<<endl;
+// 		    exit(1);   
+// 		}
 
-		if( refAllele  != vecAlleleRecords[i]->ref){
-		    cerr<<"The reference allele differs between "<<(* vecAlleleRecords[0])<<" and "<<(*vecAlleleRecords[i])<<endl;
-		    if(force)
-			return false;
-		    else
-			exit(1);  
-		}
-	    }
-	}
-    }
-
-
-    if(refAllele == '\0'){
-	cerr<<"The reference allele could not be determined at coordinate "<<coordCurrent<<endl;	
-	exit(1);  
-    }
-
-    return true;
-
-}
+// 		if( refAllele  != vecAlleleRecords[i]->ref){
+// 		    cerr<<"The reference allele differs between "<<(* vecAlleleRecords[0])<<" and "<<(*vecAlleleRecords[i])<<endl;
+// 		    if(force)
+// 			return false;
+// 		    else
+// 			exit(1);  
+// 		}
+// 	    }
+// 	}
+//     }
 
 
-bool printAllele(vector<GlacParser * > & vectorOfGP,
-		 vector<bool> & hasData,
-		 vector<bool> & hasCoordinate,
-		 vector<int> & popSizePerFile,
-		 vector<AlleleRecords *> & vecAlleleRecords,
-		 string & chr1,
-		 unsigned int & coordCurrent,
-		 bool force){
+//     if(refAllele == '\0'){
+// 	cerr<<"The reference allele could not be determined at coordinate "<<coordCurrent<<endl;	
+// 	exit(1);  
+//     }
 
-    //sanity checks
-    string chrcheck = "";  //= vecAlleleRecords[0]->chr;
-    char refAllele  = '\0'; // = vecAlleleRecords[0]->ref;
-    bool isSane=sanityCheck(vectorOfGP,hasData,hasCoordinate,vecAlleleRecords,chr1,coordCurrent,chrcheck,refAllele,force);
-    if(!isSane)
-	return false;
+//     return true;
+
+// }
+
+
+// bool printAllele(vector<GlacParser * > & vectorOfGP,
+// 		 vector<bool> & hasData,
+// 		 vector<bool> & hasCoordinate,
+// 		 vector<int> & popSizePerFile,
+// 		 vector<AlleleRecords *> & vecAlleleRecords,
+// 		 string & chr1,
+// 		 unsigned int & coordCurrent,
+// 		 bool force){
+
+//     //sanity checks
+//     string chrcheck = "";  //= vecAlleleRecords[0]->chr;
+//     char refAllele  = '\0'; // = vecAlleleRecords[0]->ref;
+//     bool isSane=sanityCheck(vectorOfGP,hasData,hasCoordinate,vecAlleleRecords,chr1,coordCurrent,chrcheck,refAllele,force);
+//     if(!isSane)
+// 	return false;
     
-    //ancestral info
-    SingleAllele chimp;
-    SingleAllele anc;
-    bool chimpSet=false;
-    bool ancSet  =false;
+//     //ancestral info
+//     SingleAllele chimp;
+//     SingleAllele anc;
+//     bool chimpSet=false;
+//     bool ancSet  =false;
 	    
-    //determining new alternative allele
-    char newAlt = 'N';
-    vector<SingleAllele> toPrint;
-    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
-	if(hasData[i] && hasCoordinate[i]){
+//     //determining new alternative allele
+//     char newAlt = 'N';
+//     vector<SingleAllele> toPrint;
+//     for(unsigned int i=0;i<vectorOfGP.size();i++){ 
+// 	if(hasData[i] && hasCoordinate[i]){
 
-	    if( !isResolvedDNA(newAlt)  && //is 'N'
-		isResolvedDNA(vecAlleleRecords[i]->alt) ){ //not 'N'
-		newAlt = vecAlleleRecords[i]->alt;
-	    }
+// 	    if( !isResolvedDNA(newAlt)  && //is 'N'
+// 		isResolvedDNA(vecAlleleRecords[i]->alt) ){ //not 'N'
+// 		newAlt = vecAlleleRecords[i]->alt;
+// 	    }
 		
-	    if( isResolvedDNA(newAlt)                   && //not 'N'
-		isResolvedDNA(vecAlleleRecords[i]->alt) && //not 'N'
-		vecAlleleRecords[i]->alt != newAlt){       //differ
-		//tri-allelic
-		//goto seekdata;
-		return false;
-	    }
-	}
-    }
+// 	    if( isResolvedDNA(newAlt)                   && //not 'N'
+// 		isResolvedDNA(vecAlleleRecords[i]->alt) && //not 'N'
+// 		vecAlleleRecords[i]->alt != newAlt){       //differ
+// 		//tri-allelic
+// 		//goto seekdata;
+// 		return false;
+// 	    }
+// 	}
+//     }
 	    
 	  
-    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
-	if(hasData[i] && hasCoordinate[i]){
-	    //chimp
-	    if(!vecAlleleRecords[i]->vectorAlleles->at(0).alleleCountNull()){
-		if(chimpSet){
-		    if(chimp != vecAlleleRecords[i]->vectorAlleles->at(0)){
-			cerr<<"Disprency in chimp info between "<<(* vecAlleleRecords[i])<<" and "<<(chimp)<<endl;
-			if(force)
-			    return false;
-			else
-			    exit(1);  
-		    }
-		}else{
-		    chimpSet=true;
-		    chimp=vecAlleleRecords[i]->vectorAlleles->at(0);
-		}
-	    }
+//     for(unsigned int i=0;i<vectorOfGP.size();i++){ 
+// 	if(hasData[i] && hasCoordinate[i]){
+// 	    //chimp
+// 	    if(!vecAlleleRecords[i]->vectorAlleles->at(0).alleleCountNull()){
+// 		if(chimpSet){
+// 		    if(chimp != vecAlleleRecords[i]->vectorAlleles->at(0)){
+// 			cerr<<"Disprency in chimp info between "<<(* vecAlleleRecords[i])<<" and "<<(chimp)<<endl;
+// 			if(force)
+// 			    return false;
+// 			else
+// 			    exit(1);  
+// 		    }
+// 		}else{
+// 		    chimpSet=true;
+// 		    chimp=vecAlleleRecords[i]->vectorAlleles->at(0);
+// 		}
+// 	    }
 
-	    //anc
-	    if(!vecAlleleRecords[i]->vectorAlleles->at(1).alleleCountNull()){
-		if(ancSet){
-		    if(anc != vecAlleleRecords[i]->vectorAlleles->at(1)){
-			cerr<<"Disprency in ancestral info between "<<(* vecAlleleRecords[i])<<" and "<<(anc)<<endl;
-			if(force)
-			    return false;
-			else
-			    exit(1);  
-		    }
-		}else{
-		    ancSet=true;
-		    anc=vecAlleleRecords[i]->vectorAlleles->at(1);
-		}
-	    }
+// 	    //anc
+// 	    if(!vecAlleleRecords[i]->vectorAlleles->at(1).alleleCountNull()){
+// 		if(ancSet){
+// 		    if(anc != vecAlleleRecords[i]->vectorAlleles->at(1)){
+// 			cerr<<"Disprency in ancestral info between "<<(* vecAlleleRecords[i])<<" and "<<(anc)<<endl;
+// 			if(force)
+// 			    return false;
+// 			else
+// 			    exit(1);  
+// 		    }
+// 		}else{
+// 		    ancSet=true;
+// 		    anc=vecAlleleRecords[i]->vectorAlleles->at(1);
+// 		}
+// 	    }
 
-	}
-    }
-    //cout<<endl;
+// 	}
+//     }
+//     //cout<<endl;
 	     
 
-    // 	printnewrecord:
-    cout<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<","<<newAlt<<"\t"<<chimp<<"\t"<<anc<<"\t";
+//     // 	printnewrecord:
+//     cout<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<","<<newAlt<<"\t"<<chimp<<"\t"<<anc<<"\t";
 	     
 
-    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
-	if(hasData[i] && hasCoordinate[i]){
-	    for(int k=2;k<popSizePerFile[i];k++){
-		toPrint.push_back(vecAlleleRecords[i]->vectorAlleles->at(k));
-	    }
+//     for(unsigned int i=0;i<vectorOfGP.size();i++){ 
+// 	if(hasData[i] && hasCoordinate[i]){
+// 	    for(int k=2;k<popSizePerFile[i];k++){
+// 		toPrint.push_back(vecAlleleRecords[i]->vectorAlleles->at(k));
+// 	    }
 		    
-	}else{
+// 	}else{
 
-	    for(int k=2;k<popSizePerFile[i];k++){
-		SingleAllele t;
-		toPrint.push_back(t);
-	    }
+// 	    for(int k=2;k<popSizePerFile[i];k++){
+// 		SingleAllele t;
+// 		toPrint.push_back(t);
+// 	    }
 
-	}
-    }
-    cout<<vectorToString(toPrint,"\t")<<endl;
+// 	}
+//     }
+//     cout<<vectorToString(toPrint,"\t")<<endl;
 
-    return true;
-}
+//     return true;
+// }
 
 
 

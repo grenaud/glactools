@@ -24,7 +24,7 @@ private:
     bool uncompressed;
     BGZF * fpBGZF    ;
 public:
-    GlacWriter(uint32_t sizePops_,bool glFormat_,int bytesForRecord,bool uncompressed_=false);
+    GlacWriter(uint32_t sizePops_,bool glFormat_,int bytesForRecord,int compressionThreads=1,bool uncompressed_=false);
     GlacWriter(const GlacWriter & other);
     ~GlacWriter();
     GlacWriter & operator= (const GlacWriter & other);

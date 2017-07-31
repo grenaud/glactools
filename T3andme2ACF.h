@@ -9,6 +9,7 @@
 #define T3andme2ACF_h
 
 #include <string>
+#include <climits>
 #include <gzstream.h>
 
 #include "utils.h"

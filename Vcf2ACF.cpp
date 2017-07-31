@@ -297,11 +297,11 @@ int Vcf2ACF::run(int argc, char *argv[]){
 	programLine+=(string(argv[i])+" ");
     }
     //cout<<"#PG:"<<programLine<<endl;
-    header+="#PG:"+programLine+"\n";;
-    header+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";;
+    header+="#PG:"+programLine+"\n";
+    header+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";
     //cout<<"#DATE: "<<getDateString()<<endl;
-    header+="#DATE: "+getDateString()+"\n";;
-    header+="#VCF2ACF:\n";;
+    header+="#DATE: "+getDateString()+"\n";
+    header+="#VCF2ACF:\n";
 
 
     

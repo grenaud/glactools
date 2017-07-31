@@ -165,7 +165,8 @@ int GlacIndex::run(int argc, char *argv[]){
     }else{//GLf
 	sizeOneInd = 3*int(sizeBytes)+1;
     }
-    ssize_t sizeRecord = 8 + ( ssize_t(sizeOneInd) ) *(sizePops+2);
+    //ssize_t sizeRecord = 8 + ( ssize_t(sizeOneInd) ) *(sizePops+2);
+    ssize_t sizeRecord = 7 + ( ssize_t(sizeOneInd) ) *(sizePops+2);
 
     char bufferRecord [sizeRecord];
     //cerr<<sizeRecord<<endl;

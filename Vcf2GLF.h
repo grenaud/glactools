@@ -18,6 +18,7 @@
 #include "GlacWriter.h"
 #include "GlactoolsOperations.h"
 #include <cinttypes>
+#include <climits>
 
 /* extern "C"{ */
 /* #include "htslib/bgzf.h" */

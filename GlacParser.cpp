@@ -17,8 +17,12 @@ static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
     uint32_t sizePops=ptrar->getSizePops();
     //                    5b record (2b+2b+1)
     size_t sizeSingleAC = (2*sizeBytesACF+1);
-    //                  8b base,5b record (2b+2b+1)
-    size_t sizeRecord = 8+ (sizeSingleAC)*(sizePops+2);//+2 for root/anc
+
+    
+    //                  base 2 (chr) + 4(coord) + 1(ref|alt) = 7
+    size_t sizeRecord = 7+ (sizeSingleAC)*(sizePops+2);//+2 for root/anc
+    //base is 
+
     char buffer [sizeRecord];
     // cout<<"sp "<<sizePops<<"\t"<<sizeRecord<<endl;
     // exit(1);
@@ -58,6 +62,13 @@ static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
 
     offset+=sizeof(ptrar->coordinate);
 
+    char tempCh;
+    memcpy((char*)&tempCh,           buffer+offset,    sizeof(tempCh));    
+    offset+=sizeof(tempCh);    
+    ptrar->ref        =                           "NACGT"[ ((tempCh&maskRef)>>4) ];
+    ptrar->alt        =                           "NACGT"[ ((tempCh&maskAlt)   ) ];
+
+#ifdef OLD    
     char ref; //1
     memcpy((char*)&ref,           buffer+offset,    sizeof(ref));
     //memcpy((char*)&ptrar->ref,         buffer+offset,    sizeof(ptrar->ref));
@@ -69,6 +80,8 @@ static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
     //memcpy((char*)&ptrar->alt,         buffer+offset,    sizeof(ptrar->alt));
     ptrar->alt = "NACGT"[(unsigned char)alt];
     offset+=sizeof(ptrar->alt);    
+#endif
+
     // cout<<"alt  "<<"NACGT"[ptrar->alt]<<endl;
     // cout<<"chr "<<ptrar->chri<<endl;    
     //    cout<<"chr "<<ptrar->chri<<"\t";
@@ -87,9 +100,10 @@ static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
 	uint16_t altC; //2
 	char     cpgC; //1
 	//5 = 2+2+1
-	memcpy((char*)&refC,       buffer+8 +5*j, sizeof(refC));
-	memcpy((char*)&altC,       buffer+10+5*j, sizeof(altC));
-	memcpy((char*)&cpgC,       buffer+12+5*j, sizeof(cpgC));
+	//size single record is 7
+	memcpy((char*)&refC,       buffer+7 +5*j, sizeof(refC));
+	memcpy((char*)&altC,       buffer+9+5*j, sizeof(altC));
+	memcpy((char*)&cpgC,       buffer+11+5*j, sizeof(cpgC));
 
 	// cout<<refC<<endl;
 	// cout<<altC<<endl;
@@ -130,7 +144,7 @@ static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
     //                     4b record (1+1+1+1)
     size_t sizeSingleGL = (3*sizeBytesGLF+1);
     //                  8b base,4b record (1+1+1+1)
-    size_t sizeRecord = 8+ sizeSingleGL*(sizePops+2);//+2 for root/anc
+    size_t sizeRecord = 7+ sizeSingleGL*(sizePops+2);//+2 for root/anc
     char buffer [sizeRecord];
 
 
@@ -168,6 +182,14 @@ static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
 
     offset+=sizeof(ptrar->coordinate);
 
+
+    char tempCh;
+    memcpy((char*)&tempCh,           buffer+offset,    sizeof(tempCh));    
+    offset+=sizeof(tempCh);    
+    ptrar->ref        =                           "NACGT"[ ((tempCh&maskRef)>>4) ];
+    ptrar->alt        =                           "NACGT"[ ((tempCh&maskAlt)   ) ];
+
+#ifdef OLD
     char ref; //1
     memcpy((char*)&ref,           buffer+offset,    sizeof(ref));
     //memcpy((char*)&ptrar->ref,         buffer+offset,    sizeof(ptrar->ref));
@@ -179,6 +201,7 @@ static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
     //memcpy((char*)&ptrar->alt,         buffer+offset,    sizeof(ptrar->alt));
     ptrar->alt = "NACGT"[(unsigned char)alt];
     offset+=sizeof(ptrar->alt);    
+#endif
     // cout<<"alt  "<<"NACGT"[ptrar->alt]<<endl;
     // cout<<"chr "<<ptrar->chri<<endl;    
     //    cout<<"chr "<<ptrar->chri<<"\t";
@@ -198,10 +221,10 @@ static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
 	uint8_t aaC;//1b
 	char   cpgC; //1
 
-	memcpy((char*)&rrC,        buffer+ 8 +4*j, sizeof(rrC));
-	memcpy((char*)&raC,        buffer+ 9 +4*j, sizeof(raC));
-	memcpy((char*)&aaC,        buffer+10 +4*j, sizeof(aaC));
-	memcpy((char*)&cpgC,       buffer+11 +4*j, sizeof(cpgC));
+	memcpy((char*)&rrC,        buffer+ 7 +4*j, sizeof(rrC));
+	memcpy((char*)&raC,        buffer+ 8 +4*j, sizeof(raC));
+	memcpy((char*)&aaC,        buffer+ 9 +4*j, sizeof(aaC));
+	memcpy((char*)&cpgC,       buffer+10 +4*j, sizeof(cpgC));
 
 	// cout<<refC<<endl;
 	// cout<<altC<<endl;
@@ -232,7 +255,7 @@ static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
 
 
 
-GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int start_,int end_,bool justChr){
+GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int start_,int end_,bool justChr,int compressionThreads){
     //cout<<chrName<<"\t"<<start<<"\t"<<end<<endl;
     //for rand() ins SingleAllele
     timeval time;
@@ -251,7 +274,13 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
 
 
     myFilezipped = bgzf_open(bgzf_file.c_str(), "r");
+
+    if(compressionThreads>1)
+	bgzf_mt(myFilezipped, compressionThreads, 256);
+
     bool isbgzip=(bgzf_compression(myFilezipped)==2);
+
+    
     //reading the header
     numberPopulations=0;
     populationNames=new vector<string>();
@@ -355,7 +384,7 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
 //     textMode   = false;
 // }
 
-GlacParser::GlacParser(string filename){
+GlacParser::GlacParser(string filename,int compressionThreads){
     header="";
     headerNoDefline="";
 
@@ -375,10 +404,18 @@ GlacParser::GlacParser(string filename){
     if(openSTDIN){
 	//cerr<<"stdin"<<endl;
 	myFilezipped=bgzf_dopen(0, "r");
+
+	if(compressionThreads>1)
+	    bgzf_mt(myFilezipped, compressionThreads, 256);
+
 	isbgzip     =bgzf_compression(myFilezipped);
     }else{
 	//isbgzip     =bgzf_is_bgzf(filename.c_str());
 	myFilezipped=bgzf_open(filename.c_str(), "r");
+
+	if(compressionThreads>1)
+	    bgzf_mt(myFilezipped, compressionThreads, 256);
+
 	isbgzip     =bgzf_compression(myFilezipped);
     }    
 
@@ -914,8 +951,8 @@ bool GlacParser::hasData(){
 	ssize_t bytesread;
 
 
-	char ref;
-	char alt;
+	// char ref;
+	// char alt;
 	
 	//cout<<"hasDatab2"<<endl;
 	//uint16_t 2b
@@ -937,6 +974,18 @@ bool GlacParser::hasData(){
 	}
 	//cout<<allRecToReturn->coordinate<<endl;
 	//char 1b
+	uint8_t tempCh;
+
+	bytesread = bgzf_read(myFilezipped, &tempCh, sizeof(tempCh));
+	if(bytesread != sizeof(tempCh)){
+	    cerr<<"Error: GlacParser tried to read "<< sizeof(tempCh) <<" bytes but got "<<bytesread<<endl;
+	    exit(1);
+	}
+	
+	allRecToReturn->ref        =                           "NACGT"[ ((tempCh&maskRef)>>4) ];
+	allRecToReturn->alt        =                           "NACGT"[ ((tempCh&maskAlt)   ) ];
+	
+#ifdef OLD
 	bytesread = bgzf_read(myFilezipped, &ref, sizeof(ref));
 	if(bytesread != sizeof(ref)){
 	    cerr<<"Error: GlacParser tried to read "<< sizeof(ref) <<" bytes but got "<<bytesread<<endl;
@@ -950,12 +999,14 @@ bool GlacParser::hasData(){
 	    cerr<<"Error: GlacParser tried to read "<< sizeof(alt) <<" bytes but got "<<bytesread<<endl;
 	    exit(1);
 	}
+
 	allRecToReturn->alt        =                           "NACGT"[(unsigned char)alt];
 	//cout<<"NACGT"[alt]<<endl;
 	if(allRecToReturn->ref == allRecToReturn->alt){
 	    cerr << "Error: GlacParser the line at "<<allRecToReturn->chr<<":"<<allRecToReturn->coordinate<<" reference allele: "<<allRecToReturn->ref<<" is equal to the alt allele: " << allRecToReturn->alt<<" , exiting"<<endl;
 	    exit(1);	   
 	}
+#endif
 	
 	if(acFormat){
 		
@@ -1348,16 +1399,16 @@ size_t GlacParser::getSizeRecord() const{
     if(acFormat){
 	//                    5b record (2b+2b+1)
 	size_t sizeSingleAC = (2*sizeBytesACF+1);
-	//                  8b base,5b record (2b+2b+1)
-	size_t sizeRecord = 8+ (sizeSingleAC)*sizePops;
+	//                  7b base,5b record (2b+2b+1)
+	size_t sizeRecord = 7+ (sizeSingleAC)*sizePops;
 	return sizeRecord;
     }else{
 
 	if(glFormat){
 	    //                     4b record (1+1+1+1)
 	    size_t sizeSingleGL = (3*sizeBytesGLF+1);
-	    //                  8b base,4b record (1+1+1+1)
-	    size_t sizeRecord = 8+ sizeSingleGL*sizePops;
+	    //                  7b base,4b record (1+1+1+1)
+	    size_t sizeRecord = 7+ sizeSingleGL*sizePops;
 	    return sizeRecord;
 	}else{
 	    cerr<<"GlacParser: wrong state in getSizeRecord()"<<endl;

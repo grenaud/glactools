@@ -304,7 +304,7 @@ int Vcf2GLF::run(int argc, char *argv[]){
     header+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";;
     //cout<<"#DATE: "<<getDateString()<<endl;
     header+="#DATE: "+getDateString()+"\n";;
-    header+="#BAM2GLF:";
+    header+="#BAM2GLF:\n";
 
     
 
