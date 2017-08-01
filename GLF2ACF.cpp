@@ -56,6 +56,8 @@ int GLF2ACF::run(int argc, char *argv[]){
             i++;
             continue;
         }
+        cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
 
     }
 
@@ -76,7 +78,7 @@ int GLF2ACF::run(int argc, char *argv[]){
 				     2,
 				     uncompressed);
     string newheader="";
-    newheader+="#GLF\n";
+    newheader+="#ACF\n";
     string programLine;
     for(int i=0;i<(argc);i++){ 
 	programLine+=(string(argv[i])+" ");

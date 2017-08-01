@@ -190,10 +190,9 @@ int Vcf2GLF::run(int argc, char *argv[]){
 	//     ancAllele       =true;
 	//     continue;
 	// }
+	cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
 
-	cerr<<"Wrong option "<<argv[i]<<endl;
-	//exit(1);
-	return 1;
     }
 
     if(lastOpt != (argc-2)){

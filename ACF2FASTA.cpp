@@ -36,6 +36,8 @@ int ACF2FASTA::run(int argc, char *argv[]){
 	if( string(argv[i]) == "--het"){
 	    produceTwo=true;
 	}
+	cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
 
     }
 

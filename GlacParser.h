@@ -37,8 +37,8 @@ class GlacParser{
     unsigned int numberPopulations;
     //igzstream   * myFilezipped;
     BGZF *myFilezipped; 
-hts_itr_t *iter;//for iterator for indexing
-
+    hts_itr_t *iter;//for iterator for indexing
+ 
     /* ifstream    * myFile; */
     AlleleRecords * allRecToReturn;
     int numberOfTimesHasDataWasCalled;
@@ -65,7 +65,7 @@ hts_itr_t *iter;//for iterator for indexing
     bool glFormat;
 
     uint32_t sizePops;
-
+    
     vector<string> chrKnown;
     //void parseHeader(istream & in);
     void parseHeader(BGZF *myFilezipped); 
@@ -94,6 +94,8 @@ hts_itr_t *iter;//for iterator for indexing
     bool isGLFormat() const;
     uint32_t getSizePops() const;
     size_t getSizeRecord() const; //size of 1 record in binary
+    int getNumberOfChromosomes() const;
+    string getChromosomeName(int chrIdx) const;
 
     const vector<string> *   getPopulationsNames() const ;
 

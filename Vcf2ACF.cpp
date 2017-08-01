@@ -189,8 +189,9 @@ int Vcf2ACF::run(int argc, char *argv[]){
 	//     continue;
 	// }
 
-	cerr<<"Wrong option "<<argv[i]<<endl;
-	exit(1);
+	cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
+
     }
 
     if(fastaIndex.size()==0){

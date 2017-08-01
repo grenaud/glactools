@@ -39,6 +39,8 @@ int ACF2BPLINK::run(int argc, char *argv[]){
 	if( string(argv[i]) == "--noanc"){
 	    printRoot=false;
 	}
+	cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
 
     }
 

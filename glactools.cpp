@@ -22,6 +22,14 @@
 #include "GlacIntersect.h"
 #include "GlacUnion.h"
 
+#include "GlacUndef.h"
+#include "GlacBedfilter.h"
+#include "GlacSegsite.h"
+
+#include "GlacSharing.h"
+#include "GlacNoSharing.h"
+#include "GlacNoStrictSharing.h"
+
 #include "GlacCAT.h"
 #include "ACF2BPLINK.h" 
 #include "ACF2FASTA.h"
@@ -30,6 +38,7 @@
 #include "ACF2TREEMIX.h" 
 
 #include "GlacIndex.h"
+#include "GlacIDXSTATS.h"
 #include "GlacViewer.h"
 
 using namespace std;
@@ -54,12 +63,24 @@ int main (int argc, char *argv[]) {
 	"\t\t23andme2acf\t\tConvert 23andme data to acf "+"\n"+
 	"\n"+
 	"\t--Data export:\n"+                       
-	"\t\tglac2bed\t\tConvert a (GL|AC)f file to BED "+"\n"+
-	"\t\tacf2binaryplink\t\tConvert an ACF file to binary PLINK "+"\n"+
-	"\t\tacf2fasta\t\tConvert an ACF file to fasta "+"\n"+ 
-	"\t\tacf2gphocs\t\tConvert an ACF file to G-PhoCs "+"\n"+
-	"\t\tacf2nexus\t\tConvert an ACF file to Nexus "+"\n"+
-	"\t\tacf2treemix\t\tConvert an ACF file to treemix "+"\n"+
+	"\t\tglac2bed\t\tConvert a (GL|AC)f file to BED"+"\n"+
+	"\t\tacf2binaryplink\t\tConvert an ACF file to binary PLINK"+"\n"+
+	"\t\tacf2fasta\t\tConvert an ACF file to fasta"+"\n"+ 
+	"\t\tacf2gphocs\t\tConvert an ACF file to G-PhoCs"+"\n"+
+	"\t\tacf2nexus\t\tConvert an ACF file to Nexus"+"\n"+
+	"\t\tacf2treemix\t\tConvert an ACF file to treemix"+"\n"+
+	"\n"+
+	"\t--Filtering:\n"+                       
+	"\t\tnoundef\t\t\tNo undefined sites for populations"+"\n"+
+	"\t\tbedfilter\t\tFilter mistar file using sorted bedfile"+"\n"+
+	"\t\tsegsite\t\t\tJust retain segregating sites (or trans./transi)"+"\n"+
+	"\t\tsharing\t\t\tRetain sites that share alleles between populations"+"\n"+
+	"\t\tnosharing\t\tRetain sites that do NOT share alleles between populations"+"\n"+
+	"\t\tsnosharing\t\tRetain sites that STRICKLY do NOT share alleles between populations"+"\n"+
+	
+
+
+
 	"\n"+
 	"\t--File transformations:\n"+                       
 	"\t\tcat\t\t\tConcatenate (GL|AC)f files"+"\n"+
@@ -68,6 +89,9 @@ int main (int argc, char *argv[]) {
 	"\n"+
 	"\t--Population transformations:\n"+                       
 	"\t\tmeld\t\t\t"+"Merge multiple populations as one for ACF files\n"+
+	"\t\tpopsub\t\t\t"+"Keep a subset of the populations\n"+
+	"\t\tremovepop\t\t\t"+"Remove a subset of the populations\n"+
+
 	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
 	"\n"+
 	"\t--GLF/ACF conversion:\n"+                       
@@ -75,6 +99,7 @@ int main (int argc, char *argv[]) {
 	"\n"+
 	"\t--Indexing:\n"+                       
 	"\t\tindex\t\t\tindex acf/glf file"+"\n"+
+	"\t\tidxstats\t\t\tBasic statistics using the index of a acf/glf file"+"\n"+
 	"\n"+
 	"\t--Viewing:\n"+                       
 	"\t\tview\t\t\tview all or a region of a acf/glf file "+"\n"+
@@ -258,6 +283,90 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return acf2treemix_.run(argc, argv);
 
+
+    }else{      if(string(argv[1]) == "noundef"){
+	GlacUndef  glacundef_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacundef_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacundef_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "bedfilter"){
+	GlacBedfilter  glacbedfilter_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacbedfilter_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacbedfilter_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "segsite"){
+	GlacSegsite  glacsegsite_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacsegsite_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacsegsite_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "sharing"){
+	GlacSharing  glacsharing_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacsharing_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacsharing_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "nosharing"){
+	GlacNoSharing  glacnosharing_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacnosharing_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacnosharing_.run(argc, argv);
+    }else{      if(string(argv[1]) == "snosharing"){
+	GlacNoStrictSharing  glacnostrictsharing_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacnostrictsharing_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacnostrictsharing_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "cat"){
 	GlacCAT  glaccat_;
 
@@ -332,6 +441,20 @@ int main (int argc, char *argv[]) {
 		    
 	    
 
+    }else{      if(string(argv[1]) == "idxstats"){
+	GlacIDXSTATS  glacIdxstats_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacIdxstats_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacIdxstats_.run(argc, argv);		   	    
+
     }else{      if(string(argv[1]) == "view"){
 	GlacViewer  glviewer_;
 
@@ -353,7 +476,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-									}}}}}}}}}}}}}}}}}}
+												    }}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

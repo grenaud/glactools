@@ -68,6 +68,10 @@ int GlacUnion::run(int argc, char *argv[]){
 	    uncompressed=true;
             continue;
         }
+	cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
+
+
     }
 
     string defLine;

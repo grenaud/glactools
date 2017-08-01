@@ -58,6 +58,9 @@ int GlacMeld::run(int argc, char *argv[]){
             continue;
         }
 
+        cerr<<"Error unknown option "<<argv[i]<<endl;
+        return 1;
+
     }
 
     if(lastOpt != (argc-3)){

@@ -1378,6 +1378,17 @@ size_t GlacParser::getSizeRecord() const{
     }
 }
 
+int GlacParser::getNumberOfChromosomes() const{
+    return int(chrKnown.size());
+}
+
+string GlacParser::getChromosomeName(int chrIdx) const{
+    if(chrIdx>=int(chrKnown.size())){
+	return "N/A";
+    }
+    return chrKnown[chrIdx];
+}
+
 const vector<string> * GlacParser::getPopulationsNames() const{
     return populationNames;
 }
