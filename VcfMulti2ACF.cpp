@@ -209,6 +209,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
     gw = new GlacWriter(int(vcfr.getPopulationNames().size()),    //gp.getSizePops(),
 			false, //gp.isGLFormat(),
 			2,//gp.isACFormat()?2:1,
+			1,//compression threads
 			uncompressed);
 
     stringstream header;

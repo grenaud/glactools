@@ -14,7 +14,7 @@ ACF2FASTA::~ACF2FASTA(){
 }
 
 string ACF2FASTA::usage() const{
-    string usage=string("glactools")+" acf2fasta  <ACF file>"+
+    string usage=string("glactools")+" acf2fasta  [options] <ACF file>"+
 	"\nThis program takes an ACF file and prints a FASTA file using the allele information\nwith one record per population. Each site generates one base pair.\n\n"+
 	"\tOptions\n"+			
 	"\t\t"+"--noanc"+"\t"+"Do not print the root/anc (Default: "+boolStringify(printRoot)+" )\n"

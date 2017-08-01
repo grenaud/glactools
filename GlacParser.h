@@ -34,7 +34,7 @@ class GlacParser{
  private:
 
     vector<string> * populationNames;
-    unsigned int numberPopulations;
+    //unsigned int numberPopulations;
     //igzstream   * myFilezipped;
     BGZF *myFilezipped; 
     hts_itr_t *iter;//for iterator for indexing
@@ -67,6 +67,7 @@ class GlacParser{
     uint32_t sizePops;
     
     vector<string> chrKnown;
+    map<string,uint16_t> chr2chri;
     //void parseHeader(istream & in);
     void parseHeader(BGZF *myFilezipped); 
     /* bool getNextLine(); */

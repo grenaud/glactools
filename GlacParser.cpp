@@ -282,7 +282,8 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
 
     
     //reading the header
-    numberPopulations=0;
+    //numberPopulations=0;
+    sizePops=0;
     populationNames=new vector<string>();
 
     parseHeader(myFilezipped);
@@ -396,7 +397,7 @@ GlacParser::GlacParser(string filename,int compressionThreads){
 
     bool isbgzip;
 
-    //cout<<"parser:"<<filename<<"#"<<endl;
+    //cerr<<"parser:"<<filename<<"#"<<endl;
     //filename="-";
     bool openSTDIN = (filename == "-" || filename == "/dev/stdin");//is there a better way to do this?
     //cerr<<openSTDIN<<endl;
@@ -448,9 +449,10 @@ GlacParser::GlacParser(string filename,int compressionThreads){
     // }
 
     //reading the header
-    numberPopulations=0;
+    //numberPopulations=0;
+    sizePops=0;
     populationNames=new vector<string>();
-
+    //cerr<<"header"<<endl;
     parseHeader(myFilezipped);
     //exit(1);
     if(defline.empty()){
@@ -587,6 +589,7 @@ void GlacParser::parseHeader(BGZF *bg){
 	    
 	// formattest [4] = c;
     }else{
+	//if starts with BAM\1
 	bytesread = bgzf_read(bg, &formattest, 3);
 	if(bytesread != 3){
 	    cerr<<"Error: GlacParser tried to read "<< 3<<" bytes but got "<<bytesread<<endl;
@@ -600,6 +603,7 @@ void GlacParser::parseHeader(BGZF *bg){
     
     }
 
+    //cerr<<"ACF "<<glFormat<<"\t"<<acFormat<<endl;
 
     for(unsigned int i=0;i<3;i++){
 	if(formattest[i] != magicNumberACF[i]){
@@ -708,7 +712,8 @@ void GlacParser::parseHeader(BGZF *bg){
     f.str(toPrintHeader);
     
     while (getline(f, line)) {
-        if(strBeginsWith(line,"#SQ")){
+	//cerr<<"line "<<line<<endl;
+	if(strBeginsWith(line,"#SQ")){
             vector<string> tokensf = allTokens(line,'\t');
             chrKnown.push_back(tokensf[1].substr(3));
 	    headerSQ+=line+"\n";
@@ -726,10 +731,12 @@ void GlacParser::parseHeader(BGZF *bg){
 	    if(fields[2] != "REF,ALT"){ cerr<<"Field #3 of header must be REF,ALT "; exit(1); }
 	    if(fields[3] != "root")   { cerr<<"Field #4 of header must be root ";    exit(1); }
 	    if(fields[4] != "anc")    { cerr<<"Field #5 of header must be anc ";     exit(1); }
-	    
+
 	    for(unsigned int i=3;i<fields.size();i++){
 		populationNames->push_back(fields[i]);
-		numberPopulations++;
+		if(fields[i] != "root" && fields[i] != "anc")
+		    sizePops++;
+		    //numberPopulations++;
 	    }
 	    //header+=line+"\n";
 	    
@@ -737,7 +744,12 @@ void GlacParser::parseHeader(BGZF *bg){
 	}
 
     }
-    
+    for(uint16_t i=0;i<uint16_t(chrKnown.size());i++){
+	//cerr<<"chr "<<i<<" "<<chrKnown[i]<<endl;
+	chr2chri[ chrKnown[i] ] = i;
+    }
+    //exit(1);
+
 
     //myFilezipped.read((char*)&sizePops,sizeof(sizePops));
     bytesread = bgzf_read(bg, &sizePops, sizeof(sizePops));
@@ -756,7 +768,7 @@ void GlacParser::parseHeader(BGZF *bg){
     return ;
     
  findHEADERtext:
-    //cout<<"header"<<endl;
+    //cerr<<"header text"<<endl;
 
     //}
     //while(getline ( in,line)){
@@ -784,10 +796,22 @@ void GlacParser::parseHeader(BGZF *bg){
 	header+=line+"\n";
 	//	cout<<line<<endl;
 	// line =string( ks_str(ksstr) );
-	// cout<<"line "<<line<<endl;
+	//cerr<<"line "<<line<<endl;
 	//exit(1);
 
+
+	if(strBeginsWith(line,"#SQ")){
+            vector<string> tokensf = allTokens(line,'\t');
+            chrKnown.push_back(tokensf[1].substr(3));
+	    headerSQ+=line+"\n";
+        }else{
+	    headerNoSQNoDefline+=line+"\n";
+	}
+
+
+
 	if(strBeginsWith(line, "#chr")){
+	    //cerr<<"chr "<<line<<endl;
 	    defline=line;
 	    vector<string> fields=allTokens(line,'\t');
 	    if(fields[0] != "#chr")   { cerr<<"Field #1 of header must be #chr ";    exit(1); }
@@ -797,15 +821,24 @@ void GlacParser::parseHeader(BGZF *bg){
 	    if(fields[4] != "anc")    { cerr<<"Field #5 of header must be anc ";     exit(1); }
 
 	    for(unsigned int i=3;i<fields.size();i++){
+		//cerr<<"field "<<i<<" "<<fields[i]<<endl;
 		populationNames->push_back(fields[i]);
-		numberPopulations++;
+		if(fields[i] != "root" && fields[i] != "anc")
+		    sizePops++;
+		    //numberPopulations++;
 	    }
-	    
+	    //cerr<<"sizePops "<<sizePops<<endl;
 
 	    break;
 	}
 	line="";
+    }//reading for text mode
+    for(uint16_t i=0;i<uint16_t(chrKnown.size());i++){
+	//cerr<<"chr "<<i<<" "<<chrKnown[i]<<endl;
+	chr2chri[ chrKnown[i] ] = i;
     }
+    //exit(1);
+
 
 }
 
@@ -925,7 +958,8 @@ bool GlacParser::hasData(){
 	    cerr<<"Error: GlacParser tried to read "<< sizeof(allRecToReturn->chri) <<" bytes but got "<<bytesread<<endl;
 	    exit(1);
 	}
-	//cout<<chrKnown[allRecToReturn->chri]<<endl;
+	//cout<<allRecToReturn->chri<<endl;
+	
 	allRecToReturn->chr = chrKnown[allRecToReturn->chri]; //TODO avoid string copy
 	//uint32_t 4b
 	bytesread = bgzf_read(myFilezipped, &allRecToReturn->coordinate, sizeof(allRecToReturn->coordinate));
@@ -1116,16 +1150,19 @@ bool GlacParser::hasData(){
 	
 	vector<string> fields=allTokens(line,'\t');
 
-	if(fields.size() != (numberPopulations+3)){
-	    cerr << "Error: GlacParser the following line should have "<<(numberPopulations+3)<<" fields " << line <<endl;
+	if(fields.size() != (sizePops+5)){
+	    cerr << "Error: GlacParser the following line has " << fields.size() << " fields should have "<<(sizePops+3)<<" fields " << line <<endl;
 	    exit(1);	   
 	}
+
 	if(fields[2].length() != 3){
 	    cerr << "Error: GlacParser the following line " << line <<" does not have 2 comma separated alleles"<<endl;
 	    exit(1);	   
 	}
 
 	allRecToReturn->chr        =                           fields[0];
+	allRecToReturn->chri       =                chr2chri[  fields[0] ];
+	//cerr<<allRecToReturn->chr<<"\t"<<allRecToReturn->chri<<endl;
 	allRecToReturn->coordinate = destringify<unsigned int>(fields[1]);
 	allRecToReturn->ref        =                           fields[2][0];
 	allRecToReturn->alt        =                           fields[2][2];
@@ -1190,8 +1227,8 @@ bool GlacParser::hasData(){
 		allRecToReturn->vectorGLs->push_back(gl);
 	    }
 	    
-	    if( allRecToReturn->vectorGLs->size() != numberPopulations){
-		cerr << "Error: GlacParser problem with the following line " << line <<" number of genotype likelihood read is not "<<numberPopulations<<endl;
+	    if( allRecToReturn->vectorGLs->size() != sizePops){
+		cerr << "Error: GlacParser problem with the following line " << line <<" number of genotype likelihood read is not "<<sizePops<<endl;
 		exit(1);	   	    
 	    }
 
@@ -1220,8 +1257,8 @@ bool GlacParser::hasData(){
 		allRecToReturn->vectorAlleles->push_back(sa);
 	    }
 	    
-	    if( allRecToReturn->vectorAlleles->size() != numberPopulations){
-		cerr << "Error: GlacParser problem with the following line " << line <<" number of allele count read is not "<<numberPopulations<<endl;
+	    if( allRecToReturn->vectorAlleles->size() != (sizePops+2)){
+		cerr << "Error: GlacParser problem with the following line " << line <<" number of allele count ("<<allRecToReturn->vectorAlleles->size()<<") read is not "<<(sizePops+2)<<endl;
 		exit(1);	   	    
 	    }
 	}//end acFormat

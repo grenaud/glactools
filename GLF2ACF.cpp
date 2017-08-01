@@ -76,6 +76,7 @@ int GLF2ACF::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     false,
 				     2,
+				     1,//compression threads
 				     uncompressed);
     string newheader="";
     newheader+="#ACF\n";

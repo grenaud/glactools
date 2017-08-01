@@ -14,7 +14,7 @@ GlacSharing::~GlacSharing(){
 }
 
 string GlacSharing::usage() const{
-    string usage=string("glactools")+" sharing  <ACF file>  <group 1> <group 2>"+
+    string usage=string("glactools")+" sharing [options] <ACF file>  <group 1> <group 2>"+
 	"\nThis will only retain sites where every individuals in population group 1 share the same allele(s) as every individual in population group 2.\n"+
 	"The individuals/populations in <group 1> and <group 2> are comma-separated\n"
 	"In other words:\n"+
@@ -134,6 +134,7 @@ int GlacSharing::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     gp.isGLFormat(),
 				     gp.isGLFormat()?1:2,
+				     1,//compression threads
 				     uncompressed);
     stringstream newheader;
     if(gp.isGLFormat())

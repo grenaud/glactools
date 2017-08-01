@@ -19,7 +19,7 @@ GlacMeld::~GlacMeld(){
 string GlacMeld::usage() const{
 
     
-    return string("") +"glactools glacmeld   <glac file> \"popToMerge1,popToMerge2,....\" \"newid\"\n"+
+    return string("") +"glactools glacmeld [options] <glac file> \"popToMerge1,popToMerge2,....\" \"newid\"\n"+
 	"This program will merge different specified populations into a single one and will print to STDOUT\n"+
 	"\n"+
 	"ex:  glactools glacmeld data.acf.gz \"Papuan,Austalian\" \"oceanians\""+"\n"+
@@ -93,6 +93,7 @@ int GlacMeld::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(newsizepop,
 				     false,
 				     2,
+				     1,//compression threads
 				     uncompressed);
 
     for(unsigned int i=0;i<gp.getPopulationsNames()->size();i++){

@@ -59,7 +59,7 @@ GlacWriter::~GlacWriter(){
 bool GlacWriter::writeHeader(string const & header) const{
 
     char bammagicstr [4] = {'B','A','M','\1'};    
-
+    //cerr<<uncompressed<<endl;
     if(uncompressed){
 	if(write(1,&bammagicstr,sizeof(bammagicstr)) == -1 ){   cerr<<"Write error"<<endl;            return false;   }     
     }else{
@@ -110,19 +110,22 @@ bool GlacWriter::writeHeader(string const & header) const{
 
 bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     
+
     if(uncompressed){
-	if(write(1,&toWrite->chri,sizeof(toWrite->chri)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
+	if(      write(1,      &toWrite->chri,sizeof(toWrite->chri)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
     }else{
 	if( bgzf_write(fpBGZF, &toWrite->chri,sizeof(toWrite->chri)) != sizeof(toWrite->chri) ){   cerr<<"Write error"<<endl;   return false;   }  
     }
+
 #ifdef DEBUGWRITEAR
     cerr<<"chri "<<toWrite->chri<<endl;    
 #endif
+
     //write coordinate 4 bytes
     //uint32_t c = uint32_t(toprint->getPosition());
     //if(write(1,&c,    sizeof(c))  == -1 )    {   cerr<<"Write error"<<endl;         return false;   }
     if(uncompressed){
-	if(write(1,&toWrite->coordinate,sizeof(toWrite->coordinate)) == -1 ){   cerr<<"Write error"<<endl;      return false;   } 
+	if(       write(1,     &toWrite->coordinate,sizeof(toWrite->coordinate)) == -1 ){   cerr<<"Write error"<<endl;      return false;   } 
     }else{
 	if( bgzf_write(fpBGZF, &toWrite->coordinate,sizeof(toWrite->coordinate)) != sizeof(toWrite->coordinate) ){   cerr<<"Write error"<<endl;  return false;   }  
     }

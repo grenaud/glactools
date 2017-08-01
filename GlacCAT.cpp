@@ -19,7 +19,7 @@ GlacCAT::~GlacCAT(){
 string GlacCAT::usage() const{
 
     
-    return string(string("glactools") +" glaccat  <glf file1> <glf file2> .. "+"\n"+
+    return string(string("glactools") +" glaccat [options] <glf file1> <glf file2> .. "+"\n"+
                   "\nThis program concatenates ACF/GLF files given that they were from the same genome assembly\n"+    
 		  "uses the first file as header and prints to STDOUT\n"
 		  );
@@ -44,6 +44,7 @@ int GlacCAT::run(int argc, char *argv[]){
 	    gw = new GlacWriter(gp.getSizePops(),
 				false,
 				2,
+				1,//compression threads
 				uncompressed);
 	    string newheader=gp.getHeader();
 	    sqLines = gp.getHeaderSQ();

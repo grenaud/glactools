@@ -21,6 +21,7 @@
 #include "GlacMeld.h"
 #include "GlacIntersect.h"
 #include "GlacUnion.h"
+#include "Glac2FREQSPEC.h"
 
 #include "GlacUndef.h"
 #include "GlacBedfilter.h"
@@ -58,40 +59,38 @@ int main (int argc, char *argv[]) {
 	"\t--Data import:\n"+                       
 	"\t\tvcf2acf\t\t\tConvert single sample VCF to acf "+"\n"+
 	"\t\tvcf2glf\t\t\tConvert single sample VCF to glf "+"\n"+
-	"\t\tvcfm2acf\t\tConvert multi  sample VCF to acf "+"\n"+
+	"\t\tvcfm2acf\t\t\tConvert multi  sample VCF to acf "+"\n"+
 	"\t\tbam2acf\t\t\tConvert single sample BAM to acf "+"\n"+
-	"\t\t23andme2acf\t\tConvert 23andme data to acf "+"\n"+
-	"\n"+
-	"\t--Data export:\n"+                       
-	"\t\tglac2bed\t\tConvert a (GL|AC)f file to BED"+"\n"+
-	"\t\tacf2binaryplink\t\tConvert an ACF file to binary PLINK"+"\n"+
-	"\t\tacf2fasta\t\tConvert an ACF file to fasta"+"\n"+ 
-	"\t\tacf2gphocs\t\tConvert an ACF file to G-PhoCs"+"\n"+
-	"\t\tacf2nexus\t\tConvert an ACF file to Nexus"+"\n"+
-	"\t\tacf2treemix\t\tConvert an ACF file to treemix"+"\n"+
+	"\t\t23andme2acf\t\t\tConvert 23andme data to acf "+"\n"+
 	"\n"+
 	"\t--Filtering:\n"+                       
 	"\t\tnoundef\t\t\tNo undefined sites for populations"+"\n"+
-	"\t\tbedfilter\t\tFilter mistar file using sorted bedfile"+"\n"+
+	"\t\tbedfilter\t\t\tFilter ACF/GLF file using sorted bedfile"+"\n"+
 	"\t\tsegsite\t\t\tJust retain segregating sites (or trans./transi)"+"\n"+
 	"\t\tsharing\t\t\tRetain sites that share alleles between populations"+"\n"+
-	"\t\tnosharing\t\tRetain sites that do NOT share alleles between populations"+"\n"+
-	"\t\tsnosharing\t\tRetain sites that STRICKLY do NOT share alleles between populations"+"\n"+
-	
-
-
-
+	"\t\tnosharing\t\t\tRetain sites that do NOT share alleles between populations"+"\n"+
+	"\t\tsnosharing\t\t\tRetain sites that STRICKLY do NOT share alleles between populations"+"\n"+
+	"\n"+
+	"\t--Computations:\n"+                       
+	"\t\tfreqspec\t\t\tCompute the frequency spectrum"+"\n"+
 	"\n"+
 	"\t--File transformations:\n"+                       
-	"\t\tcat\t\t\tConcatenate (GL|AC)f files"+"\n"+
-	"\t\tintersect\t\tIntersection of (GL|AC)f files"+"\n"+
+	"\t\tcat\t\t\t\tConcatenate (GL|AC)f files"+"\n"+
+	"\t\tintersect\t\t\tIntersection of (GL|AC)f files"+"\n"+
 	"\t\tunion\t\t\tUnion of (GL|AC)f files"+"\n"+
 	"\n"+
 	"\t--Population transformations:\n"+                       
-	"\t\tmeld\t\t\t"+"Merge multiple populations as one for ACF files\n"+
+	"\t\tmeld\t\t\t\t"+"Merge multiple populations as one for ACF files\n"+
 	"\t\tpopsub\t\t\t"+"Keep a subset of the populations\n"+
 	"\t\tremovepop\t\t\t"+"Remove a subset of the populations\n"+
-
+	"\n"+
+	"\t--Data export:\n"+                       
+	"\t\tglac2bed\t\t\tConvert a (GL|AC)f file to BED"+"\n"+
+	"\t\tacf2binaryplink\tConvert an ACF file to binary PLINK"+"\n"+
+	"\t\tacf2fasta\t\t\tConvert an ACF file to fasta"+"\n"+ 
+	"\t\tacf2gphocs\t\t\tConvert an ACF file to G-PhoCs"+"\n"+
+	"\t\tacf2nexus\t\t\tConvert an ACF file to Nexus"+"\n"+
+	"\t\tacf2treemix\t\t\tConvert an ACF file to treemix"+"\n"+
 	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
 	"\n"+
 	"\t--GLF/ACF conversion:\n"+                       
@@ -102,9 +101,8 @@ int main (int argc, char *argv[]) {
 	"\t\tidxstats\t\t\tBasic statistics using the index of a acf/glf file"+"\n"+
 	"\n"+
 	"\t--Viewing:\n"+                       
-	"\t\tview\t\t\tview all or a region of a acf/glf file "+"\n"+
-
-			      "";
+	"\t\tview\t\t\t\tview all or a region of a ACF/GLF file "+"\n"+
+	"";
 
                               
     if( argc==1 ||
@@ -367,6 +365,20 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacnostrictsharing_.run(argc, argv);
 
+    }else{      if(string(argv[1]) == "freqspec"){
+	Glac2FREQSPEC  glac2freqspec_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glac2freqspec_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glac2freqspec_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "cat"){
 	GlacCAT  glaccat_;
 
@@ -476,7 +488,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-												    }}}}}}}}}}}}}}}}}}}}}}}}}
+													}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

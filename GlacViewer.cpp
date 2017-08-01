@@ -21,8 +21,9 @@ GlacViewer::~GlacViewer(){
 string GlacViewer::usage() const{
         
     return string(string("") +"glactools view [options] <gl|ac file> [region] "+
-                  "\nThis program can view acf/glf files (prints to the stdout)\n"+                       
-		  "\n"+
+                  "\n\nThis program can view ACF/GLF files whether binary or zipped or not"+
+                  "\nIt prints to the stdout\n"+                       
+		  "Options:\n"+
 		  "\t"+"-b" + "\t\t\t"+"Produce binary compressed output (default: "+booleanAsString(uncompressed)+")\n"+
                   "\t"+"-u" + "\t\t\t"+"Produce binary but uncompressed output (default: "+booleanAsString(uncompressed)+")\n"+
 		  "\n"+
@@ -97,14 +98,16 @@ int GlacViewer::run(int argc, char *argv[]){
 	//todo region retrieve
 	GlacParser gp (glacfile);
 	AlleleRecords * ar;
-		
+	//cerr<<"pop "<<gp.getSizePops()<<endl;
 
 	GlacWriter * gw=NULL;
 
 	if(uncompressed || printBin){//if binary
+
 	    gw = new GlacWriter(gp.getSizePops(),
 				gp.isGLFormat(),
 				gp.isACFormat()?2:1,
+				1,//compression threads
 				uncompressed);
 	    if(!gw->writeHeader(gp.getHeader())){
 		cerr<<"GlacViewer: error writing header "<<endl;

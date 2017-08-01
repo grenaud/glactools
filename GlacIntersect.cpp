@@ -145,6 +145,7 @@ int GlacIntersect::run(int argc, char *argv[]){
    gw = new GlacWriter(numberOfPops,
 		       isGL, //gp.isGLFormat(),
 		       isGL?1:2,//gp.isACFormat()?2:1,
+		       1,//compression threads
                         uncompressed);
    if(!gw->writeHeader(header.str())){
        cerr<<"GlacIntersect: error writing header "<<endl;

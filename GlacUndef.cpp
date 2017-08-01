@@ -14,7 +14,7 @@ GlacUndef::~GlacUndef(){
 }
 
 string GlacUndef::usage() const{
-    string usage=string("glactools")+" noundef  <ACF or GLF file>"+
+    string usage=string("glactools")+" noundef [options] <ACF or GLF file>"+
 	"\nThis program will filter out any site where:\n"+
 "\tACF: the allele count is null 0,0 for both reference and alternative\n"+
 "\tGLF: the genotype likelihood does not seem defined\n"+
@@ -83,6 +83,7 @@ int GlacUndef::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     gp.isGLFormat(),
 				     gp.isGLFormat()?1:2,
+				     1,//compression threads
 				     uncompressed);
     stringstream newheader;
     if(gp.isGLFormat())

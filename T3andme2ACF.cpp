@@ -215,6 +215,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
     gw = new GlacWriter(1,    //gp.getSizePops(),
                         false, //gp.isGLFormat(),
                         2,//gp.isACFormat()?2:1,
+			1,//compression threads
                         uncompressed);
     
 

@@ -281,6 +281,7 @@ int Vcf2GLF::run(int argc, char *argv[]){
     gw = new GlacWriter(1,    //gp.getSizePops(),
 			true, //gp.isGLFormat(),
 			1,//gp.isACFormat()?2:1,
+			1,//compression threads
 			uncompressed);
     
 

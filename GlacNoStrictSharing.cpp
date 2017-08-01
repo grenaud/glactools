@@ -14,7 +14,7 @@ GlacNoStrictSharing::~GlacNoStrictSharing(){
 }
 
 string GlacNoStrictSharing::usage() const{
- string usage=string("glactools")+" snosharing  <ACF file>  <group 1> <group 2>"+
+ string usage=string("glactools")+" snosharing [options] <ACF file>  <group 1> <group 2>"+
 
 	"\nThis will filter sites where individuals in population group 1 do not share an allele with individual in population group 2.\n"+
 	"The individuals/populations in <group 1> and <group 2> are comma-separated\n"
@@ -137,6 +137,7 @@ int GlacNoStrictSharing::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     gp.isGLFormat(),
 				     gp.isGLFormat()?1:2,
+				     1,//compression threads
 				     uncompressed);
     stringstream newheader;
     if(gp.isGLFormat())

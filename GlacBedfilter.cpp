@@ -14,7 +14,7 @@ GlacBedfilter::~GlacBedfilter(){
 }
 
 string GlacBedfilter::usage() const{
-    string usage=string("glactools")+" bedfilter  <ACF or GLF file> <sorted BED file>"+
+    string usage=string("glactools")+" bedfilter [options] <ACF or GLF file> <sorted BED file>"+
 	"\nThis will keep only the positions in the bed file\n"+
 "\n"+
 	"Options:\n"+
@@ -91,6 +91,7 @@ int GlacBedfilter::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     gp.isGLFormat(),
 				     gp.isGLFormat()?1:2,
+				     1,//compression threads
 				     uncompressed);
     stringstream newheader;
     if(gp.isGLFormat())

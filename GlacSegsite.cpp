@@ -14,7 +14,7 @@ GlacSegsite::~GlacSegsite(){
 }
 
 string GlacSegsite::usage() const{
-    string usage=string("glactools")+" segsite  <ACF file>"+
+    string usage=string("glactools")+" segsite [options] <ACF file>"+
 	"\nThis program will retain sites where the allele count is greater than 0 for either the reference or alternative for at least one individual\n"+
 	"\n"+
 	"Options:\n"+
@@ -95,6 +95,7 @@ int GlacSegsite::run(int argc, char *argv[]){
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     gp.isGLFormat(),
 				     gp.isGLFormat()?1:2,
+				     1,//compression threads
 				     uncompressed);
     stringstream newheader;
     if(gp.isGLFormat())

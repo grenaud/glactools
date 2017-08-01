@@ -16,7 +16,7 @@ ACF2TREEMIX::~ACF2TREEMIX(){
 string ACF2TREEMIX::usage() const{
 
 
-    string usage=string("")+" acf2treemix  <ACF file>"+
+    string usage=string("")+"acf2treemix  [options]  <ACF file>"+
 	"This program takes an ACF matrix and prints the segregating sites in Treemix format"+
 	""+
 	"Options:"+
