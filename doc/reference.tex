@@ -1,0 +1,547 @@
+% %
+% LAYOUT_E.TEX - Short description of REFMAN.CLS
+%                                       99-03-20
+%
+%  Updated for REFMAN.CLS (LaTeX2e)
+%
+%\documentclass[a4paper]{refart}
+\documentclass[a4paper]{article}
+%\usepackage{makeidx}
+%\usepackage{ifthen}
+\usepackage{lipsum}
+% ifthen wird vom Bild von N.Beebe gebraucht!
+
+\def\bs{\char'134 } % backslash in \tt font.
+\newcommand{\ie}{i.\,e.,}
+\newcommand{\eg}{e.\,g..}
+\DeclareRobustCommand\cs[1]{\texttt{\char`\\#1}}
+
+\title{glactools: a suite of utilities for the management of allele frequency information}
+\author{Gabriel Renaud \\
+gabriel [dot] reno [at]  gmail.com}
+
+\date{}
+%\emergencystretch1em  %
+
+%\pagestyle{myfootings}
+%\markboth{Changing the layout with \textrm{\LaTeX}}%
+%         {Changing the layout with \textrm{\LaTeX}}
+
+\makeindex 
+
+%\setcounter{tocdepth}{2}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+glactools is a set of command-line utilities to store genotype likelihoods and allele count data. It can import data from various formats, merge/filter/split datasets, compute summary statistics and exporting data to various formats.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+glactools aims at storing either :
+\begin{itemize}
+\item genotype likelihoods for a single individual 
+\item allele count information for either a given individual or population.
+\end{itemize}
+imported from various input sources (VCF, BAM etc), creating intersections, querying the data and exporting it to various formats used by current software tools.
+
+
+
+
+\noindent \begin{tabular}{|l|l|}
+\hline
+Program & Use \\
+\hline
+23andme2mistar & Create a mistartools file from 23andme file \\
+axt2mistar &  Create a mistartools file from axt files \\
+           & representing multiple sequence alignement  \\
+bam2mistar &  Create a mistartools file from a BAM file \\
+bamtable2mistar & Create a mistartools file from a BAM table file \\
+closestMistar & Compute the distance to the nearest \\ 
+              & neighboring site for each site \\
+epo2mistar & Create a mistartools file from a EPO alignment \\
+generateCoords & Generate coordinate (random or windows) \\
+               & for a given reference genome \\
+mistar2AlleleMatrix & Export a mistartools file to an allele matrix file \\
+mistar2bed &  Produce a BED file from the sites in mistartools file \\
+mistar2binary & Export a mistartools file to an allele \\
+              & matrixtools file of 0=ancestral,1=derived \\
+mistar2BinaryPLINK &  Export a mistartools file to the PLINK format \\
+mistar2EIGENSTRAT & Export a mistartools file to the EIGENSTRAT format \\
+mistar2fasta & Produce a fasta file from a mistartools file \\
+mistar2nexus & Produce a nexus file from a mistartools file \\
+mistar2segtor & Produce a Segtor file from a mistartools file \\
+mistar2treemix & Export a mistartools file to the treemix format \\
+mistarcat &  Concatenate multiple mistartools files \\
+mistarcompress & Compress a mistartools file to a binary one \\
+mistarcompute & Compute summary statistics like \\
+              & pairwise differences and D-statistics \\
+mistardecompress & Decompress a binary mistartools file \\
+mistarfilter & Filter a mistartools file according to certain criterias \\
+mistarfreqSpec & Compute the frequency of alleles \\
+mistarintersect & Intersect multiple mistartools files \\
+mistarmeld & Merge two populations together \\
+mistarRenamePop & Change the name of a population \\
+mistarstats & How many sites are there in that file \\
+mistarunion & Unite multiple mistartools files \\
+mistaruniq & Like mistaruniq but returns only the unique lines \\
+mpileup2mistar & Convert samtools mpileup to mistartools \\
+ms2mistar & Convert ms output to mistartools \\
+ms2nj & Create a neighbor-joining tree from a mistartools file \\
+vcf2mistar & Create a mistartools file from VCF file \\
+vcfcompute & Compute summary statistics directly from VCF files \\
+vcfMulti2mistar & Create a mistartools file from VCF file with multiple individuals \\
+\hline
+\end{tabular}
+
+\section{File format}
+
+\subsection{Text format}
+
+\noindent  A mistartools file is composed of a header and the allele frequency. Each line in the header starts with a \# and has the following format:
+
+\begin{verbatim}
+#MISTAR
+#PG:[program line]
+#GITVERSION: [github revision]
+#DATE: YYYY-MM-DD
+#chr    coord   REF,ALT root    anc     pop1     pop2     ...
+\end{verbatim}
+
+\subsubsection{Genotype likelihoods}
+
+\subsubsection{Allele count}
+
+\noindent The remaining lines have the following format:
+
+\begin{verbatim}
+chr    coord   REF,ALT [root info]     [anc info]     [pop1 info]     [pop2 info]     ...
+\end{verbatim}
+
+\noindent  The ALT allele is set to N if there were no alternative allele found. The info has the following format:
+
+\begin{verbatim}
+[REF allele count],[ALT allele count]:[CPG flag 0=no,1=yes]
+\end{verbatim}
+
+\noindent  Here is an example of a line:
+
+\begin{verbatim}
+1	1689574	A,N	1,0:0	1,0:0	1,0:0
+1	1689575	T,C	0,1:0	1,0:0	1,0:0
+\end{verbatim}
+
+
+
+
+
+\subsection{Indexing}
+
+\noindent If the file was zipped using bgzip, the following command can be used to index it:
+\begin{verbatim}
+tabix -s 1 -b 2 -e 2 [mistar file]
+\end{verbatim}
+
+
+
+
+\section{Importing data}
+
+This program produces a  mistar matrix given a BAM file:
+
+\subsection{From BAM}
+
+\small
+\begin{verbatim} 
+bam2mistar <options> [name sample] [fasta file] [bam file]  [EPO alignment file]
+\end{verbatim} 
+\normalsize
+
+\subsection{From VCF}
+
+This program convert VCF files into mistar (prints to the stdout):
+
+\begin{verbatim}
+vcf2mistar <options> [vcf file] [name sample] [EPO alignment file]
+\end{verbatim}
+
+If it is a vcffile with multiple individuals, use:
+\begin{verbatim}
+vcfMulti2mistar <options> [vcf file]
+\end{verbatim}
+
+\subsection{From 23andme}
+
+This program convert 23andme files into mistar (prints to the stdout)
+
+\begin{verbatim}
+23andme2mistar <options> [23andme file] [name sample] [EPO alignment file]
+\end{verbatim}
+
+\subsection{From AXT alignment}
+
+This program will parse an axt alignment and print a mistar file
+
+\begin{verbatim}
+axt2mistar [chr name] [name sample]  [axt file]
+\end{verbatim}
+
+
+\subsection{From ms simulations}
+This program converts ms output into a mistar matrix
+
+\small
+\begin{verbatim}
+ms2mistar  [mistar file] [correspondance individuals to pop] [size of chromosome]
+\end{verbatim}
+\normalsize
+
+The correspondence has to have the following format
+\begin{verbatim}
+pop1:individual1,individual2-npop2:individual3,individual4
+\end{verbatim}
+The size of the chromsome is the parameter used as -r
+
+\section{Transforming data}
+\subsection{cat }
+This program concatenates many files where the header is found in the
+first file and does not use the headers from the remaining ones
+It prints to the /dev/stdout
+\begin{verbatim}
+mistarcat [mistar file#1] [mistar file#2]
+\end{verbatim}
+
+
+\subsection{filtering}
+
+This program filters a mistartools matrix given certain criterias.
+
+\begin{verbatim}
+mistarfilter [mode]
+\end{verbatim}
+
+The mode can be one of the following:
+
+\begin{tabular}{ll}
+\hline
+mode & use \\
+\hline
+noundef      &   No undefined sites for populations \\
+bedfilter    &   Filter mistartools file using sorted bedfile \\
+segsite      &   Just retain segregating sites (or trans./transi) \\
+popsub       &   Keep a subset of the populations \\
+removepop    &   Remove a subset of the populations \\
+sharing      &   Retain sites that share alleles between populations \\
+nosharing    &   Retain sites that do not share alleles between populations \\
+znosharing   &   Retain sites that strickly do not share alleles between populations \\
+\end{tabular}
+
+Here is a description of the different filter modes:
+
+\subsubsection{noundef}
+
+This will filter out any site where the allele count is nul (0,0) for both reference and alternative
+
+\begin{verbatim}
+mistarfilter noundef [mistar file]
+\end{verbatim}
+
+
+\subsubsection{bedfilter}
+
+This will keep only the positions in the bed file
+
+\begin{verbatim}
+mistarfilter noundef [mistar file] [sorted bed file]
+\end{verbatim}
+
+\subsubsection{segsite}
+
+This will retain sites where the allele count is greater than 0 for either the reference or alternative for at least one individual. It has options to retain only transitions or transversions. 
+
+\begin{verbatim}
+mistarfilter  segsite [options] [mistar file]
+\end{verbatim}
+
+\subsubsection{popsub}
+
+This will keep only the population specified in the list. Please note that it will set the alternative allele to 'N' if no population has the alternative allele
+
+\begin{verbatim}
+mistarfilter   popsub [mistar file] [comma separated group to keep]
+\end{verbatim}
+
+\subsubsection{removepop}
+
+This will remove the population specified in the list.Please note that it will set the alternative allele to 'N' if no population has the alternative allele
+
+\begin{verbatim}
+mistarfilter removepop [mistar file] [comma separated group to remove]
+\end{verbatim}
+
+\subsubsection{sharing}
+
+This will only retain sites where every individuals in population group 1 share the same allele(s) as every individual in population group 2.
+It requires that the allele count for every individual for both groups be non-zero.
+A random allele is picked (biased for allele count) for heterozygous position so do not be surprised if you get different outputs every time.
+
+\tiny
+\begin{verbatim}
+mistarfilter  sharing [mistar file] [comma separated group 1] [comma separated group 2]
+\end{verbatim}
+\normalsize
+
+\subsubsection{nosharing}
+
+
+This will filter sites where individuals in population group 1 do not share at least one allele with individual in population group 2.
+It requires that the allele count for every individual for both groups be non-zero.
+A random allele is picked (biased for allele count) for heterozygous position so do not be surprised if you get different outputs every time.
+In other words, the individuals in the first group have to be all reference and the second all alternative or vice-versa.
+
+\tiny
+\begin{verbatim}
+mistarfilter nosharing [mistar file] [comma separated group 1] [comma separated group 2]
+\end{verbatim}
+\normalsize
+
+\subsubsection{znosharing}
+This will filter sites where individuals in population group 1 strickly do not share any allele with individual in population group 2.
+It requires that the allele count for every individual for both groups be non-zero.
+Please remember that this will exclude any hetezygous sites
+
+\small
+\begin{verbatim}
+mistarfilter  [mistar file] [comma separated group 1] [comma separated group 2]
+\end{verbatim}
+\normalsize
+
+
+
+
+\subsection{intersect}
+
+This program will print the intersection of the mistar files to stdout, it will skip triallelic sites.
+
+\begin{verbatim}
+mistarintersect [mistar file 1] [mistar file 2] ...
+\end{verbatim}
+
+\subsection{Meld two populations}
+
+This program will merge different specified populations into a single one. You 
+
+\small
+\begin{verbatim}
+mistarmeld  <options> [mistar file zipped] "popToMerge1,popToMerge2,.." "newid"
+\end{verbatim}
+\normalsize
+
+Example of usage:
+\begin{verbatim}
+mistarmeld data.mst.gz "Papuan,Austalian" "oceanians"
+\end{verbatim}
+
+
+\subsection{Rename populations}
+
+This program will rename different specified populations.
+
+\small
+\begin{verbatim}
+mistarRenamePop <options> [mistar file] "popOldName1,popOldName2,..." "popNewName1,popNewName2,..."
+\end{verbatim}
+\normalsize
+
+Example of usage:
+\begin{verbatim}
+mistarRenamePop data.mst "Papuan,Austalian" "Oceanians1,Oceanians2"
+\end{verbatim}
+
+\subsection{union}
+
+This program will print the union of the mistar files to stdout, it will skip triallelic sites.
+
+\begin{verbatim}
+mistarunion <options> [mistar file 1] [mistar file 2] ...
+\end{verbatim}
+
+
+\subsection{Unique of union}
+
+This program will print the unique union of the mistar files to stdout. Used to merge the same files from different filters.
+
+\begin{verbatim}
+mistaruniq [mistar file 1] [mistar file 2] ...
+\end{verbatim}
+
+
+\subsection{replace ancestor}
+
+This program will print the first mistar file but with the ancestral information from the second one to stdout.
+
+\begin{verbatim}
+replaceAncestor [mistar file 1] [mistar file 2]
+\end{verbatim}
+
+
+\subsection{use population as root and ancestor}
+
+This program will use specified populations as root and ancestor and produce lines with only those two populations.
+
+\begin{verbatim}
+usePopAsRootAnc <options> [mistar file] "poproot" "popanc"
+\end{verbatim}
+
+
+
+\section{Statistics}
+
+\subsection{Closest sites}
+
+This program will print to stdout the distance to the closest site for each record.
+
+\begin{verbatim}
+closestMistar <options> [mistar file]
+\end{verbatim}
+
+\subsection{Site frequency spectrum}
+
+This program will print the number of observed alleles for the reference and alternative alleles.
+
+\begin{verbatim}
+mistarfreqSpec <options> [mistar file]
+\end{verbatim}
+
+\subsection{Summary statistics}
+
+This program takes a mistar matrix and prints some how many lines it has.
+\begin{verbatim}
+mistarstats  <options> [mistar file]
+\end{verbatim}
+
+
+\subsection{Relationships between individuals}
+
+
+\subsubsection{Neighbor joining tree}
+
+Compute a neighbor-joining tree using the mistar file.
+
+\begin{verbatim}
+mistarcompute nj  <options> [mistar file]
+\end{verbatim}
+
+\subsubsection{Pairwise average coalescence}
+
+To compute pairwise average coalescence.
+\begin{verbatim}
+mistarcompute paircoacompute  <options> [mistar file]
+\end{verbatim}
+
+\subsubsection{Pairwise nucleotide differences}
+
+To compute pairwise nucleotide differences.
+\begin{verbatim}
+mistarcompute pairdiff <options> [mistar file]
+\end{verbatim}
+
+\subsubsection{D-statistics}
+To compute triple-wise D-statistics
+\begin{verbatim}
+mistarcompute dstat <options> [mistar file]
+\end{verbatim}
+
+
+\section{Exporting data}
+\subsection{To treemix}
+
+To print treemix input.
+\begin{verbatim}
+mistar2treemix <options> [mistar file]
+\end{verbatim}
+
+\subsection{To allele matrix}
+
+This program produces a matrix where each record for population becomes a single allele {A,C,G,T}.
+\begin{verbatim}
+mistar2AlleleMatrix  [mistar file]
+\end{verbatim}
+
+
+\subsection{To binary allele matrix}
+
+This program takes a mistar matrix and prints the alleles as a binary matrix (0=ancestral,1=derived)
+
+\begin{verbatim}
+mistar2binary <options> [mistar file] [comma separated group]
+\end{verbatim}
+
+\subsection{To binary PLINK}
+
+This program takes a mistar matrix and prints the genotype and SNP file in PLINK format
+
+\tiny
+\begin{verbatim}
+mistar2BinaryPLINK <options> [mistar file] [out (.bed)] [out (.bim)] [out SNP file (.fam)]
+\end{verbatim}
+\normalsize
+
+\subsection{To EIGENSTRAT}
+This program takes a mistar matrix and exports the data in EIGENSTRAT.
+\tiny
+\begin{verbatim}
+mistar2EIGENSTRAT <options> [mistar file] [out genotype file (.geno)] [out SNP file (.snp)] [out SNP file (.ind)]
+\end{verbatim}
+\normalsize
+
+\subsection{To fasta}
+This program takes a mistar matrix and exports the data in EIGENSTRAT.
+\tiny
+\begin{verbatim}
+mistar2EIGENSTRAT <options> [mistar file] [out genotype file (.geno)] [out SNP file (.snp)] [out SNP file (.ind)]
+\end{verbatim}
+\normalsize
+\subsection{To fasta}
+
+This program takes a mistar matrix and prints a FASTA file using the allele information with one record per population. Each site generates one base pair.
+
+\begin{verbatim}
+mistar2fasta <options> [mistar file] 
+\end{verbatim}
+
+\subsection{To NEXUS}
+
+This program takes a mistar matrix and prints the alleles in nexus format.
+
+\begin{verbatim}
+mistar2nexus <options> [mistar file]
+\end{verbatim}
+
+
+%\lipsum
+
+
+
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\input lay_e2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\end{document}

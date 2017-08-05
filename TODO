@@ -23,13 +23,16 @@ mistarunion*
 mistarmeld*
 mistarstats*
 mistarfilter*
+mistarfreqSpec*
 
 -- todo --
 
-mistarfreqSpec*
+removepop and popsub
+closestMistar* 
+
 mistarcomputeParallel2*
+
 axt2mistar*
-closestMistar*
 epo2mistar*
 
 -- ignored --

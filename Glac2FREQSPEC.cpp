@@ -18,11 +18,11 @@ string Glac2FREQSPEC::usage() const{
 	"\nThis program will print the number of observed alleles for the reference and alternative alleles\n"+
         "The left column is the reference count. The order can be changed using --useanc and --useroot\n"+
         "Options:\n"+
-	"\t\t"+"--splitpop\t\tSplit pop.\n"+
-			"\t"+"--freq\t\t\tOutput frequencies\n"+
-			"\t"+"--onlysegsite\t\tUse only segregating sites\n"+
-			"\t"+"--useanc\t\tUse the ancestral allele to report the frequency\n"+
-			"\t"+"--useroot\t\tUse the root allele to report the frequency\n";
+	"\t\t"+"--splitpop\t\t\tSplit pop.\n"+
+	"\t\t"+"--freq\t\t\tOutput frequencies\n"+
+	"\t\t"+"--onlysegsite\t\tUse only segregating sites\n"+
+	"\t\t"+"--useanc\t\t\tUse the ancestral allele to report the frequency\n"+
+	"\t\t"+"--useroot\t\t\tUse the root allele to report the frequency\n";
 
     return usage;
 }
