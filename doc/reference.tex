@@ -9,6 +9,7 @@
 %\usepackage{makeidx}
 %\usepackage{ifthen}
 \usepackage{lipsum}
+\usepackage{afterpage}
 % ifthen wird vom Bild von N.Beebe gebraucht!
 
 \def\bs{\char'134 } % backslash in \tt font.
@@ -45,7 +46,7 @@ glactools is a set of command-line utilities to store genotype likelihoods and a
 
 glactools aims at storing either :
 \begin{itemize}
-\item genotype likelihoods for a single individual 
+\item genotype likelihoods for a single diploid individual for autosomal data.
 \item allele count information for either a given individual or population.
 \end{itemize}
 imported from various input sources (VCF, BAM etc), creating intersections, querying the data and exporting it to various formats used by current software tools.
@@ -101,52 +102,220 @@ vcfMulti2mistar & Create a mistartools file from VCF file with multiple individu
 
 \section{File format}
 
+
+\noindent  A glactools files can be 2 types of files:
+\begin{itemize}
+\item {\bf GLF}: genotype likelihoods file for a single diploid individual individual
+\item {\bf ACF}: allele count file for 1 or more indivuals
+\end{itemize}
+
+\noindent  Each one of these files can either be:
+\begin{itemize}
+\item {\bf binary and bgzipped}: Default output. Recommended as it saves space and can be indexed
+\item {\bf binary}:  only used for UNIX pipes into another program
+\item {\bf text and (bg)zipped}: 
+\item {\bf text}: not recommend as it waste disk space
+\end{itemize}
+
+\noindent In addition to containing the fields for the various populations/individuals, the format  has also 2 special fields to contain a root population and an ancestral population.  The route population (labeled  ``root'') corresponds to some outgroup to all other individuals (e.g. chimp for humans).  The ancestral population (labeled  ``anc'')  corresponds to the most recent common ancestor of all the individuals in the ACF or GLF file and the root population (e.g. chimp/human ancestor for humans).
 \subsection{Text format}
 
-\noindent  A mistartools file is composed of a header and the allele frequency. Each line in the header starts with a \# and has the following format:
+
+When stored as a text file (zipped or not), a glactools file a composed of a header and the data. Each line in the header starts with a \# and has different slightly formats for a GLF/ACF files.
+
+\subsubsection{GLF} 
+\label{text:glf}
+\noindent The header has the following format
 
 \begin{verbatim}
-#MISTAR
-#PG:[program line]
+#GLF
+#PG:[command line used]
 #GITVERSION: [github revision]
 #DATE: YYYY-MM-DD
+#[PROGRAM TAG]
+#SQ     SN:[FIRST  CHROMOSOME]    LN:[FIRST  CHROMOSOME LENGTH]
+#SQ     SN:[SECOND CHROMOSOME]    LN:[SECOND CHROMOSOME LENGTH]
+...
+#SQ     SN:[LAST   CHROMOSOME]    LN:[LAST   CHROMOSOME LENGTH]
 #chr    coord   REF,ALT root    anc     pop1     pop2     ...
 \end{verbatim}
 
-\subsubsection{Genotype likelihoods}
 
-\subsubsection{Allele count}
+\noindent The lines starting with {\bf \#SQ} define the chromosomes of the reference and their lengths. The line starting with {\bf \#chr} is called the defline as it contains the name of the individuals. The following lines:
 
-\noindent The remaining lines have the following format:
+\begin{verbatim}
+#SQ     SN:[LAST   CHROMOSOME]    LN:[LAST   CHROMOSOME LENGTH]
+#chr    coord   REF,ALT root    anc     pop1     pop2     ...
+\end{verbatim}
+
+\noindent use a [tab] to separate the fields. 
+
+\noindent \textbf{Genotype likelihoods}
+\noindent The remaining lines contain the actual data have the following format:
 
 \begin{verbatim}
 chr    coord   REF,ALT [root info]     [anc info]     [pop1 info]     [pop2 info]     ...
 \end{verbatim}
 
-\noindent  The ALT allele is set to N if there were no alternative allele found. The info has the following format:
+\noindent  Each field is [TAB] delimited. The ALT allele is set to N if there were no alternative allele found. The info for GLF has the following format:
+
+\begin{verbatim}
+[ref,ref GL],[ref,alt GL],[alt,alt GL]:[CPG flag 0=no,1=yes]
+\end{verbatim}
+
+\noindent where GL=genotype likelihoods and is on a PHRED scale and between 0..255. Here is an example of valid lines:
+
+\begin{verbatim}
+1	1689574	A,N	0,255,255:0	0,255,255:0	0,45,120:0
+1	1689575	T,C	255,0,255:0	0,255,255:0	0,25,90:0
+\end{verbatim}
+
+\subsubsection{ACF} 
+
+\label{text:acf}
+\noindent The header has the following format:
+
+\begin{verbatim}
+#ACF
+#PG:[command line used]
+#GITVERSION: [github revision]
+#DATE: YYYY-MM-DD
+#[PROGRAM TAG]
+#SQ     SN:[FIRST  CHROMOSOME]    LN:[FIRST  CHROMOSOME LENGTH]
+#SQ     SN:[SECOND CHROMOSOME]    LN:[SECOND CHROMOSOME LENGTH]
+...
+#SQ     SN:[LAST   CHROMOSOME]    LN:[LAST   CHROMOSOME LENGTH]
+#chr    coord   REF,ALT root    anc     pop1     pop2     ...
+\end{verbatim}
+
+
+\noindent The lines starting with  SQ define the chromosomes of the reference and their lengths. The line starting with chr is called the defline as it contains the name of the individuals. The following lines:
+
+%\noindent The lines starting with {\texttt \#SQ } define the chromosomes of the reference and their lengths. The line starting with {\texttt \#chr} is called the defline as it contains the name of the individuals/populations. The following lines:
+
+\begin{verbatim}
+#SQ     SN:[LAST   CHROMOSOME]    LN:[LAST   CHROMOSOME LENGTH]
+#chr    coord   REF,ALT root    anc     pop1     pop2     ...
+\end{verbatim}
+
+\noindent use a [tab] to separate the fields. 
+
+\noindent \textbf{Allele counts}
+\noindent The remaining lines contain the actual data have the following format:
+
+\begin{verbatim}
+chr    coord   REF,ALT [root info]     [anc info]     [pop1 info]     [pop2 info]     ...
+\end{verbatim}
+
+\noindent  The ALT allele is set to N if there were no alternative allele found. The info for GLF has the following format:
 
 \begin{verbatim}
 [REF allele count],[ALT allele count]:[CPG flag 0=no,1=yes]
 \end{verbatim}
 
-\noindent  Here is an example of a line:
+\noindent  The allele counts are raw counts and between 0..65535. Here is an example of valid lines:
 
 \begin{verbatim}
-1	1689574	A,N	1,0:0	1,0:0	1,0:0
-1	1689575	T,C	0,1:0	1,0:0	1,0:0
+1	1689574	A,N	1,0:0	1,0:0	2,0:0
+1	1689575	T,C	0,1:0	1,0:0	2,0:0
 \end{verbatim}
 
 
 
+\subsection{Binary}
+
+
+\noindent The binary format has the following specifications. We recommend to store the format as a binary bgzip file as it can be indexed easily. However for UNIX piping we recommend to use the uncompressed version (option -u). An ACF/GLF file in binary format has the following format:
+
+%\begin{table}
+
+\begin{tabular}{|l|p{7cm}|l|l|}
+\hline
+{\bf Field} & {\bf Description} & {\bf Type} & {\bf Value} \\
+\hline
+bammagicstr & BAM magic string. This field has no purporse but to make htslib happy & char [4] & BAM\textbackslash1 \\
+\hline
+magicstr & ACF/GLF magic string. This field indicates whether this file is in GLF or ACF format & char [5] & ACF2\textbackslash1 or \\
+         &  It is either ACF or GLF followed by the number of bytes per record (1 for GLF 2 for ACF)   &          & GLF1\textbackslash1 \\
+         &  Currently, the code support up to 65535 alleles but could be extended for higher numbers   &          &  \\
+\hline
+sizeheader & size of the header in bytes   & uint32\_t         & \\
+\hline
+header     & The header (see section \ref{text:glf} and \ref{text:acf}) in bytes           & char [sizeheader] & \\
+\hline
+sizePops   & The number of populations {\bf excluding}  the root and anc & uint32\_t         & \\
+% \multic
+\hline
+\multicolumn{4}{|c|}{Begin list of records} \\
+\hline
+\multicolumn{1}{|c|}{chri}   & The index of the chromosome & uint16\_t         & \\
+\hline
+\multicolumn{1}{|c|}{coordinate}   & The index of the chromosome & uint16\_t         & \\
+\hline
+\multicolumn{1}{|c|}{REF$\vert$ALT}     & The first 4 bits are for the REF, the last for the ALT & uint8\_t         & \\
+                                & N=0000, A=0001, C=0010, G=0011, T=0100                  &          & \\
+\hline
+\multicolumn{4}{|c|}{Begin list of individuals/populations (see below)} \\
+\hline
+\end{tabular}
+%\end{table}
+
+\afterpage{\clearpage}
+
+
+\subsubsection{GLF}
+
+\noindent Each record contains the following for (sizePops+2) times:
+
+%\begin{table}
+\begin{tabular}{|r|p{7cm}|l|l|}
+\hline
+{\bf Field} & {\bf Description} & {\bf Type} & {\bf Value} \\
+\hline
+rrGL & Genotype likelihood on a PHRED scale for the ref,ref genotype & uint8\_t &  \\
+\hline
+raGL & Genotype likelihood on a PHRED scale for the ref,alt genotype & uint8\_t &  \\
+\hline
+aaGL & Genotype likelihood on a PHRED scale for the alt,alt genotype & uint8\_t &  \\
+\hline
+CpG & Flag to know whether the actual individual is a CpG or not & uint8\_t &  \\
+\hline
+\end{tabular}
+%\end{table}
+
+
+\clearpage
+
+
+
+\subsubsection{ACF}
+
+\noindent Each record contains the following for (sizePops+2) times:
+
+%\begin{table}
+\begin{tabular}{|r|p{7cm}|l|l|}
+\hline
+{\bf Field} & {\bf Description} & {\bf Type} & {\bf Value} \\
+\hline
+refCount & Raw count of the number of reference alleles found & uint16\_t &  \\
+\hline
+altCount & Raw count of the number of alternative alleles found & uint16\_t &  \\
+\hline
+CpG & Flag to know whether the actual individual is a CpG or not & uint8\_t &  \\
+\hline
+\end{tabular}
+%\end{table}
+
+\afterpage{\clearpage}
 
 
 \subsection{Indexing}
 
-\noindent If the file was zipped using bgzip, the following command can be used to index it:
+\noindent If the ACF/GLF is in binary format and zipped using bgzip, the following command can be used to index it:
 \begin{verbatim}
-tabix -s 1 -b 2 -e 2 [mistar file]
+glactools index input.acf.gz
 \end{verbatim}
-
+\noindent please note that the .acf.gz can be glf.gz. This will create a .bai file. The index format used is exactly the same as the one used by htslib so please refer to do their documentation.
 
 
 

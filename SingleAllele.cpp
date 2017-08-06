@@ -52,6 +52,11 @@ int SingleAllele::getAltCount() const{
     return altCount;
 }
 
+bool SingleAllele::hasAlt() const{
+    return (altCount != 0);
+}
+
+
 bool SingleAllele::getIsCpg() const{
     return isCpg;
 }

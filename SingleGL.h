@@ -37,6 +37,7 @@ public:
 
     /* int getTotalCount(); */
     bool alleleCountNull() const;//equivalent from SingleAllele
+    bool hasAlt() const;
 
     /* bool isHeterozygous(); */
     bool   getIsCpg() const;

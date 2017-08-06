@@ -68,7 +68,8 @@ int ACF2NEXUS::run(int argc, char *argv[]){
 
 
     //MistarParser mp   (argv[argc-1]);
-    GlacParser gp   (argv[argc-1]);
+    string filename = string(argv[argc-1]);
+    GlacParser gp   (filename);
 
     if(g1==""){//empty
 	g1=vectorToString( *(gp.getPopulationsNames()),",");

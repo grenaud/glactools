@@ -29,6 +29,8 @@ public:
 
     int getRefCount() const;
     int getAltCount() const;
+    bool hasAlt() const;
+
     int getTotalCount() const;
     bool alleleCountNull() const;
 

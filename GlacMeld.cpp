@@ -144,7 +144,7 @@ int GlacMeld::run(int argc, char *argv[]){
     //cout<<header.str()<<endl;
     
     if(!gw->writeHeader(header.str())){
-	cerr<<"GlacViewer: error writing header "<<endl;
+	cerr<<"GlacMeld: error writing header "<<endl;
 	exit(1);
     }
 	

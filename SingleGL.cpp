@@ -96,6 +96,15 @@ bool SingleGL::alleleCountNull() const{
     return false;
 }
 
+bool SingleGL::hasAlt() const{
+    if ( (raGL == UINT8_MAX) &&
+	 (aaGL == UINT8_MAX) )
+	return false;
+
+    return true;
+}
+
+
 pair<int,int> SingleGL::returnLikelyAlleleCountForRefAlt(int minPLdiffind) const{
 
         
