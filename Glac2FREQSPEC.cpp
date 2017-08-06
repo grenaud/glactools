@@ -86,7 +86,7 @@ int Glac2FREQSPEC::run(int argc, char *argv[]){
 	cerr<<"Glac2FREQSPEC: Cannot use both the ancestor and the root"<<endl;
         return 1;           
     }
-    string glacfile  = string(argv[argc-1]);
+    string glacfile  = string(argv[lastOpt]);
     
     GlacParser gp (glacfile);
     uint64_t totalRecords=0;

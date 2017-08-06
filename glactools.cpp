@@ -17,10 +17,12 @@
 #include "VcfMulti2ACF.h"
 #include "T3andme2ACF.h"
 
+#include "GlacClosest.h"
 #include "Glac2BED.h"
 #include "GlacMeld.h"
 #include "GlacPopsub.h"
 #include "GlacRemovepop.h"
+#include "GlacCompute.h"
 
 #include "GlacIntersect.h"
 #include "GlacUnion.h"
@@ -76,6 +78,9 @@ int main (int argc, char *argv[]) {
 	"\n"+
 	"\t--Computations:\n"+                       
 	"\t\tfreqspec\t\tCompute the frequency spectrum"+"\n"+
+	"\t\tclosest\t\t\tReturn the distance between records"+"\n"+
+	"\t\tcompute\t\t\tCompute summary statistics"+"\n"+
+
 	"\n"+
 	"\t--File transformations:\n"+                       
 	"\t\tcat\t\t\tConcatenate (GL|AC)f files"+"\n"+
@@ -212,6 +217,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glac2bed_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "closest"){
+     	GlacClosest  glacclosest_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacclosest_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacclosest_.run(argc, argv);
 		    	    	    
     }else{      if(string(argv[1]) == "acf2bplink"){
 	ACF2BPLINK  acf2bplink_;
@@ -438,6 +457,20 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacremovepop_.run(argc, argv);
 
+    }else{      if(string(argv[1]) == "removepop"){
+	GlacRemovepop  glacremovepop_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacremovepop_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacremovepop_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "intersect"){
 	GlacIntersect  glacintersect_;
 
@@ -452,6 +485,7 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacintersect_.run(argc, argv);
 
+
     }else{      if(string(argv[1]) == "union"){
 	GlacUnion  glacunion_;
 
@@ -465,6 +499,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glacunion_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "compute"){
+	GlacCompute  glaccompute_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glaccompute_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glaccompute_.run(argc, argv);
 
 		    	    	    
     }else{      if(string(argv[1]) == "index"){
@@ -514,12 +562,10 @@ int main (int argc, char *argv[]) {
 		    
 	    
     }else{      
-
-
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-														}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+															    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

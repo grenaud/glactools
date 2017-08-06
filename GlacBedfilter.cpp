@@ -35,7 +35,7 @@ int GlacBedfilter::run(int argc, char *argv[]){
 	return 1;       
     }
     int lastOpt=1;
-    unsigned int firstPopInd=0;
+    //unsigned int firstPopInd=0;
 		      
 
     //last arg is program name
@@ -194,10 +194,12 @@ int GlacBedfilter::run(int argc, char *argv[]){
 		}
 	    }
 	}
+
     nextacfrecord:
+	continue;
 	// cout<<arr->coordinate<<endl;		    
 	
-	totalRecords++;
+	//totalRecords++;
 		// if(gp.isGLFormat()){
 	//     for(unsigned j=firstPopInd;j<arr->vectorGLs->size();j++){
 	// 	if( arr->vectorGLs->at(j).alleleCountNull() )
@@ -215,10 +217,10 @@ int GlacBedfilter::run(int argc, char *argv[]){
 	//     cerr<<"GlacViewer: error record "<<*arr<<endl;
 	//     exit(1);
 	// }
-	keptRecords++;
+    // 	keptRecords++;
 
-    nextiterationnoundef:	    
-	continue;
+    // nextiterationnoundef:	    
+    // 	continue;
 	
 
     }

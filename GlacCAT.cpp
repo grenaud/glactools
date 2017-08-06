@@ -54,6 +54,16 @@ int GlacCAT::run(int argc, char *argv[]){
 		cerr<<"GlacCat: error writing header "<<endl;
 		return 1;
 	    }
+
+
+	    while(gp.hasData()){
+		arr = gp.getData();
+		if(!gw->writeAlleleRecord(arr)){
+		    cerr<<"GlacCAT: error record "<<arw<<endl;
+		    exit(1);
+		}
+	    }
+
 	}else{
 	    if(sqLines != gp.getHeaderSQ()){
 		cerr<<"GlacCat: error the SQ lines do not match in headers in file: "<<string(argv[i])<<" does not match the ones in "<<string(argv[1])<<endl;
@@ -64,6 +74,14 @@ int GlacCAT::run(int argc, char *argv[]){
 		return 1;
 	    }
 
+
+	    while(gp.hasData()){
+		arr = gp.getData();
+		if(!gw->writeAlleleRecord(arr)){
+		    cerr<<"GlacCAT: error record "<<arw<<endl;
+		    exit(1);
+		}
+	    }
 
 	}
     }

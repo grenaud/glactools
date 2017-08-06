@@ -22,8 +22,8 @@
 
 using namespace std;
 
-
 static uint8_t maskRef=240; //11110000
+
 static uint8_t maskAlt=15; //00001111
 
 static char sizeBytesACF;
@@ -97,7 +97,8 @@ class GlacParser{
     size_t getSizeRecord() const; //size of 1 record in binary
     int getNumberOfChromosomes() const;
     string getChromosomeName(int chrIdx) const;
-
+    map<string,uint16_t> getChr2chri() const;
+    vector<string>       getChrKnown() const;
     const vector<string> *   getPopulationsNames() const ;
 
 };

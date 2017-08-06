@@ -6,6 +6,7 @@ vcf2mistar*
 vcf2mistarNoEpo*
 vcfcompute*
 vcfMulti2mistar*
+closestMistar* 
 
 -- totest --
 23andme2mistar*
@@ -24,11 +25,11 @@ mistarmeld*
 mistarstats*
 mistarfilter*
 mistarfreqSpec*
-
+removepop and popsub
 -- todo --
 
-removepop and popsub
-closestMistar* 
+
+
 
 mistarcomputeParallel2*
 

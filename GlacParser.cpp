@@ -1431,4 +1431,10 @@ const vector<string> * GlacParser::getPopulationsNames() const{
 }
 
 
+map<string,uint16_t> GlacParser::getChr2chri() const{
+    return chr2chri;
+}
 
+vector<string> GlacParser::getChrKnown() const{
+    return chrKnown;
+}
