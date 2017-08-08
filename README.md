@@ -3,10 +3,16 @@
 ==========================================================
 
 QUESTIONS :
-   gabriel [dot] reno [ at sign ] gmail.com
+   gabriel [dot] reno [ at sign ] gmail [dot] com
 
 
 About
+----------------------
+
+glactools is a set of command-line tools for the management of Genotype likelihood (GL) and allele counts (AC).
+
+
+Description
 ----------------------
 
 glactools is a suite of utilities to:
@@ -54,66 +60,85 @@ The documentation is found here:
 Example of usage
 -----------------
 
-We will download 5 VCF files as testData:
+We will download 5 different, single individual VCF files as testData:
 
-mkdir -p testData/
-cd testData/
-wget http://cdna.eva.mpg.de/neandertal/altai/AltaiNeandertal/VCF/AltaiNea.hg19_1000g.21.mod.vcf.gz
-wget http://cdna.eva.mpg.de/neandertal/altai/Denisovan/DenisovaPinky.hg19_1000g.21.mod.vcf.gz
-wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004468.hg19_1000g.21.mod.vcf.gz
-wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004475.hg19_1000g.21.mod.vcf.gz
-wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004477.hg19_1000g.21.mod.vcf.gz
+    mkdir -p testData/
+    cd testData/
+    wget http://cdna.eva.mpg.de/neandertal/altai/AltaiNeandertal/VCF/AltaiNea.hg19_1000g.21.mod.vcf.gz
+    wget http://cdna.eva.mpg.de/neandertal/altai/Denisovan/DenisovaPinky.hg19_1000g.21.mod.vcf.gz
+    wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004468.hg19_1000g.21.mod.vcf.gz
+    wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004475.hg19_1000g.21.mod.vcf.gz
+    wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004477.hg19_1000g.21.mod.vcf.gz
+    wget http://dna.ku.dk/~gabriel/epo/all.epo.gz
+    wget http://dna.ku.dk/~gabriel/epo/all.epo.gz.tbi
+    wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai
+    cd ..
 
-TODO
-For the Altai Neandertal, the Denisova, a French individual and a Yoruba individual, all high coverage genomes. 
+- Convert the VCF files to ACF files:
 
-- Convert the VCF files to MISTARtools files:
-
-./vcf2mistar testData/Altai.vcf.gz    AltaiNeandertal testData/chr21.epo.gz |bgzip -c > testData/Altai.mst.gz 
-./vcf2mistar testData/Denisova.vcf.gz Denisova        testData/chr21.epo.gz |bgzip -c > testData/Denisova.mst.gz 
-./vcf2mistar testData/French.vcf.gz   French          testData/chr21.epo.gz |bgzip -c > testData/French.mst.gz 
-./vcf2mistar testData/Yoruba.vcf.gz   Yoruba          testData/chr21.epo.gz |bgzip -c > testData/Yoruba.mst.gz 
+    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/AltaiNea.hg19_1000g.21.mod.vcf.gz      AltaiNean    > testData/AltaiNean.acf.gz
+    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/DenisovaPinky.hg19_1000g.21.mod.vcf.gz Denisova     > testData/Denisova.acf.gz
+    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004468.hg19_1000g.21.mod.vcf.gz     FrenchB      > testData/FrenchB.acf.gz
+    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004475.hg19_1000g.21.mod.vcf.gz     YorubaB      > testData/YorubaB.acf.gz
+    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004477.hg19_1000g.21.mod.vcf.gz     AustralianB  > testData/AustralianB.acf.gz
 
 
-- Tabix index them:
+- glactools index them:
+    ./glactools index testData/AltaiNean.acf.gz
+    ./glactools index testData/Denisova.acf.gz
+    ./glactools index testData/FrenchB.acf.gz
+    ./glactools index testData/YorubaB.acf.gz
+    ./glactools index testData/AustralianB.acf.gz
 
-tabix -s 1 -b 2 -e 2 testData/Altai.mst.gz 
-tabix -s 1 -b 2 -e 2 testData/Denisova.mst.gz 
-tabix -s 1 -b 2 -e 2 testData/French.mst.gz 
-tabix -s 1 -b 2 -e 2 testData/Yoruba.mst.gz 
+- Create an intersection:
 
-- Create the intersection:
+    ./glactools intersect testData/AltaiNean.acf.gz testData/Denisova.acf.gz testData/AustralianB.acf.gz testData/FrenchB.acf.gz testData/YorubaB.acf.gz > testData/2arch3modern.acf.gz
 
-./mistarintersect  testData/{Altai,Denisova,French,Yoruba}.mst.gz |bgzip -c > testData/all.mst.gz
+These commands are found in testData/Makefile
+
+- Visualize the intersection:
+
+    ./glactools view    testData/2arch3modern.acf.gz |less -S # view data
+    ./glactools view -h testData/2arch3modern.acf.gz |less -S # view data+defline
+    ./glactools view -H testData/2arch3modern.acf.gz |less -S # view data+full header
 
 
 - Merge the modern humans and archaic as one population:
 
-./mistarmeld testData/all.mst.gz   "AltaiNeandertal,Denisova" "Archaics"  |./mistarmeld /dev/stdin   "French,Yoruba" "Modern"|bgzip -c > testData/all.merged.mst.gz
+     ./glactools meld -u testData/2arch3modern.acf.gz   "AltaiNean,Denisova" "Archaics"  |./glactools meld /dev/stdin   "AustralianB,FrenchB,YorubaB" "Modern"  > testData/all.merged.acf.gz
 
 
 - Visualize sites where the archaics and modern differ:
 
-./mistarfilter  znosharing testData/all.merged.mst.gz "Archaics"  "Modern"
-
+     ./glactools snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern" |./glactools view - 
 
 - Visualize sites where the archaics and modern differ and the archaic is ancestral and the modern humans are derived:
 
-./mistarfilter  znosharing testData/all.merged.mst.gz "Archaics"  "Modern"  | ./mistarfilter sharing /dev/stdin  "root" "Archaics"
+     ./glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Archaics"|./glactools view -
 
 
 - Visualize sites where the archaics and modern differ and the archaic is derived and the modern humans are ancestral:
 
-./mistarfilter  znosharing testData/all.merged.mst.gz "Archaics"  "Modern"  | ./mistarfilter sharing /dev/stdin  "root" "Modern"
-
-
-- Build a neighbor-joining tree:
-
-./mistarcompute nj  --model none testData/all.mst.gz  > testData/all.nw 
+     ./glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Modern"|./glactools view - 
 
 
 - Export to treemix:
 
-./mistar2treemix  testData/all.mst.gz  |gzip > testData/all.treemix.gz
+     ./glactools acf2treemix testData/2arch3modern.acf.gz    |gzip > testData/all.treemix.gz
+
+Problems/feature request
+----------------------
+
+If you have a Github account, I recommend that you create an issue. That way other users can see what you wrote comma comment on it and I can keep track of it more easily.
+
+Otherwise, send me a mail gabriel [dot] reno [at sign here] gmail [dot] com
+
+
+FAQ
+----------------------
+
+why do you have data import from single VCF and multi VCF at the same time?
+
+A single VCF usually carries extra information for the single individual such as depth of coverage and additional information in the INFO fields. Ideally you should have a consistent set of filters that does not generate any reference/alternative allele/heterozygous site bias and generate your GLF or ACF files.
 
 

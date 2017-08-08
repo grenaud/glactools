@@ -16,10 +16,10 @@ ACF2TREEMIX::~ACF2TREEMIX(){
 string ACF2TREEMIX::usage() const{
 
 
-    string usage=string("")+"acf2treemix  [options]  <ACF file>"+
-	"This program takes an ACF matrix and prints the segregating sites in Treemix format"+
-	""+
-	"Options:"+
+    string usage=string("")+"acf2treemix  [options]  <ACF file>\n"+
+	"This program takes an ACF matrix and prints the segregating sites in Treemix format\n"+
+	"\n"+
+	"Options:\n"+
 	"\t--justtransv\t\tOnly allow transversions (Default "+boolStringify(limitToTransversions)+" )\n"+
 	"\t--noprivate\t\tDo not allow private mutations (Default "+boolStringify(noprivate)+" )\n"+
 	"\t--anc\t\tPrint ancestral value, not the root (Default "+boolStringify(printAnc)+" )\n";
@@ -38,9 +38,18 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
 	return 1;       
     }
 
-
+    int lastOpt=1;    
     for(int i=1;i<(argc-1);i++){ 
+
+	if((string(argv[i]) == "-")  ){
+	    lastOpt=i;
+	    break;          
+	}
 	
+	if(string(argv[i])[0] != '-' ){
+	    lastOpt=i;
+	    break;
+	}       	
 
         if( string(argv[i]) == "--anc"  ){
 	    printAnc=true;
@@ -62,7 +71,7 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
     }
 
 
-    GlacParser gp (argv[argc-1]);
+    GlacParser gp (argv[lastOpt]);
 
     vector<string> toprintPop;
 

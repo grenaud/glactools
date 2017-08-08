@@ -188,7 +188,6 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 #endif
 	if(bytesForRecord==2){
 
-	    uint8_t  toWriteCpG=0; 
 	    
 	    for(uint32_t j=0;j<(sizePops+2);j++){//plus 2 for root anc
 		//2 bytes

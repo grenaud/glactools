@@ -49,4 +49,3 @@ glactools:	glactools.o GlacIndex.o GlacIDXSTATS.o GlacWriter.o MultiVCFreader.o 
 
 clean :
 	rm -f *.o glactools
-

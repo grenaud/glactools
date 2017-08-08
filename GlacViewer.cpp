@@ -167,8 +167,36 @@ int GlacViewer::run(int argc, char *argv[]){
 	    }else{
 		justChr=false;
 		chrName = region.substr(0,indexColon);
-		start   = destringify<int>( region.substr(indexColon+1,indexDash-indexColon-1));
-		end     = destringify<int>( region.substr(indexDash+1));
+		//remove any comma 
+		string startT = region.substr(indexColon+1,indexDash-indexColon-1);
+		string endT   = region.substr(indexDash+1);
+		
+		string t_="";
+		for(unsigned int i=0;i<startT.size();i++){
+		    if(startT[i] != ','){
+			if(!isdigit(startT[i])){
+			    cerr<<"GlacViewer: error, non-digit found in "<<startT<<endl;
+			    return 1;
+			}
+			t_ += startT;
+		    }
+		}
+		startT = t_;
+
+		t_="";
+		for(unsigned int i=0;i<endT.size();i++){
+		    if(endT[i] != ','){
+			if(!isdigit(endT[i])){
+			    cerr<<"GlacViewer: error, non-digit found in "<<endT<<endl;
+			    return 1;
+			}
+			t_ += endT;
+		    }
+		}
+		endT = t_;
+
+		start   = destringify<int>( startT );
+		end     = destringify<int>( endT );
 	    }
 	    end = end+1;//I don't know why but this seems to work to give inclusive bounds
 	    //cout<<justChr<<endl;
@@ -201,9 +229,9 @@ int GlacViewer::run(int argc, char *argv[]){
 		if(uncompressed || printBin){//if binary
 		    if(!gw->writeAlleleRecord(ar)){
 			cerr<<"GlacViewer: error record "<<*ar<<endl;
-			exit(1);
+			return 1;
 		    }
-
+		    
 		}else{
 		    cout<<*ar<<endl;
 		}	    

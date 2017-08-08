@@ -30,11 +30,12 @@ removepop and popsub
 
 
 
-
+basic stats
 mistarcomputeParallel2*
 
 axt2mistar*
 epo2mistar*
+example with msPrime
 
 -- ignored --
 mistar2AlleleMatrix*

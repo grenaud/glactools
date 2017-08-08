@@ -349,7 +349,7 @@ bool MultiVCFreader::hasData(){
 			indexInQueueOfIndels=indexQueue;		   
 		}
 		indexQueue++;
-		if(queueOfVCFs.size() == (readAhead+1)){
+		if(int(queueOfVCFs.size()) == (readAhead+1)){
 		    loop=false;
 		}
 	    }else{
@@ -358,7 +358,7 @@ bool MultiVCFreader::hasData(){
 	}
 	
 
-	if(queueOfVCFs.size() == (readAhead+1)){ //+1 for CPGs
+	if(int(queueOfVCFs.size()) == (readAhead+1)){ //+1 for CPGs
 	    fullQueue=true;
 	}else{
 	    endQueue=true;
@@ -496,7 +496,7 @@ vector<SimpleVCF *> * MultiVCFreader::getMultipleData(){
 
 			if( (*it)->at(0)->containsIndel()){
 
-			    if( (((*it)->at(0)->getPosition() - svcfToReturn->at(0)->getPosition() ) <= readAhead) &&
+			    if( (  int((*it)->at(0)->getPosition() - svcfToReturn->at(0)->getPosition())  <= readAhead) &&
 				((*it)->at(0)->getChr() == svcfToReturn->at(0)->getChr()) ){
 				svcfToReturn->at(0)->setCloseIndel(true);			    
 			    }
@@ -516,7 +516,7 @@ vector<SimpleVCF *> * MultiVCFreader::getMultipleData(){
 
     //look behind for indels
     if(previouslyFoundIndel){
-	if( ((svcfToReturn->at(0)->getPosition() - indexOfLastIndel) <= readAhead) &&
+	if( ( int(svcfToReturn->at(0)->getPosition() - indexOfLastIndel) <= readAhead) &&
 	    (chrOfLastIndel == svcfToReturn->at(0)->getChr()) ){
 	    svcfToReturn->at(0)->setCloseIndel(true);
 	}
