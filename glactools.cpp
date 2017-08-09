@@ -22,7 +22,10 @@
 #include "GlacMeld.h"
 #include "GlacPopsub.h"
 #include "GlacRemovepop.h"
+#include "GlacReheader.h"
 #include "GlacCompute.h"
+#include "GlacReplaceAncestor.h"
+#include "GlacUsePopAsRootAnc.h"
 
 #include "GlacIntersect.h"
 #include "GlacUnion.h"
@@ -47,6 +50,7 @@
 
 #include "GlacIndex.h"
 #include "GlacIDXSTATS.h"
+#include "GlacStats.h"
 #include "GlacViewer.h"
 
 using namespace std;
@@ -54,65 +58,71 @@ using namespace std;
 int main (int argc, char *argv[]) {
 
     const string usage=string("\n")+
-	"\tThis program contains various functions for managing:\n"+                       
-	"\tGenotype Likelihoods & Allele Counts\n"+                       
+	"   This program contains various functions for managing:\n"+                       
+	"   Genotype Likelihoods & Allele Counts\n"+                       
 	"\n"+
-	"\tglf\tgenotype likelihood format\n"+
-	"\tacf\tallele count format\n"+			      
+	"   glf   genotype likelihood format\n"+
+	"   acf   allele count format\n"+			      
 	"\n"+                       
-	"\t"+string(argv[0]) +" <command> options\n"+                       
+	"   "+string(argv[0]) +" <command> options\n"+                       
 	"\n"+                       
-	"\tCommands:\n"+                       
-	"\t--Data import:\n"+                       
-	"\t\tvcf2acf\t\t\tConvert single sample VCF to acf "+"\n"+
-	"\t\tvcf2glf\t\t\tConvert single sample VCF to glf "+"\n"+
-	"\t\tvcfm2acf\t\tConvert multi  sample VCF to acf "+"\n"+
-	"\t\tbam2acf\t\t\tConvert single sample BAM to acf "+"\n"+
-	"\t\t23andme2acf\t\tConvert 23andme data to acf "+"\n"+
+	"   Commands:\n"+                       
+	"   --Data import:\n"+                       
+	"      vcf2acf         Convert single sample VCF to acf "+"\n"+
+	"      vcf2glf         Convert single sample VCF to glf "+"\n"+
+	"      vcfm2acf        Convert multi  sample VCF to acf "+"\n"+
+	"      bam2acf         Convert single sample BAM to acf "+"\n"+
+	"      23andme2acf     Convert 23andme data to acf "+"\n"+
 	"\n"+
-	"\t--Filtering:\n"+                       
-	"\t\tnoundef\t\t\tNo undefined sites for populations"+"\n"+
-	"\t\tbedfilter\t\tFilter ACF/GLF file using sorted bedfile"+"\n"+
-	"\t\tsegsite\t\t\tJust retain segregating sites (or trans./transi)"+"\n"+
-	"\t\tsharing\t\t\tRetain sites that share alleles between populations"+"\n"+
-	"\t\tnosharing\t\tRetain sites that do NOT share alleles between populations"+"\n"+
-	"\t\tsnosharing\t\tRetain sites that STRICKLY do NOT share alleles between populations"+"\n"+
+	"   --Filtering:\n"+                       
+	"      noundef         No undefined sites for populations"+"\n"+
+	"      bedfilter       Filter ACF/GLF file using sorted bedfile"+"\n"+
+	"      segsite         Just retain segregating sites (or trans./transi)"+"\n"+
+	"      sharing         Retain sites that share alleles between populations"+"\n"+
+	"      nosharing       Retain sites that do NOT share alleles between populations"+"\n"+
+	"      snosharing      Retain sites that STRICKLY do NOT share alleles between populations"+"\n"+
 	"\n"+
-	"\t--Computations:\n"+                       
-	"\t\tfreqspec\t\tCompute the frequency spectrum"+"\n"+
-	"\t\tclosest\t\t\tReturn the distance between records"+"\n"+
-	"\t\tcompute\t\t\tCompute summary statistics"+"\n"+
+	"   --Computations:\n"+                       
+	"      freqspec        Compute the frequency spectrum"+"\n"+
+	"      closest         Return the distance between records"+"\n"+
+	"      compute         Compute summary statistics"+"\n"+
+	"      stats           Provide very basic stats"+"\n"+
 
 	"\n"+
-	"\t--File transformations:\n"+                       
-	"\t\tcat\t\t\t\tConcatenate (GL|AC)f files"+"\n"+
-	"\t\tintersect\t\tIntersection of (GL|AC)f files"+"\n"+
-	"\t\tunion\t\t\t\tUnion of (GL|AC)f files"+"\n"+
+	"   --File transformations:\n"+                       
+	"      cat             Concatenate (GL|AC)f files"+"\n"+
+	"      intersect       Intersection of (GL|AC)f files"+"\n"+
+	"      union           Union of (GL|AC)f files"+"\n"+
+	"      reheader        Replace header of (GL|AC)f files"+"\n"+
+
 	"\n"+
-	"\t--Population transformations:\n"+                       
-	"\t\tmeld\t\t\t\t"+"Merge multiple populations as one for ACF files\n"+
-	"\t\tpopsub\t\t\t"+"Keep a subset of the populations\n"+
-	"\t\tremovepop\t\t"+"Remove a subset of the populations\n"+
+	"   --Population transformations:\n"+                       
+	"      meld            Merge multiple populations as one for ACF files\n"+
+	"      popsub          Keep a subset of the populations\n"+
+	"      removepop       Remove a subset of the populations\n"+
+	"      replaceanc      Use ancestral/root information from another file\n"+
+	"      usepopsrootanc  Use 2 specified pops as ancestral/root information\n"+
+
 	"\n"+
-	"\t--Data export:\n"+                       
-	"\t\tglac2bed\t\tConvert a (GL|AC)f file to BED"+"\n"+
-	"\t\tacf2binaryplink\t\tConvert an ACF file to binary PLINK"+"\n"+
-	"\t\tacf2fasta\t\tConvert an ACF file to fasta"+"\n"+ 
-	"\t\tacf2gphocs\t\tConvert an ACF file to G-PhoCs"+"\n"+
-	"\t\tacf2nexus\t\tConvert an ACF file to Nexus"+"\n"+
-	"\t\tacf2treemix\t\tConvert an ACF file to treemix"+"\n"+
-	"\t\tacf2eigenstrat\t\tConvert an ACF file to EIGENSTRAT"+"\n"+
-	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
+	"   --Data export:\n"+                       
+	"      glac2bed        Convert a (GL|AC)f file to BED"+"\n"+
+	"      acf2bplink      Convert an ACF file to binary PLINK"+"\n"+
+	"      acf2fasta       Convert an ACF file to fasta"+"\n"+ 
+	"      acf2gphocs      Convert an ACF file to G-PhoCs"+"\n"+
+	"      acf2nexus       Convert an ACF file to Nexus"+"\n"+
+	"      acf2treemix     Convert an ACF file to treemix"+"\n"+
+	"      acf2eigenstrat  Convert an ACF file to EIGENSTRAT"+"\n"+
+	//"      vcfm2glf      Convert multi  sample VCF to glf "+"\n"+
 	"\n"+
-	"\t--GLF/ACF conversion:\n"+                       
-	"\t\tglf2acf\t\t\tConvert glf to acf "+"\n"+
+	"   --GLF/ACF conversion:\n"+                       
+	"      glf2acf         Convert glf to acf "+"\n"+
 	"\n"+
-	"\t--Indexing:\n"+                       
-	"\t\tindex\t\t\tindex acf/glf file"+"\n"+
-	"\t\tidxstats\t\tBasic statistics using the index of a acf/glf file"+"\n"+
+	"   --Indexing:\n"+                       
+	"      index           Index acf/glf file"+"\n"+
+	"      idxstats        Basic statistics using the index of a acf/glf file"+"\n"+
 	"\n"+
-	"\t--Viewing:\n"+                       
-	"\t\tview\t\t\t\tview all or a region of a ACF/GLF file "+"\n"+
+	"   --Viewing:\n"+                       
+	"      view            View all or a region of a ACF/GLF file "+"\n"+
 	"";
 
                               
@@ -474,6 +484,48 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacremovepop_.run(argc, argv);
 
+    }else{      if(string(argv[1]) == "replaceanc"){
+	GlacReplaceAncestor  glacreplaceanc_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacreplaceanc_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacreplaceanc_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "usepopsrootanc"){
+	GlacUsePopAsRootAnc  glacusepopsrootanc_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacusepopsrootanc_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacusepopsrootanc_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "stats"){
+	GlacStats  glacstats_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacstats_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacstats_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "removepop"){
 	GlacRemovepop  glacremovepop_;
 
@@ -516,6 +568,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glacunion_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "reheader"){
+	GlacReheader  glacreheader_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacreheader_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacreheader_.run(argc, argv);
 
     }else{      if(string(argv[1]) == "compute"){
 	GlacCompute  glaccompute_;
@@ -578,11 +644,10 @@ int main (int argc, char *argv[]) {
 	return glviewer_.run(argc, argv);
 		    
 	    
-    }else{      
-	    
-	    cerr<<"invalid command "<<string(argv[1])<<endl;
-	    return 1;
-																}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+    }else{      	    
+	cerr<<"invalid command "<<string(argv[1])<<endl;
+	return 1;
+																		}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

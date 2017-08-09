@@ -7,6 +7,9 @@ vcf2mistarNoEpo*
 vcfcompute*
 vcfMulti2mistar*
 closestMistar* 
+reheader
+usePopAsRootAnc
+basic stats
 
 -- totest --
 23andme2mistar*
@@ -27,14 +30,13 @@ mistarfilter*
 mistarfreqSpec*
 removepop and popsub
 EIGENSTRAT
+replace ancetor
 
 -- todo --
 
+
 various perl scripts
 
-
-usePopAsRootAnc
-basic stats
 mistarcomputeParallel2*
 
 axt2mistar*
