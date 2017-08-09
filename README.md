@@ -129,7 +129,7 @@ These commands are found in testData/Makefile
 Problems/feature request
 ----------------------
 
-If you have a Github account, I recommend that you create an issue. That way other users can see what you wrote comma comment on it and I can keep track of it more easily.
+If you have a Github account, I recommend that you create an issue. That way other users can see what you wrote comma comment on it and I can keep track of it more easily. I welcome pull requests!
 
 Otherwise, send me a mail gabriel [dot] reno [at sign here] gmail [dot] com
 

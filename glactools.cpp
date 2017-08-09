@@ -28,6 +28,7 @@
 #include "GlacUnion.h"
 #include "Glac2FREQSPEC.h"
 
+
 #include "GlacUndef.h"
 #include "GlacBedfilter.h"
 #include "GlacSegsite.h"
@@ -42,6 +43,7 @@
 #include "ACF2GPHOCS.h"
 #include "ACF2NEXUS.h"
 #include "ACF2TREEMIX.h" 
+#include "ACF2EIGENSTRAT.h" 
 
 #include "GlacIndex.h"
 #include "GlacIDXSTATS.h"
@@ -83,12 +85,12 @@ int main (int argc, char *argv[]) {
 
 	"\n"+
 	"\t--File transformations:\n"+                       
-	"\t\tcat\t\t\tConcatenate (GL|AC)f files"+"\n"+
+	"\t\tcat\t\t\t\tConcatenate (GL|AC)f files"+"\n"+
 	"\t\tintersect\t\tIntersection of (GL|AC)f files"+"\n"+
-	"\t\tunion\t\t\tUnion of (GL|AC)f files"+"\n"+
+	"\t\tunion\t\t\t\tUnion of (GL|AC)f files"+"\n"+
 	"\n"+
 	"\t--Population transformations:\n"+                       
-	"\t\tmeld\t\t\t"+"Merge multiple populations as one for ACF files\n"+
+	"\t\tmeld\t\t\t\t"+"Merge multiple populations as one for ACF files\n"+
 	"\t\tpopsub\t\t\t"+"Keep a subset of the populations\n"+
 	"\t\tremovepop\t\t"+"Remove a subset of the populations\n"+
 	"\n"+
@@ -99,6 +101,7 @@ int main (int argc, char *argv[]) {
 	"\t\tacf2gphocs\t\tConvert an ACF file to G-PhoCs"+"\n"+
 	"\t\tacf2nexus\t\tConvert an ACF file to Nexus"+"\n"+
 	"\t\tacf2treemix\t\tConvert an ACF file to treemix"+"\n"+
+	"\t\tacf2eigenstrat\t\tConvert an ACF file to EIGENSTRAT"+"\n"+
 	//"\t\tvcfm2glf\t\tConvert multi  sample VCF to glf "+"\n"+
 	"\n"+
 	"\t--GLF/ACF conversion:\n"+                       
@@ -109,7 +112,7 @@ int main (int argc, char *argv[]) {
 	"\t\tidxstats\t\tBasic statistics using the index of a acf/glf file"+"\n"+
 	"\n"+
 	"\t--Viewing:\n"+                       
-	"\t\tview\t\t\tview all or a region of a ACF/GLF file "+"\n"+
+	"\t\tview\t\t\t\tview all or a region of a ACF/GLF file "+"\n"+
 	"";
 
                               
@@ -302,6 +305,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return acf2treemix_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "acf2eigenstrat"){
+	ACF2EIGENSTRAT  acf2eigenstrat_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<acf2eigenstrat_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return acf2eigenstrat_.run(argc, argv);
 
 
     }else{      if(string(argv[1]) == "noundef"){
@@ -565,7 +582,7 @@ int main (int argc, char *argv[]) {
 	    
 	    cerr<<"invalid command "<<string(argv[1])<<endl;
 	    return 1;
-															    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

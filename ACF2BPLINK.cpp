@@ -51,7 +51,10 @@ int ACF2BPLINK::run(int argc, char *argv[]){
 
     GlacParser gp (glacfile);
     
-
+    if(!gp.isACFormat()){
+	cerr<<"ACF2EIGENSTRAT: Error the file "<<glacfile<<" should be in ACF format"<<endl;
+        return 1;	
+    }
 
     ofstream bedFileS;
     ofstream bimFileS; 

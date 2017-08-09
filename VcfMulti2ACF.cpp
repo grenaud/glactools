@@ -221,7 +221,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
     header<<"#PG:"<<programLine<<endl;
     header<<"#GITVERSION: "<<returnGitHubVersion(argv[-1],"")<<endl;
     header<<"#DATE: "<<getDateString()<<endl;
-    header<<"#VCFMULTI2ACF:";
+    header<<"#VCFMULTI2ACF:"<<endl;
 
     map<string,uint16_t> chr2index;
     uint16_t     chrCurrentIndex=0;

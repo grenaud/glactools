@@ -26,10 +26,14 @@ mistarstats*
 mistarfilter*
 mistarfreqSpec*
 removepop and popsub
+EIGENSTRAT
+
 -- todo --
 
+various perl scripts
 
 
+usePopAsRootAnc
 basic stats
 mistarcomputeParallel2*
 
