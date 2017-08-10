@@ -35,9 +35,14 @@ replace ancetor
 -- todo --
 
 
-various perl scripts
 
-mistarcomputeParallel2*
+
+mistarcomputeParallel2* change to read data ahead?
+
+check if performance better with reserve before
+
+various perl scripts
+various R scripts
 
 axt2mistar*
 epo2mistar*

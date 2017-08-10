@@ -34,20 +34,21 @@ AlleleRecords::AlleleRecords(uint32_t sizePops_,bool glFormat_){
 }
 
 AlleleRecords::AlleleRecords(const AlleleRecords & other){
-    //cout<<"copy"<<endl;
+    //cout<<"copy1#"<<other.glFormat<<"# "<<other.chr<<" "<<other.coordinate<<"#"<<endl;
     chr        = other.chr;
     coordinate = other.coordinate;
     ref        = other.ref;
     alt        = other.alt;
+    glFormat   = other.glFormat;
 
-    if(other.glFormat){
+    if(other.glFormat){	
 	vectorAlleles = 0;
 	vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );
     }else{
 	vectorAlleles = new vector<SingleAllele> ( *(other.vectorAlleles) );
 	vectorGLs     = 0;
     }
-
+    //cout<<"copy2#"<<other.glFormat<<"# "<<other.chr<<" "<<other.coordinate<<"#"<<endl;
 }
 
 AlleleRecords::~AlleleRecords(){

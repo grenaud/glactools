@@ -28,9 +28,12 @@ public:
     ~AlleleRecords();
     AlleleRecords & operator= (const AlleleRecords & other){
 	chr        = other.chr;
+	chri       = other.chri;
 	coordinate = other.coordinate;
 	ref        = other.ref;
 	alt        = other.alt;
+	glFormat   = other.glFormat;
+
 	if(other.glFormat){
 	    vectorAlleles = 0;
 	    vectorGLs     = new vector<SingleGL>     ( *(other.vectorGLs) );

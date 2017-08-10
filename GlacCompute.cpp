@@ -78,8 +78,9 @@ void *mainComputationThread(void * argc){
  	//cerr<<"Thread #"<<rankThread<<" is <<endl;
     }
 
-    
+    //cout<<"Thread #"<<rankThread <<" is requesting data "<<foundData<<" "<<doneReading<<" "<<endl;    
   
+    //if(foundData) cout<<"size data "<<dataToUse->size()<<endl;
 
     if(!foundData){
  	if(doneReading){
@@ -94,7 +95,7 @@ void *mainComputationThread(void * argc){
 
 	    rc = pthread_mutex_unlock(&mutexQueue);
 	    checkResults("pthread_mutex_unlock()\n", rc);
-
+	    cerr<<"Queue is empty, thread #"<<rankThread<<" will sleep for 5 seconds, consider reducing the number of threads"<<endl;
  	    sleep(2);
 
  	    goto checkqueue;	   
@@ -110,7 +111,7 @@ void *mainComputationThread(void * argc){
     //                BEGIN COMPUTATION                         //
     //////////////////////////////////////////////////////////////
     //cout<<"Thread #"<<rankThread<<" is starting computations"<<endl;
-    //cout<<vectorToString(*populationNames)<<endl;
+    // cout<<populationNames<<" "<<vectorToString(*populationNames)<<endl;
     // cout<<"Thread #"<<rankThread<<" is starting computations2"<<endl;
     //unsigned int count=0;
     // for(unsigned int i=0;i<=dataToUse->size();i++){
@@ -118,11 +119,14 @@ void *mainComputationThread(void * argc){
     // 	cout<<"mcp "<<i<<"\t"<<(dataToUse->at(i))<<endl;
     // }
 
+    //cout<<populationNames<<endl;
     STAT * statComputer = new STAT(populationNames);
     // cout<<"Thread #"<<rankThread <<" addrt stat "<<statComputer<<endl;
 
     for(unsigned i=0;i<dataToUse->size();i++){
-	
+
+	//cout<<"Thread #"<<rankThread <<"  "<<i<<endl;
+
 	statComputer->computeStatSingle(&(dataToUse->at(i)),allowUndefined);
 
     }
@@ -149,7 +153,8 @@ void *mainComputationThread(void * argc){
     //COUNTERS
     rc = pthread_mutex_lock(&mutexCounter);
     checkResults("pthread_mutex_lock()\n", rc);
-    //cout<<"Thread #"<<rankThread <<" is done with computations"<<endl;
+
+    //cerr<<"Thread #"<<rankThread <<" is done with computations"<<endl;
 
     results->push_back(statComputer);
 
@@ -198,6 +203,16 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     // myFile.open(filename.c_str(), ios::in);
     // vector<string> lines;
 
+    GlacParser gp (filename);
+    vector<string>     chri2chr = gp.getChrKnown();
+    if(!gp.isACFormat()){
+	cerr<<"GlacCompute: The file "<<filename<<" is not in ACF format"<<endl;
+	exit(1);
+    }
+    
+    for(unsigned int i=0;i<gp.getPopulationsNames()->size();i++){
+	populationNames->push_back(gp.getPopulationsNames()->at(i));
+    }
 
     // vector<string> populationNames;
     //unsigned int numberPopulations;
@@ -222,7 +237,6 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     //threads are running here  
     //map<string,int> chr2index;//can be obtained from parser
     //map<string,uint16_t> chri2chr;
-    vector<string> chri2chr;
 
     //int chr2indexCurrent=0;
     uint16_t chriLast=UINT16_MAX;
@@ -234,21 +248,16 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     // AlleleRecords  * currentRecord;
     //vector< string  > * vecForBin;
     vector< AlleleRecords  > * vecForBin;
-    GlacParser gp (filename);
-    chri2chr = gp.getChrKnown();
-    if(!gp.isACFormat()){
-	cerr<<"GlacCompute: The file "<<filename<<" is not in ACF format"<<endl;
-	exit(1);
-    }
    
     //if (myFile.good()){
 
     //string line;
     //while ( getline (myFile,line)){
     AlleleRecords * arr;
-
+    
     while(gp.hasData()){
         arr = gp.getData();
+	//cout<<*arr<<endl;
 
 	// cout<<"line"<<line<<endl;
 
@@ -343,7 +352,8 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 
 
 	if(lastBin != currentBin){
-	    //cout<<"2: "<<currentRecord->chr<<"\tc="<<coordSUI<<"\tbin="<<(currentBin)<<endl;
+	    //cout<<"2: "<<arr->chr<<"\tc="<<arr->coordinate<<"\tbin="<<(currentBin)<<endl;
+
 	    //cout<<"new bin"<<endl;
 	    if( (currentBin%10)==0){
 		//cerr<<"processing : "<<chrBin<<":"<<coordSUI<<endl;
@@ -354,6 +364,7 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 		//cout<<"new bin first"<<endl;
 		//re-init
 		vecForBin =  new vector< AlleleRecords > ();		
+		vecForBin->reserve(sizeBins);
 		//vecForBin =  new vector< string > ();		
 
 		lastBin=currentBin;
@@ -392,7 +403,8 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 		// }
 		//re-init
 		//vecForBin =  new vector< string  > ();		
-		vecForBin =  new vector< AlleleRecords  > ();		
+		vecForBin =  new vector< AlleleRecords  > ();
+		vecForBin->reserve(sizeBins);
 		lastBin=currentBin;
 		//
 	    }
@@ -400,12 +412,14 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 	    //cout<<"old bin"<<endl;
 	}
 	
-	//cout<<currentRecord->chr<<"\t"<<coordSUI<<endl;
+	//cout<<"p1#"<<arr->chr<<"\t"<<arr->coordinate<<endl;
 	vecForBin->push_back(*arr);
+	//cout<<"p2#"<<arr->chr<<"\t"<<arr->coordinate<<endl;
 	//vecForBin->push_back(line);
 
     }//done reading
 
+    queueFilesToprocess->push(vecForBin);//adding last bin
     //myFile.close();
 
     // }else{
@@ -425,12 +439,13 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     pthread_mutex_destroy(&mutexQueue);   
     pthread_mutex_destroy(&mutexCounter);
     pthread_mutex_destroy(&mutexTHREADID);
-    //    cout<<"ALL DONE2"<<endl;
+    //cout<<"ALL DONE2"<<endl;
 
 
 
     //DO jacknifing
     if(results->size()>1){
+	//cout << "VEC "<<vectorToString( *((*results->at(0)).populationNames) )<<endl;
 	STAT * allResults=new STAT((*results->at(0)));
 	// cout << "VEC "<<vectorToString( *((*results->at(0)).populationNames) )<<endl;
 	// cout<<"done all1"<<endl;
@@ -468,6 +483,8 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 	//cout<<allResults->print()<<endl;
 	//cout<<"done all2"<<endl;
 	
+    }else{
+	cout<<"GlacCompute: There is only a single bin, cannot perform a jacknife, please run with more data"<<endl;
     }
     pthread_exit(NULL); 
     //cout<<"ALL DONE3"<<endl;
@@ -504,7 +521,8 @@ int GlacCompute::run(int argc, char *argv[]){
     }
 
     populationNames = new 	vector<string>  ();
-
+    //cout<<"run()"<<endl;
+    //cout<<populationNames<<" "<<vectorToString(*populationNames)<<endl;
 
 
     for(int i=1;i<(argc-1);i++){ 
@@ -542,7 +560,6 @@ int GlacCompute::run(int argc, char *argv[]){
 	}else{
 	    cerr<<"Wrong program "<<program<<endl;
 	    return 1;
-
 	}
     }
 

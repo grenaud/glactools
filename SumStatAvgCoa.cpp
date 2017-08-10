@@ -109,7 +109,7 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
     //cout<<"coord1 "<<dataToUse->at(d).coordinate<<" "<<d<<" "<<dataToUse->at(d) <<endl;
        
     if(!isResolvedDNA(recordToUse->ref) ){
-	cerr<<"MistarPairwiseAvgCoa.cpp  pairwiseAvgCoa() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
+	cerr<<"SumStateAvgCoa:  pairwiseAvgCoa() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
 	exit(1);
     }
 
@@ -123,9 +123,9 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
 	return ; //next iteration, we need a valid alternative allele otherwise there is no impact on divergence calculation, this speeds it up
     }
 
-    //double check, already checked in MistarParser 
+    //double check, already checked in GlacParser 
     if(recordToUse->vectorAlleles->size() != (numberOfPopulations-1)){
-	cerr<<"MistarPairwiseAvgCoa.cpp  pairwiseAvgCoa() Problem for line "<<recordToUse->chr<<" "<<recordToUse->coordinate<<" wrong number of columns"<<endl;
+	cerr<<"SumStateAvgCoa:  pairwiseAvgCoa() Problem for line "<<recordToUse->chr<<" "<<recordToUse->coordinate<<" wrong number of columns"<<endl;
 	exit(1);
     }
 
@@ -181,6 +181,8 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
     //segregatingSites.push_back(*currentRow);//copy constructor
 
 
+
+
     //for each population, except the root/ancestral at index 0,1
     for(unsigned i=2;i<numberOfPopulations;i++){
 
@@ -206,6 +208,34 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
 	       
 	}
     }
+
+
+
+    // //for each population, except the root/ancestral at index 0,1
+    // for(unsigned i=2;i<numberOfPopulations;i++){
+
+    // 	//for each population, except the root/ancestral at index 0,1
+    // 	for(unsigned j=2;j<numberOfPopulations;j++){	       
+    // 	    //skip when the allele is identical
+    // 	    if(i==j)
+    // 		continue;
+	       	      
+
+    // 	    if(allowUndefined){//if one has undefined allele
+    // 		if(sampledAllele[i] == 'N')
+    // 		    continue;
+    // 		if(sampledAllele[j] == 'N')
+    // 		    continue;
+    // 	    }
+
+    // 	    computeDiv(sampledAllele[1], //0 is root, 1 is ancestral
+    // 		       sampledAllele[i],
+    // 		       sampledAllele[j],
+    // 		       (cpgForPop[i] || cpgForPop[j]),
+    // 		       &(divergenceResults[i][j])  );
+	       
+    // 	}
+    // }
 
     //SKIPTONEXTITERATION:
     return;

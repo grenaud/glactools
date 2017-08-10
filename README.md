@@ -27,6 +27,7 @@ glactools is a suite of utilities to:
 * export genotype likelihood (GLF) or allele count (ACF) to various formats for population genetics applications (treemix,fasta,EIGENSTRAT,G-PhoCS,PLINK).
 
 
+
 Downloading:
 ----------------------
 
@@ -107,24 +108,38 @@ These commands are found in testData/Makefile
 
      ./glactools meld -u testData/2arch3modern.acf.gz   "AltaiNean,Denisova" "Archaics"  |./glactools meld /dev/stdin   "AustralianB,FrenchB,YorubaB" "Modern"  > testData/all.merged.acf.gz
 
+- Get basic statistics:
+     
+     ./glactools stats testData/2arch3modern.acf.gz
 
-- Visualize sites where the archaics and modern differ:
+- Index the file
+     
+     ./glactools index testData/2arch3modern.acf.gz
+
+- View a genomic region:
+
+     ./glactools view testData/2arch3modern.acf.gz 21:25098220-25098230
+
+- View an entire chromosome:
+
+     ./glactools view testData/2arch3modern.acf.gz 21
+
+- Visualize sites where the archaics hominin and modern ones differ:
 
      ./glactools snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern" |./glactools view - 
 
-- Visualize sites where the archaics and modern differ and the archaic is ancestral and the modern humans are derived:
+- Visualize sites where the archaics hominin and modern ones differ and the archaic is ancestral and the modern humans are derived:
 
      ./glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Archaics"|./glactools view -
 
-
-- Visualize sites where the archaics and modern differ and the archaic is derived and the modern humans are ancestral:
+- Visualize sites where the archaics hominin and modern differ and the archaic is derived and the modern humans are ancestral:
 
      ./glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Modern"|./glactools view - 
-
 
 - Export to treemix:
 
      ./glactools acf2treemix testData/2arch3modern.acf.gz    |gzip > testData/all.treemix.gz
+
 
 Problems/feature request
 ----------------------
@@ -137,8 +152,26 @@ Otherwise, send me a mail gabriel [dot] reno [at sign here] gmail [dot] com
 FAQ
 ----------------------
 
-why do you have data import from single VCF and multi VCF at the same time?
+### why do you have data import from single VCF and multi VCF at the same time?
 
 A single VCF usually carries extra information for the single individual such as depth of coverage and additional information in the INFO fields. Ideally you should have a consistent set of filters that does not generate any reference/alternative allele/heterozygous site bias and generate your GLF or ACF files.
 
+### I got the following: Warning: No EOF marker, likely due to an I/O error  [E::bgzf_read] Read block operation failed with error -1 after 0 of 2 bytes
 
+This is likely an input/output error and the file was not written properly to begin with. Try to regenerate it.
+
+### what is the difference between "union" and "intersection"? 
+
+"union" will allow sites to be undefined in a specific population or individual.  "intersection" will require all sides to be defined in every population or individual.
+
+### what is the -u option and what does it do?
+
+how many program there is a -u option which allows users to get a uncompressed glactools output.  This is useful when UNIX piping from one program to another.  If not, one program would compress whereas the second one would decompress,  This is wasteful in terms of CPU.  Therefore when piping into another glactools program, we recommend using the -u.
+
+### what is the difference between root and ancestral (anc)?
+
+The root is an individual or population that is an outgroup to all other individuals/populations in the file. The ancestor is the most recent common ancestor to the root population and all other individuals/populations in a file.
+
+### how do I specify the root and ancestral population
+
+if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc"

@@ -178,7 +178,7 @@ int GlacViewer::run(int argc, char *argv[]){
 			    cerr<<"GlacViewer: error, non-digit found in "<<startT<<endl;
 			    return 1;
 			}
-			t_ += startT;
+			t_ += startT[i];
 		    }
 		}
 		startT = t_;
@@ -190,7 +190,7 @@ int GlacViewer::run(int argc, char *argv[]){
 			    cerr<<"GlacViewer: error, non-digit found in "<<endT<<endl;
 			    return 1;
 			}
-			t_ += endT;
+			t_ += endT[i];
 		    }
 		}
 		endT = t_;
