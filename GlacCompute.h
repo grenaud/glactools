@@ -34,7 +34,6 @@
 
 using namespace std;
 
-
 //! Chunk of code to check if a certain thread call failed
 /*!
   This block is calls by the pthread

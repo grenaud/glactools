@@ -34,11 +34,13 @@ int ACF2BPLINK::run(int argc, char *argv[]){
     }
 
     //all but last 2
-    for(int i=0;i<(argc-2);i++){ 
-
+    for(int i=1;i<(argc-2);i++){ 
+	
 	if( string(argv[i]) == "--noanc"){
 	    printRoot=false;
+	    continue;
 	}
+
 	cerr<<"Error unknown option "<<argv[i]<<endl;
         return 1;
 

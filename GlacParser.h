@@ -46,7 +46,10 @@ class GlacParser{
     string headerNoSQNoDefline;
     string headerSQ;
     string headerNoDefline;
-    const vector<string> * dataToRead;
+    //const vector<string> * dataToRead;
+    char * dataToRead;
+
+    unsigned int sizeDataRead;
     unsigned int dataToReadInd;
 
     string defline;
@@ -57,7 +60,7 @@ class GlacParser{
 
     ReadTabix * rt;
 
-    bool stringMode;
+    bool readBufferMode;
     bool tabixMode;
     bool textMode;
     bool binMode;
@@ -75,6 +78,7 @@ class GlacParser{
  public:
     GlacParser(string filename,int compressionThreads=1);
     GlacParser(string file,string indexForFile,string chrName,int start,int end,bool justChr=false,int compressionThreads=1);
+    GlacParser(char * dataToRead_,const vector<string> & populationNames_,unsigned int sizeDataRead_,bool isGLF,char sizeBytesFormat_);
     /* GlacParser(string file,string indexForFile); */
 
     //GlacParser(const vector<string> * dataToRead,const vector<string> & populationNames_);
@@ -83,6 +87,9 @@ class GlacParser{
     ~GlacParser();
     bool hasData();
     AlleleRecords  * getData();
+
+    bool readBlockData(char * buffer,const int recordsToRead,unsigned int * recordsRead,uint16_t *chri, uint32_t *coordinate);
+
 
     string getHeader(string prefix="") const;
     string getHeaderNoSQNoDefline(string prefix="") const;
@@ -100,6 +107,7 @@ class GlacParser{
     map<string,uint16_t> getChr2chri() const;
     vector<string>       getChrKnown() const;
     const vector<string> *   getPopulationsNames() const ;
+    char getSizeOf1DataPoint() const;
 
 };
 

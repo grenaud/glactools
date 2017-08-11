@@ -93,7 +93,7 @@ static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
     *tid=int(ptrar->chri);
 
     ptrar->vectorAlleles = new vector<SingleAllele>();
-    
+    ptrar->vectorAlleles->reserve( (sizePops+2) );
     for(unsigned j=0;j<(sizePops+2);j++){
 	//cout<<j<<" "<<sizePops<<endl;
 	uint16_t refC; //2
@@ -213,7 +213,8 @@ static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
     *tid=int(ptrar->chri);
 
     ptrar->vectorGLs = new vector<SingleGL>();
-    
+    ptrar->vectorGLs->reserve( (sizePops+2) );
+
     for(unsigned j=0;j<(sizePops+2);j++){
 	//cout<<j<<" "<<sizePops<<endl;
 	uint8_t rrC;//1b
@@ -360,30 +361,45 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
     //     }
     
     numberOfTimesHasDataWasCalled=-1;
-    binMode    = false;
-    tabixMode  = true;
-    textMode   = false;
-    stringMode = false;
+    binMode        = false;
+    tabixMode      = true;
+    textMode       = false;
+    readBufferMode = false;
  }
 
-//TODO to implement for parallele
-// GlacParser::GlacParser(const vector<string> * dataToRead_,const vector<string> & populationNames_){
-//     //populationNames = populationNames_;
-//     populationNames = new vector<string>( populationNames_);
-//     numberPopulations = populationNames->size();
-//     dataToRead      = dataToRead_;
-//     header="";
-//     headerNoDefline="";
 
-//     numbernew=0;
-//     numberdel=0;
-//     dataToReadInd=0;
-//     numberOfTimesHasDataWasCalled=-1;
+GlacParser::GlacParser(char * dataToRead_,const vector<string> & populationNames_,unsigned int sizeDataRead_,bool isGLF,char sizeBytesFormat_){
+    //populationNames = populationNames_;
+    populationNames   = new vector<string>( populationNames_);
+    sizePops          = populationNames->size()-2;//no root/anc
+    dataToRead        = dataToRead_;
+    sizeDataRead      = sizeDataRead_;
+    // header="";
+    // headerNoDefline="";
 
-//     stringMode = true;
-//     tabixMode  = false;
-//     textMode   = false;
-// }
+    // numbernew=0;
+    // numberdel=0;
+    dataToReadInd=0;
+    numberOfTimesHasDataWasCalled=-1;
+
+
+    readBufferMode   = true;
+    tabixMode        = false;
+    textMode         = false;
+    binMode          = false;
+    if(isGLF){
+	acFormat     = false;
+	glFormat     = true;
+	sizeBytesGLF = sizeBytesFormat_;
+    }else{
+	acFormat     = true;
+	glFormat     = false;
+	sizeBytesACF = sizeBytesFormat_;
+    }
+    readBufferMode   = true;
+    tabixMode        = false;
+    textMode         = false;
+}
 
 GlacParser::GlacParser(string filename,int compressionThreads){
     header="";
@@ -392,12 +408,12 @@ GlacParser::GlacParser(string filename,int compressionThreads){
     defline="";
 
 
-    numbernew=0;
-    numberdel=0;
+    // numbernew=0;
+    // numberdel=0;
 
     bool isbgzip;
 
-    //cerr<<"parser:"<<filename<<"#"<<endl;
+    //cerr<<"parser1:"<<filename<<"#"<<endl;
     //filename="-";
     bool openSTDIN = (filename == "-" || filename == "/dev/stdin");//is there a better way to do this?
     //cerr<<openSTDIN<<endl;
@@ -406,24 +422,30 @@ GlacParser::GlacParser(string filename,int compressionThreads){
 	//cerr<<"stdin"<<endl;
 	myFilezipped=bgzf_dopen(0, "r");
 
+	if(myFilezipped == 0){
+	    cerr<<"Error: GlacParser failed to open file "<< filename <<endl;
+	    exit (1);
+	}
+
 	if(compressionThreads>1)
 	    bgzf_mt(myFilezipped, compressionThreads, 256);
-
+	
 	isbgzip     =bgzf_compression(myFilezipped);
     }else{
 	//isbgzip     =bgzf_is_bgzf(filename.c_str());
 	myFilezipped=bgzf_open(filename.c_str(), "r");
 
+	if(myFilezipped == 0){
+	    cerr<<"Error: GlacParser failed to open file "<< filename <<endl;
+	    exit (1);
+	}
+	
 	if(compressionThreads>1)
 	    bgzf_mt(myFilezipped, compressionThreads, 256);
 
 	isbgzip     =bgzf_compression(myFilezipped);
     }    
-
-    if(myFilezipped == 0){
-        cerr<<"Error: GlacParser failed to open file "<< filename <<endl;
-        exit (1);
-    }
+    //cerr<<"parser2:"<<filename<<"#"<<endl;
 
     if(!openSTDIN && isbgzip){
 	int has_EOF = bgzf_check_EOF(myFilezipped);
@@ -464,7 +486,7 @@ GlacParser::GlacParser(string filename,int compressionThreads){
     
     // tabixMode  = false;
     // textMode   = true;
-    // stringMode = false;
+    // readBufferMode = false;
 }
 
 GlacParser::~GlacParser(){
@@ -473,7 +495,7 @@ GlacParser::~GlacParser(){
     if(numberOfTimesHasDataWasCalled == 0){//last called was getData
 	//delete(allRecToReturn->vectorAlleles);
 	delete(allRecToReturn);
-	numberdel++;
+	//numberdel++;
     }
 
     //TODO
@@ -546,7 +568,7 @@ void GlacParser::parseHeader(BGZF *bg){
 	}
 	if(acftext){
 
-	    stringMode = false;
+	    readBufferMode = false;
 	    tabixMode  = false;
 	    textMode   = true;
 	    binMode    = false;
@@ -564,7 +586,7 @@ void GlacParser::parseHeader(BGZF *bg){
 	    }
 	    if(glftext){
 		
-		stringMode = false;
+		readBufferMode = false;
 		tabixMode  = false;
 		textMode   = true;
 		binMode    = false;
@@ -596,7 +618,7 @@ void GlacParser::parseHeader(BGZF *bg){
 	    exit(1);
 	}
 
-	stringMode=false;
+	readBufferMode=false;
 	tabixMode =false;
 	textMode  =false;
 	binMode   =true;
@@ -903,6 +925,64 @@ string GlacParser::getDefline() const{
 //     rt->repositionIterator(chrName,start,end);
 // }
 
+bool GlacParser::readBlockData(char * buffer,const int recordsToRead,unsigned int * recordsRead,uint16_t *chri, uint32_t *coordinate){
+
+    if(!binMode){
+	cerr<<"Error: GlacParser the readBlockData() can only be called for binary data"<<endl;
+	exit(1);
+    }
+    
+    int sizeRec = getSizeRecord();
+
+    int numberOfBytesToTryToRead = recordsToRead*sizeRec;
+    //cerr<<"readBlockData() trying to read "<<numberOfBytesToTryToRead<<" "<<recordsToRead<<"*"<<sizeRec<<endl;
+    ssize_t     bytesread = bgzf_read(myFilezipped, buffer, numberOfBytesToTryToRead);
+    if(bytesread == 0){//end of file
+	return false;
+    }
+    //cerr<<"readBlockData() got "<<bytesread<<endl;    
+
+    if(bytesread != numberOfBytesToTryToRead){
+	if( (bytesread%sizeRec) == 0){//fine, end of file
+
+	    *recordsRead = (bytesread/sizeRec);    
+	    //cerr<<"readBlockData() LAST "<<*recordsRead<<endl;    
+	    memcpy((char*)chri,       buffer+0,            sizeof(chri));
+	    memcpy((char*)coordinate, buffer+sizeof(chri), sizeof(coordinate));
+
+	    return false;
+
+	}else{
+	    cerr<<"Error: GlacParser tried to read "<< numberOfBytesToTryToRead <<" bytes but got "<<bytesread<<" which is not a multiple of "<<sizeRec<<endl;
+	    exit(1);
+	}
+    }
+
+    *recordsRead = recordsToRead;
+
+
+    memcpy((char*)chri,       buffer+0,              sizeof(*chri));
+    memcpy((char*)coordinate, buffer+ sizeof(*chri), sizeof(*coordinate));
+    //    cout<<"readBlockData() we are at  "<<*chri<<":"<<*coordinate<<" "<<sizeof(*coordinate)<< " " <<sizeof(*chri)<<endl;    
+    //exit(1);
+     // int p=0;
+     // while(p<numberOfBytesToTryToRead){
+     // 	char c;
+     // 	memcpy((char*)&c,       buffer+p,             sizeof(c));	
+
+
+     // 	if( (p%32)==0){
+     // 	    cout<<"-----------------"<<endl;
+     // 	}
+     // 	cout<<p<<" "<<int(c)<<endl;
+     // 	p++;
+     // }
+    //
+    // }
+
+    return true;
+}
+
 bool GlacParser::hasData(){
 
     //cout<<"hasData"<<endl;
@@ -911,7 +991,7 @@ bool GlacParser::hasData(){
 	//cerr<<"del "<<allRecToReturn<<endl;
 	//delete(allRecToReturn->vectorAlleles);
 	delete(allRecToReturn);
-	numberdel++;
+	//numberdel++;
     }else{
 	numberOfTimesHasDataWasCalled=0;
     }
@@ -939,7 +1019,7 @@ bool GlacParser::hasData(){
     }
 
     if(binMode){
-	numbernew++;
+	// numbernew++;
 	//cout<<"hasDatab3"<<endl;
 	allRecToReturn                = new AlleleRecords(glFormat);
 	ssize_t bytesread;
@@ -1009,6 +1089,7 @@ bool GlacParser::hasData(){
 		
 		
 		allRecToReturn->vectorAlleles = new vector<SingleAllele>();
+		allRecToReturn->vectorAlleles->reserve(sizePops+2);
 		
 		//cout<<"sizePops "<<sizePops<<endl;
 		
@@ -1065,7 +1146,7 @@ bool GlacParser::hasData(){
 	if(glFormat){
 
 	    allRecToReturn->vectorGLs = new vector<SingleGL>();
-		
+	    allRecToReturn->vectorGLs->reserve(sizePops+2);
 	    // cout<<"sizePops "<<sizePops<<endl;
 	    // cout<<glFormat<<endl;
 	    //exit(1);
@@ -1173,7 +1254,7 @@ bool GlacParser::hasData(){
 
 	if(glFormat){
 	    allRecToReturn->vectorGLs = new vector<SingleGL>();
-
+	    allRecToReturn->vectorGLs->reserve(fields.size()-3);
 	    for(unsigned int i=3;i<fields.size();i++){
 		unsigned int indexComma1=0;
 		unsigned int indexComma2=0;		
@@ -1227,14 +1308,15 @@ bool GlacParser::hasData(){
 		allRecToReturn->vectorGLs->push_back(gl);
 	    }
 	    
-	    if( allRecToReturn->vectorGLs->size() != sizePops){
+	    if( allRecToReturn->vectorGLs->size() != (sizePops+2)){
 		cerr << "Error: GlacParser problem with the following line " << line <<" number of genotype likelihood read is not "<<sizePops<<endl;
 		exit(1);	   	    
 	    }
 
 	}else{//if acFormat
 	    allRecToReturn->vectorAlleles = new vector<SingleAllele>();
-	
+	    allRecToReturn->vectorAlleles->reserve(fields.size()-3);
+
 	    for(unsigned int i=3;i<fields.size();i++){
 		unsigned int indexComma=0;
 		unsigned int indexColon=0;
@@ -1268,75 +1350,102 @@ bool GlacParser::hasData(){
 	//return true;
     }
 
-    //    string line;
-    //if(getline ( *myFilezipped,line)){
-// if(getNextLine()){
-// 	numbernew++;
-// 	allRecToReturn                = new AlleleRecords();
-// 	//	cerr<<"new "<<allRecToReturn<<endl;
-// 	//allRecToReturn->vectorAlleles = new vector<SingleAllele>();
-// 	// cout<<"currentline "<<currentline<<endl;
+    if(readBufferMode){
+	//reached the end
+	if(dataToReadInd==(sizeDataRead-1))
+	    return false;
+
 	
-// 	vector<string> fields=allTokens(currentline,'\t');
+	allRecToReturn                = new AlleleRecords(glFormat);
 
-// 	if(fields.size() != (numberPopulations+3)){
-// 	    cerr << "Error: GlacParser the following line should have "<<(numberPopulations+3)<<" fields " << currentline <<endl;
-// 	    exit(1);	   
-// 	}
-// 	if(fields[2].length() != 3){
-// 	    cerr << "Error: GlacParser the following line " << currentline <<" does not have 2 comma separated alleles"<<endl;
-// 	    exit(1);	   
-// 	}
+	//	ssize_t bytesread;
+	size_t  sizeRecord = getSizeRecord();
+	size_t  offset     = dataToReadInd*sizeRecord;
+	//cout<<"GlacParser() offset "<<offset<<" "<<dataToReadInd<<" "<<int(sizeBytesACF)<<" "<<int(sizeRecord)<<" "<<sizePops<<endl;
+	dataToReadInd++;
 
-// 	allRecToReturn->chr        =                           fields[0];
-// 	allRecToReturn->coordinate = destringify<unsigned int>(fields[1]);
-// 	allRecToReturn->ref        =                           fields[2][0];
-// 	allRecToReturn->alt        =                           fields[2][2];
-// 	if(allRecToReturn->ref == allRecToReturn->alt){
-// 	    cerr << "Error: GlacParser the following line " << currentline <<" the reference is equal to the alt allele, exiting"<<endl;
-// 	    exit(1);	   
-// 	}
+	//2
+	memcpy((char*)&allRecToReturn->chri,        dataToRead+offset,    sizeof(allRecToReturn->chri));
+	offset+=sizeof(allRecToReturn->chri);
+	//4
+	memcpy((char*)&allRecToReturn->coordinate,  dataToRead+offset,    sizeof(allRecToReturn->coordinate));
+	offset+=sizeof(allRecToReturn->coordinate);
+	//cout<<"GlacParser()  "<<allRecToReturn->chri<<" "<<allRecToReturn->coordinate<<endl;
+	//1
+	char tempCh;
+	memcpy((char*)&tempCh,           dataToRead+offset,    sizeof(tempCh));    
+	offset+=sizeof(tempCh);    
+	allRecToReturn->ref        =                           "NACGT"[ ((tempCh&maskRef)>>4) ];
+	allRecToReturn->alt        =                           "NACGT"[ ((tempCh&maskAlt)   ) ];
+	
+	
+	
+	if(acFormat){
+		
+	    if(sizeBytesACF ==2 ){ //uint16_t
+						
+		allRecToReturn->vectorAlleles = new vector<SingleAllele>();
+		allRecToReturn->vectorAlleles->reserve( (sizePops+2) );
+		for(unsigned j=0;j<(sizePops+2);j++){
+		    uint16_t refC; //2
+		    uint16_t altC; //2
+		    char     cpgC; //1
+		    memcpy((char*)&refC,       dataToRead+offset, sizeof(refC));
+		    offset+=sizeof(refC);    
 
-// 	allRecToReturn->vectorAlleles = new vector<SingleAllele>();
-// 	for(unsigned int i=3;i<fields.size();i++){
-// 	    unsigned int indexComma=0;
-// 	    unsigned int indexColon=0;
-// 	    for(unsigned int k=0;k<fields[i].size();k++){
-// 		if(fields[i][k]==',')
-// 		    indexComma=k;
-// 		if(fields[i][k]==':')
-// 		    indexColon=k;
-// 	    }
+		    memcpy((char*)&altC,       dataToRead+offset, sizeof(altC));
+		    offset+=sizeof(altC);    
 
-// 	    if(indexComma == 0 || indexColon == 0 ){
-// 		cerr << "Error: GlacParser problem with the following line " << currentline <<" cannot get allele count"<<endl;
-// 		exit(1);	   
-// 	    }
+		    memcpy((char*)&cpgC,       dataToRead+offset, sizeof(cpgC));
+		    offset+=sizeof(cpgC);    
+
+		    SingleAllele sa (int( refC ),
+				     int( altC ),
+				     (cpgC == 1) );
+		    
+		    allRecToReturn->vectorAlleles->push_back(sa);	
+		}//each pop
+		
+	    }else{//3 bytes
+		exit(1);//to implemenent
+	    }
+		
+	    return true;
+	}//end if acffound
+
+
+	if(glFormat){
 	    
-// 	    SingleAllele sa (destringify<int>( fields[i].substr(0,indexComma)),
-// 			     destringify<int>( fields[i].substr(indexComma+1,indexColon)),
-// 			     destringify<bool>(fields[i].substr(indexColon+1))   );
+	    allRecToReturn->vectorGLs = new vector<SingleGL>();
+	    allRecToReturn->vectorGLs->reserve( (sizePops+2) );
+	    
+	    for(unsigned j=0;j<(sizePops+2);j++){
+		uint8_t rrC;//1b
+		uint8_t raC;//1b
+		uint8_t aaC;//1b
+		char   cpgC; //1
+		
+		memcpy((char*)&rrC,        dataToRead+offset, sizeof(rrC));
+		offset+=sizeof(rrC);    
+		memcpy((char*)&raC,        dataToRead+offset, sizeof(raC));
+		offset+=sizeof(raC);    
+		memcpy((char*)&aaC,        dataToRead+offset, sizeof(aaC));
+		offset+=sizeof(aaC);    
+		memcpy((char*)&cpgC,       dataToRead+offset, sizeof(cpgC));
+		offset+=sizeof(cpgC);    
+		SingleGL gl (rrC,
+			     raC,
+			     aaC,			     
+			     (cpgC == 1) );
+		allRecToReturn->vectorGLs->push_back(gl);
+	    }//each pop
 
-// 	    allRecToReturn->vectorAlleles->push_back(sa);
-//  	}
+	    return true;
+	}//end glformat
+	
 
-// 	if( allRecToReturn->vectorAlleles->size() != numberPopulations){
-// 	    cerr << "Error: GlacParser problem with the following line " << currentline <<" number of allele count read is not "<<numberPopulations<<endl;
-// 		exit(1);	   	    
-// 	}
+    }
 
-// 	return true;
-
-//     }else{//if has no data
-
-// 	if(textMode){
-// 	    myFilezipped->close();
-// 	}
-
-// 	// else
-// 	//     myFile->close();
-// 	return false;
-//     }
     return false;
 }
 
@@ -1350,7 +1459,7 @@ bool GlacParser::hasData(){
 // 	return getline ( *myFilezipped,currentline);
 //     }
 
-//     if(stringMode){
+//     if(readBufferMode){
 // 	//cout<<dataToReadInd<<"\t"<<dataToRead->size()<<endl;
 // 	if(dataToReadInd<dataToRead->size()){
 // 	    currentline = dataToRead->at(dataToReadInd++);
@@ -1394,11 +1503,14 @@ uint32_t GlacParser::getSizePops() const{
 }
 
 size_t GlacParser::getSizeRecord() const{
+    //cout<<"getSizeRecord()acf "<<acFormat<<" "<<glFormat<<endl;
     if(acFormat){
 	//                    5b record (2b+2b+1)
 	size_t sizeSingleAC = (2*sizeBytesACF+1);
+	//cout<<"getSizeRecord()sa "<<int(sizeSingleAC)<<endl;
 	//                  7b base,5b record (2b+2b+1)
-	size_t sizeRecord = 7+ (sizeSingleAC)*sizePops;
+	size_t sizeRecord = 7+ (sizeSingleAC)*(sizePops+2);
+	//cout<<"getSizeRecord()sr "<<int(sizeRecord)<<endl;
 	return sizeRecord;
     }else{
 
@@ -1406,7 +1518,7 @@ size_t GlacParser::getSizeRecord() const{
 	    //                     4b record (1+1+1+1)
 	    size_t sizeSingleGL = (3*sizeBytesGLF+1);
 	    //                  7b base,4b record (1+1+1+1)
-	    size_t sizeRecord = 7+ sizeSingleGL*sizePops;
+	    size_t sizeRecord = 7+ (sizeSingleGL)*(sizePops+2);
 	    return sizeRecord;
 	}else{
 	    cerr<<"GlacParser: wrong state in getSizeRecord()"<<endl;
@@ -1437,4 +1549,11 @@ map<string,uint16_t> GlacParser::getChr2chri() const{
 
 vector<string> GlacParser::getChrKnown() const{
     return chrKnown;
+}
+
+char GlacParser::getSizeOf1DataPoint() const{
+    if(glFormat){
+	return sizeBytesGLF;
+    }
+    return sizeBytesACF;   
 }

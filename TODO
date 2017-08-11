@@ -16,7 +16,7 @@ basic stats
 bam2mistar*
 bam2mistarNoEpo*
 mistar2bed*
-mistar2BinaryPLINK*
+
 mistar2fasta*
 mistar2gphocs*
 mistar2nexus*
@@ -37,9 +37,9 @@ replace ancetor
 
 
 
-mistarcomputeParallel2* change to read data ahead?
+fix
+mistar2BinaryPLINK*
 
-check if performance better with reserve before
 
 various perl scripts
 various R scripts
