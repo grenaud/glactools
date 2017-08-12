@@ -48,6 +48,10 @@ axt2mistar*
 epo2mistar*
 example with msPrime
 
+The push_back into a vector is too slow in GlacParser, let's preallocate and copy directly.
+F3?
+
+
 -- ignored --
 mistar2AlleleMatrix*
 mistar2segtor*
@@ -56,14 +60,9 @@ mistar2binary*
 avgCoaMS*
 bamtable2mistar*
 boostrapSubGroups*
-filterVCF*
-generateCoords*
-mergeBAMTable*
 
-mistarcompress*
-mistarcompute*
-mistarcomputeParallel*
-mistardecompress*
+
+
 
 mistaruniq*
 mpileup2mistar*

@@ -24,12 +24,15 @@ string GlacViewer::usage() const{
                   "\n\nThis program can view ACF/GLF files whether binary or zipped or not"+
                   "\nIt prints to the stdout\n"+                       
 		  "Options:\n"+
+
 		  "\t"+"-b" + "\t\t\t"+"Produce binary compressed output (default: "+booleanAsString(uncompressed)+")\n"+
                   "\t"+"-u" + "\t\t\t"+"Produce binary but uncompressed output (default: "+booleanAsString(uncompressed)+")\n"+
 		  "\n"+
                   "\t"+"" + ""+"For text output:\n"+		  
                   "\t"+"-h" + "\t\t\t"+"Produce defline     (default: "+booleanAsString(printdefline)+")\n"+
-                  "\t"+"-H" + "\t\t\t"+"Produce full header (default: "+booleanAsString(printheader)+")\n");
+                  "\t"+"-H" + "\t\t\t"+"Produce full header (default: "+booleanAsString(printheader)+")\n"+
+                  "\n"+
+		  "\t"+"-s" + "\t[frac]\t\t"+"Subsample a [frac] of sites(default: "+stringify(subsampleProp)+")\n");
 
 }
 
@@ -53,6 +56,18 @@ int GlacViewer::run(int argc, char *argv[]){
         if(string(argv[i])[0] != '-' ){
             lastOpt=i;
             break;
+        }
+
+        if(string(argv[i]) == "-s"){
+            subsampleB    = true;
+            subsampleProp = destringify<double>(argv[i+1]);
+	    if( (subsampleProp<0) || (subsampleProp>1) ){
+		cerr<<"Error: -s should be between 0 and 1 "<<string(argv[i+1])<<endl;
+		return 1;	
+	    }
+	    subsampleProp = 1.0-subsampleProp;
+	    i++;
+            continue;
         }
 
         if(string(argv[i]) == "-u"){
@@ -126,10 +141,14 @@ int GlacViewer::run(int argc, char *argv[]){
 
 	    ar = gp.getData();
 
+	    if(subsampleB)
+		if(randomProb() < subsampleProp)
+		    continue;
+
 	    if(uncompressed || printBin){//if binary
 		if(!gw->writeAlleleRecord(ar)){
 		    cerr<<"GlacViewer: error record "<<*ar<<endl;
-		    exit(1);
+		    return 1;
 		}
 
 	    }else{
@@ -142,6 +161,11 @@ int GlacViewer::run(int argc, char *argv[]){
 	return 0;
     }else{//else region given
 
+	if(subsampleB){
+	    cerr<<"GlacViewer: cannot subsample with region"<<endl;
+	    return 1;
+	}
+		
 	if(lastOpt == (argc-2)){//no region given
 	    string glacfile  = string(argv[lastOpt]);
 	    string region    = string(argv[lastOpt+1]);

@@ -103,37 +103,57 @@ int ACF2BPLINK::run(int argc, char *argv[]){
 	if(!isResolvedDNA(record->alt))
 	    continue;
 
+	if(counter!=0 && (counter%100000)==0){
+	    cerr<<"ACF2BPLINK: at "<<record->chr<<"\t"<<record->coordinate<<endl;
+	}
 	bimFileS<<record->chr<<"\t"<<"snp#"<<(counter++)<<"\t"<<stringify(double(record->coordinate)/double(1000000))<<"\t"<<stringify(record->coordinate)<<"\t"<<record->ref<<"\t"<<record->alt<<endl;
 	
 	unsigned int firstIndex=0;
 	if(!printRoot)
 	    firstIndex=2;
 	
-
+	
 	char byteToWrite=0;
 	int storedInByte=0;
-	for(unsigned int i=firstIndex;i<record->vectorAlleles->size();i++){	    
-	    char   toStore = record->vectorAlleles->at(i).printPLINK();	   
+	int dataToWrite=0;
+	for(unsigned int i_=firstIndex;i_<record->vectorAlleles->size();i_++){	    
+	    unsigned int i=i_-firstIndex;
+	    char   toStore = record->vectorAlleles->at(i_).printPLINK();	   
+	    // cout<<"i "<<i<<" "<<(i%4)<<" "<<record->vectorAlleles->at(i_)<<endl;
+	    // cout<<"1: "<<var2binary(toStore)<<endl;
 	    if( (i%4) == 3){//to write
 		byteToWrite |= (  toStore<< ((i%4)*2) );		
-		// cout<<"1: "<<var2binary(byteToWrite)<<endl;
+		//cout<<"3: "<<var2binary(byteToWrite)<<endl;
 		bedFileS.write( (char *)&byteToWrite, sizeof(byteToWrite));		
 		byteToWrite  = 0;
 		storedInByte = 0;
+		dataToWrite=0;
 	    }else{
+		dataToWrite++;
 		byteToWrite |= (  toStore<< ((i%4)*2) );
+		//cout<<"1: "<<var2binary(byteToWrite)<<endl;
 		storedInByte++;
 	    }
 	} 
 
-	if(storedInByte!=0){
-	    for(int k=3;k>=storedInByte;k--){
-		char zeroC= 3; //missing data
-		byteToWrite |= (  zeroC << ((k%4)*2) );		
+	if(dataToWrite != 0){
+	    int k=3;
+	    for(int i=0;i<(4-dataToWrite);i++){
+		char zeroC= 0; //NULL
+		byteToWrite |= (  zeroC << ((k%4)*2) );
+		k--;
 	    }
-	    // cout<<"1: "<<var2binary(byteToWrite)<<endl;  
+	    //cout<<"EX: "<<var2binary(byteToWrite)<<endl;  
 	    bedFileS.write( (char *)&byteToWrite, sizeof(byteToWrite));		
 	}
+	//     }
+	//     // cout<<"1: "<<var2binary(byteToWrite)<<endl;  
+	//     bedFileS.write( (char *)&byteToWrite, sizeof(byteToWrite));		
+
+	// }
+
+	// if(storedInByte!=0){
+	// }
 	
 	//bedFileS<<endl;
 
@@ -141,7 +161,7 @@ int ACF2BPLINK::run(int argc, char *argv[]){
     bedFileS.close();
     bimFileS.close();
     
-    cerr<<"Program "<<argv[0]<<" terminated gracefully"<<endl;
+    cerr<<"Program "<<argv[0]<<" terminated gracefully, wrote "<<counter<<" sites"<<endl;
 	
     return 0;
 }

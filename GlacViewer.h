@@ -24,6 +24,8 @@ class GlacViewer{
     bool uncompressed  =false;
     int bytesForAC=2;
     int bytesForGL=1;
+    double subsampleProp=1.0;
+    double subsampleB   =false;
 
  public:
     GlacViewer();

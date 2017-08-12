@@ -168,24 +168,24 @@ bool SingleAllele::isHeterozygous(){
 
 char  SingleAllele::printPLINK(){
     if(refCount == 2 && altCount == 0) //homo ref
-	return 0;
+	return 0; //00
 
     if(refCount == 1 && altCount == 1) //hetero
-	return 1;
+	return 2; //10
 
     if(refCount == 0 && altCount == 2) //homo alt
-	return 2;
+	return 3; //11
     
     if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
-	return 2;	
+	return 3; //11
     }
 
     if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
-	return 0;
+	return 0; //00
     }
     
     if( (refCount == 0 && altCount == 0) ) //unknown
-	return 3;
+	return 1; //01
 
 
     //If we reached this position, this means we deal with population allele frequency
@@ -196,13 +196,13 @@ char  SingleAllele::printPLINK(){
     bool ref2 = (randIndex1<refCount);
 
     if(ref1 && ref2 ) //homo ref
-	return 0;
+	return 0; //00
     
     
     if(!ref1 && !ref2 ) //homo alt
-	return 2;
+	return 3; //11
     
-    return 3;
+    return 1;     //01
 }
 
 char SingleAllele::generateRandomAlleleBias(const char ref,const char alt){
