@@ -10,35 +10,31 @@ closestMistar*
 reheader
 usePopAsRootAnc
 basic stats
-
--- totest --
-23andme2mistar*
 bam2mistar*
-bam2mistarNoEpo*
 mistar2bed*
-
 mistar2fasta*
 mistar2gphocs*
-mistar2nexus*
-mistar2treemix*
 mistarcat*
 mistarintersect*
 mistarunion*
 mistarmeld*
 mistarstats*
-mistarfilter*
 mistarfreqSpec*
+mistar2BinaryPLINK*
+
+-- totest --
+23andme2mistar*
 removepop and popsub
 EIGENSTRAT
 replace ancetor
+
+
 
 -- todo --
 
 
 
-
-fix
-mistar2BinaryPLINK*
+The push_back into a vector is too slow in GlacParser, let's preallocate and copy directly.
 
 
 various perl scripts
@@ -48,7 +44,6 @@ axt2mistar*
 epo2mistar*
 example with msPrime
 
-The push_back into a vector is too slow in GlacParser, let's preallocate and copy directly.
 F3?
 
 

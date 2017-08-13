@@ -126,42 +126,42 @@ class glacVisitor : public PileupVisitor {
 		}
 	    }
 
-		if(epoFileB){
-
-	    if(!lineLeftEPO){
-		cerr<<"Error, no data in the EPO file "<< m_references[pileupData.RefId].RefName <<":"<< posAlignInt <<endl;
-		exit(1);
-	    }
-
-	    if(epoChr != m_references[pileupData.RefId].RefName){
-		//cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<m_references[pileupData.RefId].RefName<<endl;
-		//exit(1);
-		//try to reposition
-		rtEPO->repositionIterator(m_references[pileupData.RefId].RefName  , posAlignInt,INT_MAX);
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
-		if(epoChr != m_references[pileupData.RefId].RefName){
-		    cerr<<"Error, the repositioning did not work, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<m_references[pileupData.RefId].RefName<<endl;
+	    if(epoFileB){
+		
+		if(!lineLeftEPO){
+		    cerr<<"Error, no data in the EPO file "<< m_references[pileupData.RefId].RefName <<":"<< posAlignInt <<endl;
 		    exit(1);
 		}
+
+		if(epoChr != m_references[pileupData.RefId].RefName){
+		    //cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<m_references[pileupData.RefId].RefName<<endl;
+		    //exit(1);
+		    //try to reposition
+		    rtEPO->repositionIterator(m_references[pileupData.RefId].RefName  , posAlignInt,INT_MAX);
+		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		    if(epoChr != m_references[pileupData.RefId].RefName){
+			cerr<<"Error, the repositioning did not work, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<m_references[pileupData.RefId].RefName<<endl;
+			exit(1);
+		    }
 		
-	    }
+		}
 
 
 	    
-	    while(epoCoord != posAlign){
-		if(epoCoord > posAlign){
-		    cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(posAlignInt)<<"\t"<<lineFromEPO<<endl;
-		    exit(1);
+		while(epoCoord != posAlign){
+		    if(epoCoord > posAlign){
+			cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(posAlignInt)<<"\t"<<lineFromEPO<<endl;
+			exit(1);
+		    }
+
+		    if( (posAlign - epoCoord ) >= limitToReOpenFP){ //seeking in the file
+			rtEPO->repositionIterator(m_references[pileupData.RefId].RefName  , posAlignInt,INT_MAX);
+		    }
+
+
+		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 		}
-
-		if( (posAlign - epoCoord ) >= limitToReOpenFP){ //seeking in the file
-                    rtEPO->repositionIterator(m_references[pileupData.RefId].RefName  , posAlignInt,INT_MAX);
-                }
-
-
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 	    }
-		}
 	    //
 	    // END EPO
 	    //
@@ -239,7 +239,7 @@ class glacVisitor : public PileupVisitor {
 			    if(altBase == 'N'){//no alt defined, the chimp becomes the alt			    
 				altBase = allel_chimp;
 				//chimpString="0,1:"+string(cpgEPO?"1":"0");
-				root.setRefCount(1); root.setAltCount(0);  root.setIsCpg(cpgEPO); 
+				root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
 
 			    }else{
 				if(altBase == allel_chimp){//alt is chimp
@@ -257,7 +257,7 @@ class glacVisitor : public PileupVisitor {
 
 		    if(!isResolvedDNA(allel_anc)){
 			//ancString="0,0:0";					
-			root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 							    
+			anc.setRefCount(0); root.setAltCount(0);  root.setIsCpg(false); 							    
 		    }
 		    //resolved ancestral allele
 		    else{
@@ -284,7 +284,7 @@ class glacVisitor : public PileupVisitor {
 		}
 		
 		// cerr<<posAlign<<"\talt3\t"<<altBase<<endl;
-		
+
 		//currentLine=m_references[pileupData.RefId].RefName + "\t" +stringify(posAlign)+"\t"+ stringify(referenceBase) + ","+stringify(altBase)+"\t"+chimpString+"\t"+ancString+"\t"+stringify(countRef)+","+stringify(countAlt);		
 		AlleleRecords * arCurrent = new AlleleRecords (false);
 		arCurrent->chri          = chr2index->at(m_references[pileupData.RefId].RefName);//probably redundant
@@ -292,6 +292,7 @@ class glacVisitor : public PileupVisitor {
 		arCurrent->sizePops      = 1;
 		arCurrent->ref           = referenceBase;
 		arCurrent->alt           = altBase;
+		arCurrent->vectorAlleles = new vector<SingleAllele>();
 		
 		SingleAllele sample (countRef, countAlt, false);//to set CpG flag
 		
@@ -410,6 +411,8 @@ BAM2ACF::~BAM2ACF(){
 string BAM2ACF::usage() const{
     string usage=string("")+" bam2acf [options] <fasta file> <bam file> <name sample> "+
 			"\n\nThis program produces a  mistar matrix given a BAM file\n\n"+
+	                "\t<fasta file> is the fasta file of the reference genome used for mapping\n"+
+	                "\t<name sample> is the name you wish the sample to have\n"+
 			"\tOptions\n"+	     
    	                 "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
                          "\t"+"--epo [EPO file]"       +"\t" +"Use file as EPO alignment to set the (default: none)\n"+   
@@ -433,7 +436,8 @@ int BAM2ACF::run(int argc, char *argv[]){
     int lastOpt=1;
 
     //all but last arg
-    for(int i=1;i<(argc-3);i++){ 
+    for(int i=1;i<(argc);i++){ 
+	
         if((string(argv[i]) == "-")  ){
             lastOpt=i;
             break;          
@@ -450,6 +454,7 @@ int BAM2ACF::run(int argc, char *argv[]){
             i++;
             continue;
         }
+
         if(string(argv[i]) == "-u"){
             uncompressed=true;
             continue;
@@ -474,10 +479,6 @@ int BAM2ACF::run(int argc, char *argv[]){
 	return 1;
     }
 
-    if(lastOpt != (argc-2)){
-        cerr<<"The last 2 arguments are <fasta file> <bam file> <name sample> "<<endl;
-        return 1;               
-    }
 
 
     if(argc < 4 ||
@@ -487,12 +488,18 @@ int BAM2ACF::run(int argc, char *argv[]){
 	return 1;       
     }
 
+    if(lastOpt != (argc-3)){
+        cerr<<"The last 3 arguments are <fasta file> <bam file> <name sample> "<<endl;
+        return 1;               
+    }
+
+
     string fastaFile    = string(argv[lastOpt+0]);//fasta file
     string bamfiletopen = string(argv[lastOpt+1]);
     string nameSample   = string(argv[lastOpt+2]);//fasta file
 
 
-    string epoFile  = string(argv[argc-1]);
+    //string epoFile  = string(argv[argc-1]);
     // string epoFileidx = epoFile+".tbi";
     // string epoChr;
     // unsigned int epoCoord;
@@ -597,7 +604,9 @@ int BAM2ACF::run(int argc, char *argv[]){
 	 pileup.AddAlignment(al);
 	 numReads++;
      }
-
+     
+     pileup.Flush();
+     
      if( hasLineToPrint ){
 	 //cout<<lineToPrint<<":0"<<endl;
 	 
@@ -612,13 +621,12 @@ int BAM2ACF::run(int argc, char *argv[]){
      cerr<<"Program bam2acf terminated gracefully, looked at "<<numReads<< " reads"<<endl;
 
      //clean up
-     pileup.Flush();
      reader.Close();
+
      fastaReference.Close();
      delete(gw);
      delete cv;
-    
      
-    return 0;
+     return 0;
 }
 

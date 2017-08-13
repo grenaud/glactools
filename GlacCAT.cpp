@@ -36,7 +36,7 @@ int GlacCAT::run(int argc, char *argv[]){
     string sqLines="";
     string defline="";
 
-    for(int i=1;i<(argc-1);i++){ 
+    for(int i=1;i<(argc);i++){ 
 	string filename = string(argv[i]);
 	GlacParser gp (filename);
 

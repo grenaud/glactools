@@ -390,12 +390,12 @@ int T3andme2ACF::run(int argc, char *argv[]){
 		    if(alt == 'N'){//no alt defined, the ancestor becomes the alt			    
 			alt = allel_anc;
 			//ancString="0,1:"+string(cpgEPO?"1":"0");			    
-			anc.setRefCount(1); anc.setAltCount(0);  anc.setIsCpg(cpgEPO); 
+			anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
 
 		    }else{
 			if(alt == allel_anc){//alt is ancestor
 			    //ancString="0,1:"+string(cpgEPO?"1":"0");
-			    anc.setRefCount(1); anc.setAltCount(0);  anc.setIsCpg(cpgEPO); 
+			    anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
 			}else{ //tri-allelic site, discard
 			    //continue;
 			    goto nextline;

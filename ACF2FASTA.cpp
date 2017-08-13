@@ -27,15 +27,30 @@ int ACF2FASTA::run(int argc, char *argv[]){
     //int main (int argc, char *argv[]) {
 
     //all but last arg
-    for(int i=0;i<(argc-1);i++){ 
+    int lastOpt=1;
+
+    for(int i=1;i<(argc);i++){ 
+
+	if((string(argv[i]) == "-")  ){
+            lastOpt=i;
+            break;          
+        }
+
+        if(string(argv[i])[0] != '-' ){
+            lastOpt=i;
+            break;
+        }
 
 	if( string(argv[i]) == "--noanc"){
 	    printRoot=false;
+	    continue;
 	}
 
 	if( string(argv[i]) == "--het"){
 	    produceTwo=true;
+	    continue;
 	}
+
 	cerr<<"Error unknown option "<<argv[i]<<endl;
         return 1;
 
@@ -48,7 +63,7 @@ int ACF2FASTA::run(int argc, char *argv[]){
 	return 1;       
     }
 
-    string glacfile  = string(argv[argc-1]);
+    string glacfile  = string(argv[lastOpt]);
     
     GlacParser gp (glacfile);
     

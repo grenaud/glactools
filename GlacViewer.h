@@ -18,10 +18,13 @@ using namespace std;
 
 class GlacViewer{
  private:
-    bool printheader =false;
-    bool printdefline=false;
-    bool printBin      =false;
-    bool uncompressed  =false;
+    bool printheader    =false;
+    bool printdefline   =false;
+    bool printBin       =false;
+    bool uncompressed   =false;
+    bool printpops      =false;
+    bool printonlyheader=false;
+
     int bytesForAC=2;
     int bytesForGL=1;
     double subsampleProp=1.0;

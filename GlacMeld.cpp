@@ -27,7 +27,7 @@ string GlacMeld::usage() const{
 	"Options:"+"\n"+
 	"\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
 
-	"\t--keep\t\t\tKeep the original populations in the output (Default "+boolStringify(keepOrig)+" )\n";
+	"\t-k\t\t\tKeep the original populations in the output (Default "+boolStringify(keepOrig)+" )\n";
     ;
 }
 

@@ -25,14 +25,16 @@ string GlacViewer::usage() const{
                   "\nIt prints to the stdout\n"+                       
 		  "Options:\n"+
 
-		  "\t"+"-b" + "\t\t\t"+"Produce binary compressed output (default: "+booleanAsString(uncompressed)+")\n"+
+		  "\t"+"-b" + "\t\t\t"+"Produce binary compressed output       (default: "+booleanAsString(uncompressed)+")\n"+
                   "\t"+"-u" + "\t\t\t"+"Produce binary but uncompressed output (default: "+booleanAsString(uncompressed)+")\n"+
 		  "\n"+
                   "\t"+"" + ""+"For text output:\n"+		  
-                  "\t"+"-h" + "\t\t\t"+"Produce defline     (default: "+booleanAsString(printdefline)+")\n"+
-                  "\t"+"-H" + "\t\t\t"+"Produce full header (default: "+booleanAsString(printheader)+")\n"+
+                  "\t"+"-p" + "\t\t\t"+"Only produce ind./pops. in the file    (default: "+booleanAsString(printpops)+")\n"+
+                  "\t"+"-P" + "\t\t\t"+"Only produce the header                (default: "+booleanAsString(printonlyheader)+")\n"+
+                  "\t"+"-h" + "\t\t\t"+"Also produce defline w/ text           (default: "+booleanAsString(printdefline)+")\n"+
+                  "\t"+"-H" + "\t\t\t"+"Also produce full header w/ text       (default: "+booleanAsString(printheader)+")\n"+
                   "\n"+
-		  "\t"+"-s" + "\t[frac]\t\t"+"Subsample a [frac] of sites(default: "+stringify(subsampleProp)+")\n");
+		  "\t"+"-s" + "\t[frac]\t\t"+"Subsample a [frac] of sites      (default: "+stringify(subsampleProp)+")\n");
 
 }
 
@@ -75,6 +77,16 @@ int GlacViewer::run(int argc, char *argv[]){
             continue;
         }
 	
+	if(string(argv[i]) == "-p"){
+	    printpops=true;
+            continue;
+        }
+
+	if(string(argv[i]) == "-P"){
+	    printonlyheader=true;
+            continue;
+        }
+
 	if(string(argv[i]) == "-b"){
 	    printBin=true;
             continue;
@@ -130,6 +142,14 @@ int GlacViewer::run(int argc, char *argv[]){
 	    }
 
 	}else{//end if binary	
+	    if(printonlyheader){
+		cout<<gp.getHeader()<<endl;
+		return 0;
+	    }
+	    if(printpops){
+		cout<<vectorToString(*gp.getPopulationsNames(),"\n")<<endl;
+		return 0;
+	    }
 	    if(printheader)
 		cout<<gp.getHeader()<<endl;
 	    if(printdefline)

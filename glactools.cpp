@@ -35,6 +35,8 @@
 #include "GlacUndef.h"
 #include "GlacBedfilter.h"
 #include "GlacSegsite.h"
+#include "GlacRename.h"
+
 
 #include "GlacSharing.h"
 #include "GlacNoSharing.h"
@@ -102,7 +104,7 @@ int main (int argc, char *argv[]) {
 	"      removepop       Remove a subset of the populations\n"+
 	"      replaceanc      Use ancestral/root information from another file\n"+
 	"      usepopsrootanc  Use 2 specified pops as ancestral/root information\n"+
-
+	"      rename          Rename populations\n"+
 	"\n"+
 	"   --Data export:\n"+                       
 	"      glac2bed        Convert a (GL|AC)f file to BED"+"\n"+
@@ -372,6 +374,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glacsegsite_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "rename"){
+	GlacRename  glacrename_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacrename_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacrename_.run(argc, argv);
 
     }else{      if(string(argv[1]) == "sharing"){
 	GlacSharing  glacsharing_;
@@ -647,7 +663,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																		}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																		    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

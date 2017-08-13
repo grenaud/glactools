@@ -19,7 +19,7 @@ string ACF2NEXUS::usage() const{
 			"\n\nThis program takes an ACF matrix and prints the alleles\nin nexus format\n\n"+
 			"\tOptions:\n"+
 			"\t\t"+"--group"+"\t"+"Just use these populations, comma separated list (Default: use all )\n"+
-			"\t\t"+"--nonseg"+"\t"+"Print only segregating sites (Default: "+booleanAsString(printOnlySeq)+" )\n"
+			"\t\t"+"--seg"+"\t"+"Print only segregating sites (Default: "+booleanAsString(printOnlySeq)+" )\n"
 			"\t\t"+"--alldef"+"\t"+"Print only sites that are defined in the groups (Default: "+booleanAsString(allDefined)+" )\n"
 			;
     return usage;
@@ -37,16 +37,28 @@ int ACF2NEXUS::run(int argc, char *argv[]){
 
 
     string g1 = "";
+    int lastOpt=1;
 
     //starts at 1 and except the last two
-    for(int i=1;i<(argc-2);i++){ 
+    for(int i=1;i<(argc);i++){ 
+        if((string(argv[i]) == "-")  ){
+            lastOpt=i;
+            break;          
+        }
+
+        if(string(argv[i])[0] != '-' ){
+            lastOpt=i;
+            break;
+        }
+
+
 	if(string(argv[i]) == "--group" ) {
 	    g1=string(argv[i+1]);
 	    i++;
 	    continue;
 	}
 
-	if(string(argv[i]) == "--nonseg" ) {
+	if(string(argv[i]) == "--seg" ) {
 	    printOnlySeq=true;
 	    continue;
 	}
@@ -68,7 +80,7 @@ int ACF2NEXUS::run(int argc, char *argv[]){
 
 
     //MistarParser mp   (argv[argc-1]);
-    string filename = string(argv[argc-1]);
+    string filename = string(argv[lastOpt]);
     GlacParser gp   (filename);
 
     if(g1==""){//empty
