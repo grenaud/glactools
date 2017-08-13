@@ -42,9 +42,11 @@ or
 Installation
 ----------------------
 
-1) make sure you have "cmake" and "git" installed, check for it by typing " git --version" and "cmake --version"
+1) make sure you have "cmake" and "git" installed, check for it by typing " git --version" and "cmake --version". 
 
-2) Make sure you are connected to the internet and type :
+2) make sure you have gcc that supports -std=c++11, gcc version 4.7 or above.
+
+3) Make sure you are connected to the internet and type :
    cd glactools
    make
 
@@ -148,9 +150,17 @@ If you have a Github account, I recommend that you create an issue. That way oth
 
 Otherwise, send me a mail gabriel [dot] reno [at sign here] gmail [dot] com
 
+Tips
+----------------------
+
+* when working with VCF files called from bcftools call, make sure that the -v option is not used because this will only print variable sites. If you use GATK, make sure you output every site using --output_mode EMIT_ALL_SITES.
 
 FAQ
 ----------------------
+
+### Why do I have a bunch of garbled characters printed on the terminal when I use glactools?
+
+glactools ALWAYS prints compressed binary. The only thing to modify is the ability to print as uncompressed binary (-u option), this is recommended when using UNIX pipes. However if you wish to view an ACF/GLF as a text file, simply use "glactools view"
 
 ### why do you have data import from single VCF and multi VCF at the same time?
 

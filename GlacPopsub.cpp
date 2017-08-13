@@ -168,7 +168,16 @@ int GlacPopsub::run(int argc, char *argv[]){
 	    arw.vectorAlleles->push_back(arr->vectorAlleles->at(1));
 	}
 	bool someoneHasAlt=false;//flag to check if someone has the alternative, otherwise, we will set the alt to N
+	//root can cause alt
+	if( gp.isGLFormat() ){
+	    someoneHasAlt=someoneHasAlt || (arr->vectorGLs->at(0).hasAlt());
+	    someoneHasAlt=someoneHasAlt || (arr->vectorGLs->at(1).hasAlt());
+	}else{
+	    someoneHasAlt=someoneHasAlt || (arr->vectorAlleles->at(0).hasAlt());
+	    someoneHasAlt=someoneHasAlt || (arr->vectorAlleles->at(1).hasAlt());
+	}
 
+		
 			
 	for(unsigned int j=2;j<arr->vectorAlleles->size();j++){
 

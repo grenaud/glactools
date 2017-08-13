@@ -28,13 +28,16 @@ removepop and popsub
 EIGENSTRAT
 replace ancetor
 
-
-
 -- todo --
 
+ ac2gphocsWrapper.pl 
+ addghostPopgphocs.pl 
+ intersectSplitChr.pl 
 
-
-The push_back into a vector is too slow in GlacParser, let's preallocate and copy directly.
+ dstats2heatmap.R 
+ dstats2pdf.R 
+ paircoacompute2barplot.R 
+ paircoacompute2heatmap.R 
 
 
 various perl scripts
@@ -52,7 +55,6 @@ mistar2AlleleMatrix*
 mistar2segtor*
 mistar2binary*
 
-avgCoaMS*
 bamtable2mistar*
 boostrapSubGroups*
 
@@ -61,14 +63,6 @@ boostrapSubGroups*
 
 mistaruniq*
 mpileup2mistar*
-ms2mistar*
-ms2nj*
-testComputation*
-testMistar*
-testMistarTabix*
-testMS*
-testNewickParser*
-testVCF*
 
 
 -format convert

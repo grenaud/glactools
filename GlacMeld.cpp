@@ -19,10 +19,10 @@ GlacMeld::~GlacMeld(){
 string GlacMeld::usage() const{
 
     
-    return string("") +"glactools glacmeld [options] <glac file> \"popToMerge1,popToMerge2,....\" \"newid\"\n"+
+    return string("") +"glactools glacmeld [options] <glac file> \"popToMerge1_to_1,popToMerge2_to_1,....\" \"newid1\" \"popToMerge1_to_2,popToMerge2_to_2,....\" \"newid2\"\n"+
 	"This program will merge different specified populations into a single one and will print to STDOUT\n"+
 	"\n"+
-	"ex:  glactools glacmeld data.acf.gz \"Papuan,Austalian\" \"oceanians\""+"\n"+
+	"ex:  glactools glacmeld data.acf.gz \"Papuan,Austalian\" \"Oceanians\"  \"Yoruba,Mende\" \"WestAfricans\"   "+"\n"+
 	"\n"+
 	"Options:"+"\n"+
 	"\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
@@ -63,18 +63,51 @@ int GlacMeld::run(int argc, char *argv[]){
 
     }
 
-    if(lastOpt != (argc-3)){
-        cerr<<"The last arguments are the  <acf file> \"popToMerge1,popToMerge2,....\" \"newid\" "<<endl;
-        return 1;               
-    }
+    // if(lastOpt != (argc-3)){
+    //     cerr<<"The last arguments are the  <acf file> \"popToMerge1,popToMerge2,....\" \"newid\" "<<endl;
+    //     return 1;               
+    // }
 
     
     string fileglac                  = string(argv[lastOpt  ]);
-    string pop2mergeString           = string(argv[lastOpt+1]);
-    string mergedpopName             = string(argv[lastOpt+2]); 
+    vector<string> pop2mergeString;
+    vector<string> mergedpopName  ;
+    unsigned int numberOfMelds=0;
+    unsigned int numberOfMeldPopsOrig=0;
 
-    vector<string> tomerge = allTokens( pop2mergeString,',');
-    set<unsigned int> indexPopTomerge;
+    for(int i=0;i<(argc-2);i+=2){
+	pop2mergeString.push_back( string(argv[lastOpt+i+1]) );
+	mergedpopName.push_back(   string(argv[lastOpt+i+2]) );
+	cerr<<"replacing: "<<string(argv[lastOpt+i+1])<<" with "<<string(argv[lastOpt+i+2])<<endl;
+	numberOfMelds++;       
+    }
+
+    if(numberOfMelds<1){
+        cerr<<"meld please specify a set of populations"<<endl;
+        return 1;               	
+    }
+
+    for(unsigned int n1=0;n1<numberOfMelds;n1++){
+	for(unsigned int n2=0;n2<numberOfMelds;n2++){
+	    if(n1==n2) continue;
+	    if(mergedpopName[n1] == mergedpopName[n2]){
+		cerr<<"meld cannot use the same population name twice "<<mergedpopName[n1]<<endl;
+		return 1;               	
+	    }
+	}
+    }
+
+    vector< vector<string> >    tomerge;
+    vector< set<unsigned int> > indexPopTomerge;
+    set<unsigned int> indexPopTomergeAll;
+
+    for(unsigned int n=0;n<numberOfMelds;n++){
+	vector<string> tomerge_ = allTokens( pop2mergeString[n],',');
+	numberOfMeldPopsOrig+=tomerge_.size();
+	set<unsigned int> indexPopTomerge_;
+	tomerge.push_back(tomerge_);
+	indexPopTomerge.push_back(indexPopTomerge_);
+    }
 
     GlacParser gp (fileglac);
     if(	gp.isGLFormat()){
@@ -82,45 +115,58 @@ int GlacMeld::run(int argc, char *argv[]){
         return 1;               
     }
 
-    
-
+   
     uint32_t newsizepop= 0;
     if(keepOrig){ 
-	newsizepop = gp.getSizePops()+1 ; 
+	newsizepop = gp.getSizePops()+numberOfMelds; 
     }else{ 
-	newsizepop = uint32_t(int(gp.getSizePops())-int(tomerge.size())+1) ; 
+	newsizepop = uint32_t(int(gp.getSizePops())-int(numberOfMeldPopsOrig)+int(numberOfMelds)); 
     }
+
     GlacWriter * gw = new GlacWriter(newsizepop,
 				     false,
 				     2,
 				     1,//compression threads
 				     uncompressed);
 
-    for(unsigned int i=0;i<gp.getPopulationsNames()->size();i++){
-	for(unsigned int j=0;j<tomerge.size();j++){
-	    if( tomerge[j] == gp.getPopulationsNames()->at(i) ){
-		indexPopTomerge.insert(i);
+    for(unsigned int n=0;n<numberOfMelds;n++){
+
+	for(unsigned int i=0;i<gp.getPopulationsNames()->size();i++){
+	    for(unsigned int j=0;j<tomerge[n].size();j++){
+		if( tomerge[n][j] == gp.getPopulationsNames()->at(i) ){
+		    indexPopTomerge[n].insert(i);
+		    if(indexPopTomergeAll.find(i) != indexPopTomergeAll.end()){
+			cerr<<"Error: A population seems to be used twice "<<gp.getPopulationsNames()->at(i)<<" "<<endl;
+			return 1;
+		    }
+
+		    indexPopTomergeAll.insert(i);		    
+		}
 	    }
 	}
+
+	if(indexPopTomerge[n].size() != tomerge[n].size()){
+	    cerr<<"Error: some of the populations to merge "<<pop2mergeString[n]<<" were not found"<<endl;
+	    return 1;
+	}	
     }
 
-    if(indexPopTomerge.size() != tomerge.size()){
-	cerr<<"Error: some of the populations to merge "<<pop2mergeString<<" were not found"<<endl;
-	return 1;
-    }
+
     string defline =    "#chr\tcoord\tREF,ALT\t";
+    //for(unsigned int n=0;n<numberOfMelds;n++){
     for(unsigned int i=0;i<gp.getPopulationsNames()->size();i++){
-	if( indexPopTomerge.find(i) ==   indexPopTomerge.end() ){
+	if( indexPopTomergeAll.find(i) ==   indexPopTomergeAll.end() ){
 	    defline+=gp.getPopulationsNames()->at(i)+"\t";
 	}else{
 	    if(keepOrig)
 		defline+=gp.getPopulationsNames()->at(i)+"\t";
 	    //skip
 	}
+    }	
+
+    for(unsigned int n=0;n<numberOfMelds;n++){
+	defline+=vectorToString(mergedpopName,"\t")+"\n";
     }
-
-    defline+=mergedpopName+"\n";
-
 
 
     stringstream header;
@@ -133,7 +179,11 @@ int GlacMeld::run(int argc, char *argv[]){
     header<<"#PG:"<<programLine<<endl;
     header<<"#GITVERSION: "<<returnGitHubVersion(argv[-1],"")<<endl;
     header<<"#DATE: "<<getDateString()<<endl;
-    header<<"#GLACMELD: "<<pop2mergeString<<" "<<mergedpopName<<endl;
+    header<<"#GLACMELD: ";
+    for(unsigned int n=0;n<numberOfMelds;n++){
+	header<<pop2mergeString[n]<<" "<<mergedpopName[n]<<" ";
+    }
+    header<<endl;
 
     header<<"#MELDFILE#"<<(1)<<endl;
     header<<""<<gp.getHeaderNoSQNoDefline("#\t")<<endl;
@@ -147,7 +197,17 @@ int GlacMeld::run(int argc, char *argv[]){
 	cerr<<"GlacMeld: error writing header "<<endl;
 	exit(1);
     }
-	
+
+    //cerr<<"loop "<<n<<"\t"<<indexPopTomerge[n].size()<<"\t"<<tomerge[n].size()<<endl;		
+    // for(unsigned int n=0;n<numberOfMelds;n++){
+    // 	cerr<<"l1 "<<n<<" "<<indexPopTomerge[n].size()<<endl;
+    // 	set<unsigned int>::iterator iter;
+    // 	for(iter=indexPopTomerge[n].begin(); iter!=indexPopTomerge[n].end();++iter){
+    // 	    cerr<<*iter<<endl;
+    // 	}
+    // }
+    // exit(1);
+
 
     //cout<<"newsizepop "<<newsizepop<<endl;
     AlleleRecords * arr;
@@ -161,26 +221,37 @@ int GlacMeld::run(int argc, char *argv[]){
 	AlleleRecords  arw;
 	arw.copyCoreFields(*arr);
 	arw.sizePops=newsizepop;
-	SingleAllele newSingleAllele;
+
+	vector< SingleAllele > newSingleAllele;
+	for(unsigned int n=0;n<numberOfMelds;n++){
+	    SingleAllele newSingleAllele_;
+	    newSingleAllele.push_back(newSingleAllele_);
+	}
 	// newSingleAllele.refCount=0;
 	// newSingleAllele.altCount=0;
 	// newSingleAllele.isCpg=false;
 	
 	for(unsigned int i=0;i<arr->vectorAlleles->size();i++){
 
-	    if(indexPopTomerge.find(i) ==   indexPopTomerge.end() ){//print normally if not found
+	    if(indexPopTomergeAll.find(i) ==   indexPopTomergeAll.end() ){//print normally if not found
 		arw.vectorAlleles->push_back(arr->vectorAlleles->at(i));
 	    }else{
 		if(keepOrig){
 		    //cout<<test->vectorAlleles->at(i) <<"\t";
 		    arw.vectorAlleles->push_back(arr->vectorAlleles->at(i));
 		}
-		newSingleAllele+=arr->vectorAlleles->at(i);
+		for(unsigned int n=0;n<numberOfMelds;n++){
+		    if(indexPopTomerge[n].find(i) !=   indexPopTomerge[n].end() ){//add in new single allele
+			newSingleAllele[n]+=arr->vectorAlleles->at(i);
+		    }
+		}
 	    }
 	}
 	
 	//cout<<newSingleAllele <<endl; 
-	arw.vectorAlleles->push_back(newSingleAllele);
+	for(unsigned int n=0;n<numberOfMelds;n++){
+	    arw.vectorAlleles->push_back(newSingleAllele[n]);
+	}
 
 	if(!gw->writeAlleleRecord(&arw)){
      	    cerr<<"GlacMeld: error record "<<arw<<endl;
@@ -188,33 +259,6 @@ int GlacMeld::run(int argc, char *argv[]){
      	}
     }
 
-    // while(gp.hasData()){
-    // 	arr = gp.getData();
-    // 	arw = new AlleleRecords(false);
-	
-    // 	arw->chr           = arr->chr;
-    // 	arw->chri          = arr->chri;
-    // 	arw->coordinate    = arr->coordinate;
-    // 	//cout<<arr->coordinate<<endl;
-    // 	arw->sizePops      = arr->sizePops;
-    // 	arw->ref           = arr->ref;
-    // 	arw->alt           = arr->alt;
-    // 	arw->vectorAlleles = new vector<SingleAllele>();
-	
-    // 	for(unsigned int i=0;i<arr->vectorGLs->size();i++){
-    // 	    pair<int,int> pairCount= arr->vectorGLs->at(i).returnLikelyAlleleCountForRefAlt(minPLdiffind);
-    // 	    //cout<<i<<"\t"<<pairCount.first<<"\t"<<pairCount.second<<"\t"<<arr->vectorGLs->at(i).getIsCpg()<<endl;
-    // 	    SingleAllele saToWrite (pairCount.first, pairCount.second, arr->vectorGLs->at(i).getIsCpg());
-    // 	    arw->vectorAlleles->push_back(saToWrite);
-    // 	}
-    // 	//cout<<"write"<<*arw<<endl;
-    // 	if(!gw->writeAlleleRecord(arw)){
-    // 	    cerr<<"GlacViewer: error record "<<*arw<<endl;
-    // 	    exit(1);
-    // 	}
-    // 	//cout<<"delete"<<endl;
-    // 	delete(arw);
-    // }
 
     delete(gw);
 

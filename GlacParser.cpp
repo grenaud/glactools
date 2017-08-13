@@ -1090,7 +1090,8 @@ bool GlacParser::hasData(){
 		
 		allRecToReturn->vectorAlleles = new vector<SingleAllele>();
 		allRecToReturn->vectorAlleles->reserve(sizePops+2);
-		
+		//to remove
+
 		//cout<<"sizePops "<<sizePops<<endl;
 		
 		for(unsigned j=0;j<(sizePops+2);j++){
