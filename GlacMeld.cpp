@@ -75,10 +75,10 @@ int GlacMeld::run(int argc, char *argv[]){
     unsigned int numberOfMelds=0;
     unsigned int numberOfMeldPopsOrig=0;
 
-    for(int i=0;i<(argc-2);i+=2){
-	pop2mergeString.push_back( string(argv[lastOpt+i+1]) );
-	mergedpopName.push_back(   string(argv[lastOpt+i+2]) );
-	cerr<<"replacing: "<<string(argv[lastOpt+i+1])<<" with "<<string(argv[lastOpt+i+2])<<endl;
+    for(int i=lastOpt;i<(argc-2);i+=2){
+	pop2mergeString.push_back( string(argv[i+1]) );
+	mergedpopName.push_back(   string(argv[i+2]) );
+	cerr<<"replacing: "<<string(argv[i+1])<<" with "<<string(argv[i+2])<<endl;
 	numberOfMelds++;       
     }
 

@@ -1,34 +1,16 @@
 
 multithread bgzf?
 
--- done --
-vcf2mistar*
-vcf2mistarNoEpo*
-vcfcompute*
-vcfMulti2mistar*
-closestMistar* 
-reheader
-usePopAsRootAnc
-basic stats
-bam2mistar*
-mistar2bed*
-mistar2fasta*
-mistar2gphocs*
-mistarcat*
-mistarintersect*
-mistarunion*
-mistarmeld*
-mistarstats*
-mistarfreqSpec*
-mistar2BinaryPLINK*
 
 -- totest --
 23andme2mistar*
-removepop and popsub
-EIGENSTRAT
-replace ancetor
+
+
 
 -- todo --
+
+axt2
+
 
  ac2gphocsWrapper.pl 
  addghostPopgphocs.pl 
@@ -47,22 +29,7 @@ axt2mistar*
 epo2mistar*
 example with msPrime
 
-F3?
+F3
+F4
 
 
--- ignored --
-mistar2AlleleMatrix*
-mistar2segtor*
-mistar2binary*
-
-bamtable2mistar*
-boostrapSubGroups*
-
-
-
-
-mistaruniq*
-mpileup2mistar*
-
-
--format convert

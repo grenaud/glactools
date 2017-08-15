@@ -16,6 +16,7 @@
 #include "Vcf2GLF.h"
 #include "VcfMulti2ACF.h"
 #include "T3andme2ACF.h"
+#include "AXT2ACF.h"
 
 #include "GlacClosest.h"
 #include "Glac2BED.h"
@@ -74,6 +75,7 @@ int main (int argc, char *argv[]) {
 	"      vcf2glf         Convert single sample VCF to glf "+"\n"+
 	"      vcfm2acf        Convert multi  sample VCF to acf "+"\n"+
 	"      bam2acf         Convert single sample BAM to acf "+"\n"+
+	"      axt2acf         Convert AXT alignment to acf "+"\n"+
 	"      23andme2acf     Convert 23andme data to acf "+"\n"+
 	"\n"+
 	"   --Filtering:\n"+                       
@@ -189,6 +191,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return bam2acf_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "axt2acf"){
+	AXT2ACF  axt2acf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<axt2acf_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return axt2acf_.run(argc, argv);
 		    
     }else{      if(string(argv[1]) == "glf2acf"){
 	GLF2ACF  glf2acf_;
@@ -663,7 +679,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																		    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

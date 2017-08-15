@@ -70,9 +70,11 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
 
 
 
-
     GlacParser gp1 (g1);
-    GlacParser gp2 (g1);
+
+    GlacParser gp2 (g2);
+    // cerr<<"gp1 "<<gp1.getSizePops()<<endl;
+    // cerr<<"gp2 "<<gp2.getSizePops()<<endl;
 
     AlleleRecords * arr;
     if(gp1.getHeaderSQ("") != gp2.getHeaderSQ("") ){
@@ -86,7 +88,7 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
 	    return 1;
 	}
     }
-
+    
 
     if(!gp1.isGLFormat()){
 	if(gp2.isGLFormat()){	
@@ -145,13 +147,13 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
     
 
     //printing first
-    for(unsigned int i=2;i<nonPop1;i++){
-	cout<<gp1.getPopulationsNames()->at(i);
-	if( i!= (nonPop1-1) ){
-	    cout<<"\t";
-	}
-    }
-    cout<<endl;;
+    // for(unsigned int i=2;i<nonPop1;i++){
+    // 	cout<<gp1.getPopulationsNames()->at(i);
+    // 	if( i!= (nonPop1-1) ){
+    // 	    cout<<"\t";
+    // 	}
+    // }
+    // cout<<endl;;
     // for(unsigned int i=1;i<nonPop2;i++){
     // 	cout<<gp2.getPopulationsNames()->at(i);
     // 	if(i!=(nonPop2-1)){
@@ -183,6 +185,8 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
 
 
     while(stayLoop){
+	//cerr<<hasData1<<" "<<hasData2<<" "<<	   record1->chri <<" "<<record2->chri  <<" "<<record1->coordinate <<" "<<record2->coordinate<<endl;
+
 	if(!hasData1  ){
 	    stayLoop=false;
 	    break;
@@ -195,6 +199,7 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
 	if(hasData2 &&
 	   record1->chri       == record2->chri        &&
 	   record1->coordinate == record2->coordinate ){
+	    //cerr<<"SYNC "<<endl;
 	    // return 1;
 	    if(record1->chri != record2->chri ){
 		cerr<<"Chromosomes differ between "<<(*record1)<<" and "<<(*record2)<<endl;
@@ -261,11 +266,13 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
 				    
 		
 	    }else{
-		cerr<<"Wrong state between "<<(*record1)<<" and "<<(*record2)<<endl;
+		cerr<<"GlacReplaceAncestor: WARNING: Wrong state between "<<(*record1)<<" and "<<(*record2)<<endl;
+		//return 1;
 	    }
 
 	    
 	printnewrecord:
+	    //cerr<<"printnewrecord"<<endl;
 	    AlleleRecords arw;
 	    arw.chri        = record1->chri;
 	    arw.coordinate  = record1->coordinate;
@@ -283,7 +290,7 @@ int GlacReplaceAncestor::run(int argc, char *argv[]){
 		arw.vectorAlleles = new vector<SingleAllele> (  );
 		arw.vectorGLs     = 0;
 		for(unsigned int i=0;i<2;i++)
-		    arw.vectorAlleles->push_back( record2->vectorAlleles->at(i) );		
+		    arw.vectorAlleles->push_back( record2->vectorAlleles->at(i) );		    
 		for(unsigned int i=2;i<record1->vectorAlleles->size();i++)
 		    arw.vectorAlleles->push_back( record1->vectorAlleles->at(i) );		
 	    }

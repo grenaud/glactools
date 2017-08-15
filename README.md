@@ -50,6 +50,7 @@ Installation
    cd glactools
    make
 
+4) (optional) Either put the executable in the overall path or add the path to your $PATH environment or add an alias to be able to call "glactools" from any directory.
 
 
 Documentation
@@ -185,3 +186,8 @@ The root is an individual or population that is an outgroup to all other individ
 ### how do I specify the root and ancestral population
 
 if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc"
+
+### Can galactose handle data coming from simulations?
+
+Yes, but I recommend using msprime as it can produce directly VCF output.  The one issue is that it does not,  as of this writing, combine individuals together and merely reports haploid data.
+

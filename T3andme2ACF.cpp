@@ -69,7 +69,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
 			      
 
     //last arg is program name
-    for(int i=1;i<(argc-3);i++){ 
+    for(int i=1;i<(argc);i++){ 
 	if((string(argv[i]) == "-")  ){
             lastOpt=i;
             break;	    
@@ -110,7 +110,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
 
 
     if(lastOpt != (argc-2)){
-	cerr<<"The last 2 arguments are <vcf file> <name sample> "<<endl;
+	cerr<<"The last 2 arguments are <23andMe file> <name sample> "<<endl;
 	return 1;		
     }
 
@@ -119,6 +119,12 @@ int T3andme2ACF::run(int argc, char *argv[]){
 	cerr<<"Must specify fai file "<<endl;
 	return 1;	
     }
+
+    if(!epoFileB){
+	cerr<<"Must specify EPO file as this file format does not have the reference information "<<endl;
+	return 1;	
+    }
+
     vector<chrinfo> chrFound;
     uint64_t genomeLength;
     readFastaIndex(fastaIndex,chrFound,genomeLength);
@@ -194,7 +200,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
     header+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";;
 
     header+="#DATE: "+getDateString()+"\n";;
-    header+="#23ANDME2ACF:";
+    header+="#23ANDME2ACF:\n";
     map<string,uint16_t> chr2index;
     uint16_t     chrCurrentIndex=0;
 
@@ -230,12 +236,17 @@ int T3andme2ACF::run(int argc, char *argv[]){
     string line;
     bool hasData= getline (myfile,line);
     while (hasData ){
+	if(strBeginsWith(line,"#")){
+	    hasData = getline (myfile,line);
+	    continue;
+	}
+	 
 	totalRec++;
 
 	// while(btr.hasData()){
 	// BAMTableObj * toprint=btr.getData();
 	vector<string> token= allTokens(line,'\t');
-	// cout<<"line "<<line<<endl;
+	// cerr<<"line "<<line<<endl;
 	string chr    = token[1];
 	unsigned int pos = destringify<unsigned int>(token[2]);
 	string genotype    = token[3];
@@ -255,59 +266,63 @@ int T3andme2ACF::run(int argc, char *argv[]){
 	    }
 	}
 
-		if(epoFileB){
+	if(epoFileB){
 
-	if(!lineLeftEPO){
-	    cerr<<"Error, no data in the EPO file "<< chr <<":"<< int(pos) <<endl;
-	    return 1;
-	}
-
-	if(epoChr != chr){
-	    cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<chr<<endl;
-	    return 1;
-	}
-
-
-	// cout<<"2"<<endl;
-	while(epoCoord != pos){
-	    if(epoCoord > pos){
-		cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(line)<<"\t"<<lineFromEPO<<endl;
+	    if(!lineLeftEPO){
+		cerr<<"Error, no data in the EPO file "<< chr <<":"<< int(pos) <<endl;
 		return 1;
 	    }
 
-	    if( (pos - epoCoord ) >= limitToReOpenFP){ //seeking in the file
-		rtEPO->repositionIterator(chr , int(pos),INT_MAX);
+	    if(epoChr != chr){
+		//cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<chr<<endl;
+		//return 1;
+		if( (pos - epoCoord ) >= limitToReOpenFP){ //seeking in the file
+		    rtEPO->repositionIterator(chr , int(pos),INT_MAX);
+		}	       	    
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 	    }
 
-	    
-	    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 
-	    // lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
-	    // vector<string> fieldsEPO = allTokens(lineFromEPO,'\t');
-	    // epoChr                   = fieldsEPO[0];
-	    // epoCoord                 = string2uint(fieldsEPO[1]);					
-	    // if(fieldsEPO[9] == "1")
-	    //     cpgEPO=true;		    
-	    // else
-	    //     cpgEPO=false;		    
-	    // if(ancAllele){
-	    //     allel_chimp = fieldsEPO[3][0];//inferred ancestor
-	    // }else{
-	    //     allel_chimp = fieldsEPO[4][0];//chimp;
-	    // }
-
-	    // if(!lineLeftEPO){
-	    //     cerr<<"Error, missing data in the EPO file"<<*toprint<<endl;
-	    //     return 1;
-	    // }
-	}
-
-
-	if(epoCoord != pos){
-	    cerr<<"Error, are all the sites in EPO there? Difference between coords "<<line<<"\t"<<lineFromEPO<<endl;
-		return 1;
-	}
+	    // cout<<"2"<<endl;
+	    while(epoCoord != pos){
+		if(epoCoord > pos){
+		    cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(line)<<"\t"<<lineFromEPO<<endl;
+		    return 1;
 		}
+		
+		if( (pos - epoCoord ) >= limitToReOpenFP){ //seeking in the file
+		    rtEPO->repositionIterator(chr , int(pos),INT_MAX);
+		}
+		
+	    
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+
+		// lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
+		// vector<string> fieldsEPO = allTokens(lineFromEPO,'\t');
+		// epoChr                   = fieldsEPO[0];
+		// epoCoord                 = string2uint(fieldsEPO[1]);					
+		// if(fieldsEPO[9] == "1")
+		//     cpgEPO=true;		    
+		// else
+		//     cpgEPO=false;		    
+		// if(ancAllele){
+		//     allel_chimp = fieldsEPO[3][0];//inferred ancestor
+		// }else{
+		//     allel_chimp = fieldsEPO[4][0];//chimp;
+		// }
+		
+		// if(!lineLeftEPO){
+		//     cerr<<"Error, missing data in the EPO file"<<*toprint<<endl;
+		//     return 1;
+		// }
+	    }
+
+
+	    if(epoCoord != pos){
+		cerr<<"Error, are all the sites in EPO there? Difference between coords "<<line<<"\t"<<lineFromEPO<<endl;
+		return 1;
+	    }
+	}//end if epoFileB
 	//int refIdx  =base2int(allel_ref);
 	// int chimpIdx=base2int(allel_chimp);
 	char alt='N';
@@ -409,10 +424,14 @@ int T3andme2ACF::run(int argc, char *argv[]){
 
 
 
+	if(alt!='N')
+	    if(genotype.find(alt) == string::npos ){   // has alternative
+		goto nextline;
+	    }
 
-
-	if( (alt!='N' && genotype.find(alt) != string::npos) )   // has alternative
-	    {//no alt in bam table
+	// cerr<<chr<<" "<<pos<<"alt "<<alt<<endl;
+//if( (alt!='N' && genotype.find(alt) != string::npos) ){   // has alternative
+	if(true){
 
 	    int refCount=0;
 	    int altCount=0;
@@ -422,25 +441,26 @@ int T3andme2ACF::run(int argc, char *argv[]){
 	    string aa = stringify(alt)      + stringify(alt);
 
 	    if(genotype == rr ){
-	    	refCount=2;
+		refCount=2;
 	    }else{
-	    	if(genotype == aa){
-	    	    altCount=2;
-	    	}else{
-	    	    if( (genotype == ra) ||
-	    		(genotype == ar) ){
-	    		refCount=1;
-	    		altCount=1;
-	    	    }else{
-	    		//goto nextline;
+		if(genotype == aa){
+		    altCount=2;
+		}else{
+		    if( (genotype == ra) ||
+			(genotype == ar) ){
+			refCount=1;
+			altCount=1;
+		    }else{
+			//goto nextline;
 			cerr<<"Error: Potential error in the 23 and me file where the reference allele is not there "<<line<<"\t"<<lineFromEPO<<endl; //error
 			goto nextline;
-	    	    }			
-	    	}
+		    }			
+		}
 	    }
 
 	    //cout<<refIdx<<endl;
 	    writtenRec++;
+	    // cerr<<"WRITE "<<chr<<" "<<pos<<" alt "<<alt<<endl;
 
 
 	    AlleleRecords arToWrite (false);
@@ -460,7 +480,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
 	    arToWrite.vectorAlleles->push_back(sample);
 	    
 	    if(!gw->writeAlleleRecord(&arToWrite)){
-		cerr<<"Vcf2ACF: error writing header "<<endl;
+		cerr<<"T3ancme2ACF: error writing header "<<endl;
 		exit(1);
 	    }	    
 	    // cout<<chr<<"\t"<< pos<<"\t"<<
@@ -472,11 +492,11 @@ int T3andme2ACF::run(int argc, char *argv[]){
 	    // 	altCount<<
 	    // 	":"<<("0")<<endl;//no cpg info
 
-	}else{
-	    goto nextline;
-	    //continue;//triallelic, skip
+	    // }else{
+	    //     goto nextline;
+	    //     //continue;//triallelic, skip
+	    // }
 	}
-	
         nextline:
         
         hasData = getline (myfile,line);
