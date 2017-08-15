@@ -84,7 +84,7 @@ MultiVCFreader::MultiVCFreader(string file,int indelsAhead){
     numPop=0;
 
     while(1){
-	bool flag=getline(vcfFile,currentline);
+	bool flag=(bool)getline(vcfFile,currentline);
 	
 	if(!flag){
 	    cerr<<"ERROR file : "+file+" is probably empty"<<endl;
@@ -276,7 +276,7 @@ bool MultiVCFreader::getNextLine(){
 
     if(textMode){
 	while(1){
-	    bool flag=getline(vcfFile,currentline);
+	    bool flag=(bool)getline(vcfFile,currentline);
 
 	    if(!flag)
 		return false;	   

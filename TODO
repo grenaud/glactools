@@ -1,35 +1,24 @@
 
-multithread bgzf?
 
-
--- totest --
-23andme2mistar*
 
 
 
 -- todo --
 
-axt2
 
 
- ac2gphocsWrapper.pl 
- addghostPopgphocs.pl 
- intersectSplitChr.pl 
+ac2gphocsWrapper.pl 
+addghostPopgphocs.pl 
+intersectSplitChr.pl 
 
- dstats2heatmap.R 
- dstats2pdf.R 
- paircoacompute2barplot.R 
- paircoacompute2heatmap.R 
+dstats2heatmap.R 
+dstats2pdf.R 
+paircoacompute2barplot.R 
+paircoacompute2heatmap.R 
 
 
-various perl scripts
-various R scripts
+F3?
 
-axt2mistar*
-epo2mistar*
-example with msPrime
-
-F3
-F4
+multithread bgzf?
 
 

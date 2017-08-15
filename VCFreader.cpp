@@ -158,7 +158,7 @@ bool VCFreader::getNextLine(){
 
     if(textMode){
 	while(1){
-	    bool flag=getline(vcfFile,currentline);
+	    bool flag=(bool)getline(vcfFile,currentline);
 	    if(!flag)
 		return false;	   
 	    if(currentline.length() > 0 && currentline[0] != '#')
