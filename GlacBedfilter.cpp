@@ -137,7 +137,7 @@ int GlacBedfilter::run(int argc, char *argv[]){
 		currentGr    = bedRegionsToFilter->at(arr->chr) ;
 		currentIndex =   coordinateOfVec->at(arr->chr) ;
 		if(currentIndex!=0){
-		    cerr<<"There seems to be a mix of chromosomes in the mistar file, needs to be sorted chr: "<<chrNameIdx<<endl;
+		    cerr<<"There seems to be a mix of chromosomes in the glactools file, needs to be sorted chr: "<<chrNameIdx<<endl;
 		    return 1;
 		}
 	    }
@@ -145,7 +145,7 @@ int GlacBedfilter::run(int argc, char *argv[]){
 	    chrNameIdx         = arr->chri;
 	}else{
 	    if(previousCoordinate >= arr->coordinate){
-		cerr<<"There seems to be a unsorted coordinate in the mistar file, needs to be sorted coordinate: "<<previousCoordinate<<endl;
+		cerr<<"There seems to be a unsorted coordinate in the glactools file, needs to be sorted coordinate: "<<previousCoordinate<<endl;
 		return 1;
 	    }
 	}

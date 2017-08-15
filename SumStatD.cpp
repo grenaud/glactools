@@ -175,7 +175,7 @@ void SumStatD::computeStatSingle( const   AlleleRecords   * recordToUse,const bo
 	return ; //next iteration, we need a valid alternative allele otherwise there is no impact on divergence calculation, this speeds it up
     }
 
-    //double check, already checked in MistarParser 
+    //double check, already checked in GlacParser 
     if(recordToUse->vectorAlleles->size() != (numberOfPopulations-1)){
 	cerr<<"SumStatD.cpp  computeStatSingle() Problem for line "<<recordToUse->chr<<" "<<recordToUse->coordinate<<" wrong number of columns"<<endl;
 	exit(1);

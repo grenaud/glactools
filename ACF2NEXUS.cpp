@@ -79,7 +79,7 @@ int ACF2NEXUS::run(int argc, char *argv[]){
     unsigned int keptRecords=0;
 
 
-    //MistarParser mp   (argv[argc-1]);
+
     string filename = string(argv[lastOpt]);
     GlacParser gp   (filename);
 

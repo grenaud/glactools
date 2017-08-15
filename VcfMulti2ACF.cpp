@@ -136,7 +136,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
 
 	cerr<<"Wrong option "<<argv[i]<<endl;
-	exit(1);
+	return 1;
     }
 			      
     if(argc < 2 ||
@@ -148,7 +148,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
     if(fastaIndex.size()==0){
 	cerr<<"Must specify fai file "<<endl;
-	exit(1);	
+	return 1;	
     }
 
     string filenameMultiVCF = string(argv[argc-1]);
@@ -241,7 +241,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
     
     if(!gw->writeHeader(header.str())){
 	cerr<<"GlacViewer: error writing header "<<endl;
-	exit(1);
+	return 1;
     }
     
 
@@ -277,8 +277,15 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 	    }
 
 	    if(epoChr != toprint->at(0)->getChr()){
-		cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->at(0)->getChr()<<endl;
-		return 1;
+		// cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->at(0)->getChr()<<endl;
+		// return 1;
+		rtEPO->repositionIterator(toprint->at(0)->getChr() , int(toprint->at(0)->getPosition()),INT_MAX);
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);	
+
+		if( epoChr != toprint->at(0)->getChr() ){
+		    cerr<<"Error, the repositioning did not work, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->at(0)->getChr()<<endl;
+		    return 1;
+		}
 	    }
 
 
@@ -414,7 +421,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 	
 	if(!gw->writeAlleleRecord(&arToWrite)){
 	    cerr<<"Vcf2MultiACF: error writing header "<<endl;
-	    exit(1);
+	    return 1;
 	}
 
 	//	}

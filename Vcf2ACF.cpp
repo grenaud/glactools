@@ -332,7 +332,7 @@ int Vcf2ACF::run(int argc, char *argv[]){
     
     if(!gw->writeHeader(header)){
 	cerr<<"GlacViewer: error writing header "<<endl;
-	exit(1);
+	return 1;
     }
     
 
@@ -373,54 +373,62 @@ int Vcf2ACF::run(int argc, char *argv[]){
 
 	    if(epoFileB){
 
-	    if(!lineLeftEPO){
-		cerr<<"Error, no data in the EPO file "<< toprint->getChr() <<":"<< int(toprint->getPosition()) <<endl;
-		return 1;
-	    }
+		if(!lineLeftEPO){
+		    cerr<<"Error, no data in the EPO file "<< toprint->getChr() <<":"<< int(toprint->getPosition()) <<endl;
+		    return 1;
+		}
 	    
-	    if(epoChr != toprint->getChr()){
-		cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->getChr()<<endl;
-		return 1;
-	    }
+		if(epoChr != toprint->getChr()){
+		    //cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->getChr()<<endl;
+		    //return 1;
+
+		    rtEPO->repositionIterator(toprint->getChr()  , int(toprint->getPosition()) ,INT_MAX);
+		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		    if(epoChr != toprint->getChr()){
+			cerr<<"Error, the repositioning did not work, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->getChr()<<endl;
+			return 1;
+		    }
+
+		}
 	    
 	    
 
-	    while(epoCoord != toprint->getPosition()){
-		if(epoCoord > toprint->getPosition()){
+		while(epoCoord != toprint->getPosition()){
+		    if(epoCoord > toprint->getPosition()){
+			cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(*toprint)<<"\t"<<lineFromEPO<<endl;
+			return 1;
+		    }
+
+		    if( (toprint->getPosition() - epoCoord ) >= limitToReOpenFP){ //seeking in the file
+			rtEPO->repositionIterator(toprint->getChr() , int(toprint->getPosition()),INT_MAX);
+		    }
+
+
+		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		    // lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
+		    // vector<string> fieldsEPO = allTokens(lineFromEPO,'\t');
+		    // epoChr                   = fieldsEPO[0];
+		    // epoCoord                 = string2uint(fieldsEPO[1]);					
+		    // if(fieldsEPO[9] == "1")
+		    //     cpgEPO=true;		    
+		    // else
+		    //     cpgEPO=false;		    
+		    // if(ancAllele){
+		    //     allel_chimp = fieldsEPO[3][0];//inferred ancestor
+		    // }else{
+		    //     allel_chimp = fieldsEPO[4][0];//chimp;
+		    // }
+
+		    // if(!lineLeftEPO){
+		    //     cerr<<"Error, missing data in the EPO file"<<*toprint<<endl;
+		    //     return 1;
+		    // }
+		}
+	    
+		if(epoCoord != toprint->getPosition()){
 		    cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(*toprint)<<"\t"<<lineFromEPO<<endl;
 		    return 1;
 		}
-
-		if( (toprint->getPosition() - epoCoord ) >= limitToReOpenFP){ //seeking in the file
-                    rtEPO->repositionIterator(toprint->getChr() , int(toprint->getPosition()),INT_MAX);
-                }
-
-
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
-		// lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
-		// vector<string> fieldsEPO = allTokens(lineFromEPO,'\t');
-		// epoChr                   = fieldsEPO[0];
-		// epoCoord                 = string2uint(fieldsEPO[1]);					
-		// if(fieldsEPO[9] == "1")
-		//     cpgEPO=true;		    
-		// else
-		//     cpgEPO=false;		    
-		// if(ancAllele){
-		//     allel_chimp = fieldsEPO[3][0];//inferred ancestor
-		// }else{
-		//     allel_chimp = fieldsEPO[4][0];//chimp;
-		// }
-
-		// if(!lineLeftEPO){
-		//     cerr<<"Error, missing data in the EPO file"<<*toprint<<endl;
-		//     return 1;
-		// }
-	    }
-	    
-	    if(epoCoord != toprint->getPosition()){
-		cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(*toprint)<<"\t"<<lineFromEPO<<endl;
-		return 1;
-	    }
 	    }
 	    
 
@@ -526,7 +534,7 @@ int Vcf2ACF::run(int argc, char *argv[]){
 		
 		if(!gw->writeAlleleRecord(&arToWrite)){
 		    cerr<<"Vcf2ACF: error writing header "<<endl;
-		    exit(1);
+		    return 1;
 		}
 
 

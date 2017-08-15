@@ -337,7 +337,7 @@ class glacVisitor : public PileupVisitor {
 			//cout<<lineToPrint<<":0"<<endl;
 			arToPrint->vectorAlleles->at(2).setIsCpg(false);
 			if(!gw->writeAlleleRecord(arToPrint)){
-			    cerr<<"BAM2ACF: error writing header "<<endl;
+			    cerr<<"BAM2ACF: error writing allele record "<<endl;
 			    exit(1);
 			}
 			delete(arToPrint);
@@ -356,7 +356,7 @@ class glacVisitor : public PileupVisitor {
 		    //cout<<lineToPrint<<":0"<<endl;
 		    arToPrint->vectorAlleles->at(2).setIsCpg(false);
 		    if(!gw->writeAlleleRecord(arToPrint)){
-			cerr<<"BAM2ACF: error writing header "<<endl;
+			cerr<<"BAM2ACF: error writing allele record "<<endl;
 			exit(1);
 		    }
 		    delete(arToPrint);
@@ -410,7 +410,7 @@ BAM2ACF::~BAM2ACF(){
 
 string BAM2ACF::usage() const{
     string usage=string("")+" bam2acf [options] <fasta file> <bam file> <name sample> "+
-			"\n\nThis program produces a  mistar matrix given a BAM file\n\n"+
+			"\n\nThis program produces a  ACF matrix given a BAM file\n\n"+
 	                "\t<fasta file> is the fasta file of the reference genome used for mapping\n"+
 	                "\t<name sample> is the name you wish the sample to have\n"+
 			"\tOptions\n"+	     
@@ -589,7 +589,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 
     if(!gw->writeHeader(header)){
         cerr<<"GlacViewer: error writing header "<<endl;
-        exit(1);
+        return 1;
     }
     
     glacVisitor* cv = new glacVisitor(references,&fastaReference,useQCFail,minBaseQual,epoFile,epoFileB,gw,&chr2index);
