@@ -14,7 +14,7 @@ GlacRename::~GlacRename(){
 }
 
 string GlacRename::usage() const{
-    string usage=string("glactools")+" segsite [options] <ACF file> \"oldpopname1,oldpopname2,...\" \"newpopname1,newpopname2,...\"  "+
+    string usage=string("glactools")+" rename [options] <ACF file> \"oldpopname1,oldpopname2,...\" \"newpopname1,newpopname2,...\"  "+
 	"\nThis program will rename populations  \"oldpopname1,oldpopname2,...\" with  \"newpopname1,newpopname2,...\" \n"+
 	"\n"+
 	"Options:\n"+

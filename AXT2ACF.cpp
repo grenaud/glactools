@@ -18,7 +18,7 @@ AXT2ACF::~AXT2ACF(){
 
 
 string AXT2ACF::usage() const{
-    const string usage=string("")+ " 23andme2ACF [options]  <chr name> <name sample>  <axt file>\n"+
+    const string usage=string("")+ " axt2acf [options]  <chr name> <name sample>  <axt file>\n"+
 
 	"\nThis program will parse an AXT alignment for a single chromosome and output an ACF file (to STDOUT)\n"+
 	"The first sequence has to be the genome of the reference. For instance, to import chimp for the human reference:\n"+

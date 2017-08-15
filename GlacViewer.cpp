@@ -29,7 +29,7 @@ string GlacViewer::usage() const{
                   "\t"+"-u" + "\t\t\t"+"Produce binary but uncompressed output (default: "+booleanAsString(uncompressed)+")\n"+
 		  "\n"+
                   "\t"+"" + ""+"For text output:\n"+		  
-                  "\t"+"-p" + "\t\t\t"+"Only produce ind./pops. in the file    (default: "+booleanAsString(printpops)+")\n"+
+                  "\t"+"-p" + "\t\t\t"+"Only output a list of ind./pops. present in the file    (default: "+booleanAsString(printpops)+")\n"+
                   "\t"+"-P" + "\t\t\t"+"Only produce the header                (default: "+booleanAsString(printonlyheader)+")\n"+
                   "\t"+"-h" + "\t\t\t"+"Also produce defline w/ text           (default: "+booleanAsString(printdefline)+")\n"+
                   "\t"+"-H" + "\t\t\t"+"Also produce full header w/ text       (default: "+booleanAsString(printheader)+")\n"+

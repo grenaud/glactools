@@ -19,7 +19,7 @@ GlacUsePopAsRootAnc::~GlacUsePopAsRootAnc(){
 string GlacUsePopAsRootAnc::usage() const{
 
     
-    return string("") +"glactools removepop [options] <glac file> <pop to use as root> <pop to use as anc>\n"+
+    return string("") +"glactools usepopsrootanc [options] <glac file> <pop to use as root> <pop to use as anc>\n"+
 	"This program will use specified populations <pop to use as root> as root and  <pop to use as anc> ancestor and produce lines with only those two populations. It will print to STDOUT\n"+
 	"\n"+
 	"ex:  glactools usepopsrootanc data.acf.gz  Pop1 Pop2"+"\n"+

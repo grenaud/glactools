@@ -342,18 +342,11 @@ CpG & Flag to know whether the actual individual is a CpG or not & uint8\_t &  \
 \end{tabular}
 %\end{table}
 
-\afterpage{\clearpage}
+%\afterpage{\clearpage}
 
 
 
-\subsection{Indexing}
-
-\noindent If the ACF/GLF is in binary format and zipped using bgzip, the following command can be used to index it:
-\begin{lstlisting}
-glactools index input.acf.gz
-\end{lstlisting}
-\noindent please note that the .acf.gz can be glf.gz. This will create a .bai file. The index format used is exactly the same as the one used by htslib so please refer to do their documentation.
-
+\newpage
 \section{General considerations}
 
 Each subprogram contained in glactools will always print compressed binary and printed the STDOUT.  if you wish to redirect the output to a file, simply use the Unix redirect:
@@ -377,7 +370,7 @@ glactools cmd1 -u input.acf.gz  | glactools cmd2 -u --option example /dev/stdin 
 
 \noindent In general when piping to a program, we highly recommend to use the -u option which will disable the block zipped output.  However the last program part of this pipeline should write compressed binary to save disk space (default output mode). 
 
-
+\newpage
 \section{Data import}
 
 \noindent This program produces an ACF file from a BAM file:
@@ -426,13 +419,76 @@ glactools 23andme2ACF  <23andme file> <name sample>
 glactools axt2acf <chr name> <name sample>  <axt file>
 \end{lstlisting}
 
+\newpage
+\section{Viewing and indexing}
 
-\section{Filtering}
+\subsection{Viewing and subsampling ACF/GLF files }
 
+The basic command for viewing compressed ACF/GLF files is:
+
+\begin{lstlisting}
+glactools view <ACF/GLF file>
+\end{lstlisting}
+
+It has options to view the defile (-h) and the entire header (-H).
+
+It can also produce binary compressed or uncompressed from ACF/GLF files in raw text (which has to include the header) using:
+\begin{lstlisting}
+cat myACFfile.txt | glactools view -b - > myACFfile.acf.gz
+\end{lstlisting}
+Works as well with GLF. A subset of records can be produces using -s.
+
+
+\subsection{Indexing for fast retrieval}
+\label{sec:indexing}
+If a GLF/ACF is index, you can retrieve rapidly a specific site or range or chromosome. If the ACF/GLF is in binary format and zipped using bgzip, the following command can be used to index it:
+
+
+
+
+
+\begin{lstlisting}
+glactools index <ACF/GLF file
+\end{lstlisting}
+
+for example:
+\begin{lstlisting}
+glactools index input.acf.gz
+\end{lstlisting}
+
+This will create a .bai file. The index format used is exactly the same as the one used by htslib so please refer to do their documentation. Once finished, you can retrieve data the following way:
+
+\begin{lstlisting}
+glactools view <ACF/GLF file> chr:start-end
+\end{lstlisting}
+
+example:
+\begin{lstlisting}
+glactools view myfile.acf.gz 21:20000-20010
+\end{lstlisting}
+or even just the chromosome:
+
+\begin{lstlisting}
+glactools view myfile.acf.gz 21
+\end{lstlisting}
+
+\newpage
+
+\section{File transformation}
+
+This section described operations that tranform one or more ACF/GLF files into one or more ACF/GLF files.
 
 %\subsection{filtering}
+\subsection{Tranform GLF to ACF}
+
+This program will transform GLF files to ACF using a cutoffs which can be changed on PHRED likelihoods.
+\begin{lstlisting}
+glactools glf2acf <glf file>
+\end{lstlisting}
 
 
+
+\subsection{Filtering}
 The filters can be one of the following:
 
 \begin{tabular}{ll}
@@ -449,16 +505,16 @@ znosharing   &   Retain sites that strickly do not share alleles between populat
 
 Here is a description of the different filter modes:
 
-\subsection{No undefined sites}
+\subsubsection{No undefined sites}
 
 \noindent This will filter out any site where the allele count is null (0,0) for both reference and alternative
 
 \begin{lstlisting}
-glactools noundef [mistar file]
+glactools noundef <ACF file>
 \end{lstlisting}
 
 
-\subsection{Filtering using BED file}
+\subsubsection{Filtering using BED file}
 
 \noindent This will keep only the positions in the bed file
 
@@ -466,7 +522,7 @@ glactools noundef [mistar file]
 glactools noundef [options] <ACF or GLF file>
 \end{lstlisting}
 
-\subsection{Filter for segregating sites}
+\subsubsection{Filter for segregating sites}
 
 \noindent This will retain sites where the allele count is greater than 0 for either the reference or alternative for at least one individual. It has options to retain only transitions or transversions. 
 
@@ -474,7 +530,7 @@ glactools noundef [options] <ACF or GLF file>
 glactools segsite [options] <ACF file>
 \end{lstlisting}
 
-\subsection{Allele sharing between 2 populations}
+\subsubsection{Allele sharing between 2 populations}
 
 \noindent This will only retain sites where every individuals in population group 1 share the same allele(s) as every individual in population group 2.
 It requires that the allele count for every individual for both groups be non-zero.
@@ -482,11 +538,11 @@ A random allele is picked (biased for allele count) for heterozygous position so
 
 \tiny
 \begin{lstlisting}
-glactools  sharing [ACF file] [comma separated group 1] [comma separated group 2]
+glactools  sharing <ACF file> <comma separated group 1> <comma separated group 2>
 \end{lstlisting}
 \normalsize
 
-\subsection{No allele sharing between 2 populations}
+\subsubsection{No allele sharing between 2 populations}
 
 \noindent This will filter sites where individuals in population group 1 do not share at least one allele with individual in population group 2.
 It requires that the allele count for every individual for both groups be non-zero.
@@ -495,39 +551,179 @@ In other words, the individuals in the first group have to be all reference and 
 
 \tiny
 \begin{lstlisting}
-glactools nosharing [ACF file] [comma separated group 1] [comma separated group 2]
+glactools nosharing <ACF file> <comma separated group 1> <comma separated group 2>
 \end{lstlisting}
 \normalsize
 
-\subsection{Strictly no allele sharing between 2 populations}
+\subsubsection{Strictly no allele sharing between 2 populations}
 \noindent This will filter sites where individuals in population group 1 strickly do not share any allele with individual in population group 2.
 It requires that the allele count for every individual for both groups be non-zero.
 Please remember that this will exclude any hetezygous sites
 
 \small
 \begin{lstlisting}
-glactools snosharing  [ACF file] [comma separated group 1] [comma separated group 2]
+glactools snosharing  <ACF file> <comma separated group 1> <comma separated group 2>
 \end{lstlisting}
 \normalsize
 
-\section{Computations}
 
 
-\subsection{Site frequency spectrum}
+\subsection{File operations}
 
-\noindent This program will print the number of observed alleles for the reference and alternative alleles.
+\subsubsection{Concatenate}
+\noindent This program concatenates many files where the header is found in the first file and does not use the headers from the remaining ones. It prints to the /dev/stdout.
 
 \begin{lstlisting}
-glactools freqSpec <options> [mistar file]
+glactools cat [options] <glf file1> <glf file2> .. 
+\end{lstlisting}
+
+\subsubsection{Intersect 2 or more files on chromosome/coordinate}
+
+\noindent This program will print the intersection (when all sites are defined) of the ACF/GLF files to stdout, it will skip triallelic sites.
+
+\begin{lstlisting}
+glactools intersect <ACF/GLF file 1> <ACF/GLF file 2> ...
+\end{lstlisting}
+
+\subsubsection{Unite 2 or more files on chromosome/coordinate}
+
+\noindent This program will print the union (when any site is defined) of the ACF/GLF files to stdout, it will skip triallelic sites.
+
+\begin{lstlisting}
+glactools union [options] <ACF/GLF file 1> <ACF/GLF file 2> ...
+\end{lstlisting}
+
+
+\subsubsection{Substitute header}
+\noindent This program will used the header the user specifies and prints to the /dev/stdout. This is more for advanced users as you change the behavior of the program.
+
+\begin{lstlisting}
+glactools reheader [options] <glac file> <text file>
+\end{lstlisting}
+
+
+
+\subsection{Populations operation}
+
+\subsubsection{Take a subset of populations}
+
+\noindent This will keep only the population specified in the list. Please note that it will set the alternative allele to 'N' if no population has the alternative allele
+
+\begin{lstlisting}
+glactools   popsub <ACF/GLF file> <comma separated group to keep>
+\end{lstlisting}
+
+\subsubsection{Remove populations}
+
+\noindent This will remove the population specified in the list. Please note that it will set the alternative allele to 'N' if no population has the alternative allele
+
+\begin{lstlisting}
+glactools removepop <ACF/GLF file> <comma separated group to remove>
+\end{lstlisting}
+
+
+
+\subsubsection{Merge two populations as one}
+
+\noindent This program will merge/meld different specified populations into a single one. You 
+
+\small
+\begin{lstlisting}
+glacmeld [options] <glac file> "popToMerge1_to_1,popToMerge2_to_1,...." "newid1" "popToMerge1_to_2,popToMerge2_to_2,...." "newid2"
+\end{lstlisting}
+\normalsize
+
+Example of usage:
+\small
+\begin{lstlisting}
+glactools meld data.acf.gz "Papuan,Austalian" "Oceanians" > dataOceanians.acf.gz
+\end{lstlisting}
+\normalsize
+
+\subsubsection{Rename populations}
+
+\noindent This program will rename different populations.
+
+\small
+\begin{lstlisting}
+glactools rename [options] <ACF file> "oldpopname1,oldpopname2,..." "newpopname1,newpopname2,..."  
+\end{lstlisting}
+\normalsize
+
+Example of usage:
+\begin{lstlisting}
+glactools rename  data.acf.gz "Papuan,Austalian" "Oceanians1,Oceanians2"
+\end{lstlisting}
+
+
+
+\subsubsection{Use population as root and ancestor}
+
+\noindent This program will use specified populations as root and ancestor and produce records with only those two populations. This program is especialyl useful with ``replaceanc''.
+
+\begin{lstlisting}
+glactools usepopsrootanc [options] <glac file> <pop to use as root> <pop to use as anc>
+\end{lstlisting}
+
+
+\subsubsection{Replace ancestor}
+
+\noindent This program will print the first ACF/GLF file but with the ancestral information from the second one to STDOUT. Can be combined with usepopsrootanc.
+
+\begin{lstlisting}
+glactools replaceanc [options] <GLAC file1>  <GLAC file2>
+\end{lstlisting}
+
+
+
+
+\newpage
+
+\section{Computations}
+
+This section describes computation operations that can be done on ACF/GLF files and will produce some type of information on the console.
+
+
+
+\subsection{Basic file stats}
+
+ This program will compute very basic stats on the file (\# of seg sites, TS/TV)
+
+\begin{lstlisting}
+glactools stats <ACF|GLF file>
+\end{lstlisting}
+
+
+\subsection{Stats from the index}
+
+\noindent This program will provide stats using the index file as to how many records are present on each chromosome:
+
+\begin{lstlisting}
+glactools idxstats <ACF|GLF file>
+\end{lstlisting}
+
+
+\subsection{Population genetics/genomics}
+
+\subsubsection{Site frequency spectrum}
+
+This program will print the number of observed alleles for the reference and alternative alleles.
+
+\begin{lstlisting}
+glactools freqSpec [options] <ACF file>
 \end{lstlisting}
 
 \subsection{Closest sites}
 
-\noindent This program will print to stdout the distance to the closest site for each record.
+\noindent This program will print to STDOUT the distance to the closest site for each record.
 
 \begin{lstlisting}
-glactools closest <options> [mistar file]
+glactools closest [options] <ACF/GLF file>
 \end{lstlisting}
+
+
+
+
 
 
 \subsection{Compute summary stats}
@@ -535,241 +731,105 @@ glactools closest <options> [mistar file]
 \noindent This program will compute summary stats for population genetics:
 
 \begin{lstlisting}
-glactools compute -p [program] [ACF file]
+glactools compute -p <program> <ACF file>
 \end{lstlisting}
 
-As of now [program] can be paircoacompute and dstat.
+As of now <program> can be ``paircoacompute'' and ``dstat''.
 
 
 
-\subsection{Basic file stats}
 
-\noindent This program will compute basic stats on the file
 
-\begin{lstlisting}
-glactools compute -p [program] [ACF|GLF file]
-\end{lstlisting}
 
-\section{File transformations }
 
-\subsection{Concatenate }
-\noindent This program concatenates many files where the header is found in the
-first file and does not use the headers from the remaining ones
-It prints to the /dev/stdout
-\begin{lstlisting}
-glactools cat [options] <glf file1> <glf file2> .. 
-\end{lstlisting}
 
-\subsection{Intersect 2 or more files on chromosome/coordinate}
 
-\noindent This program will print the intersection (when all sites are defined) of the ACF/GLF files to stdout, it will skip triallelic sites.
 
-\begin{lstlisting}
-glactools intersect [ACF/GLF file 1] [ACF/GLF file 2] ...
-\end{lstlisting}
 
-\subsection{Unite 2 or more files on chromosome/coordinate}
 
-\noindent This program will print the union (when any site is defined) of the ACF/GLF files to stdout, it will skip triallelic sites.
 
-\begin{lstlisting}
-glactools union <options> [ACF/GLF file 1] [ACF/GLF file 2] ...
-\end{lstlisting}
 
 
-STOPPED HERE, REMEMBERR to CHANGE MISTAR FOR GLAC AND '[' for '<'
 
-\subsubsection{popsub}
+%\subsection{Unique of union}
 
-\noindent This will keep only the population specified in the list. Please note that it will set the alternative allele to 'N' if no population has the alternative allele
+%\noindent This program will print the unique union of the glac files to stdout. Used to merge the same files from different filters.
 
-\begin{lstlisting}
-mistarfilter   popsub [mistar file] [comma separated group to keep]
-\end{lstlisting}
+%\begin{lstlisting}
+%uniq [glac file 1] [glac file 2] ...
+%\end{lstlisting}
 
-\subsubsection{removepop}
 
-\noindent This will remove the population specified in the list.Please note that it will set the alternative allele to 'N' if no population has the alternative allele
 
-\begin{lstlisting}
-mistarfilter removepop [mistar file] [comma separated group to remove]
-\end{lstlisting}
 
-TODO
-%popsub       &   Keep a subset of the populations \\
-%removepop    &   Remove a subset of the populations \\
 
 
-
-\subsection{Meld two populations}
-
-\noindent This program will merge different specified populations into a single one. You 
-
-\small
-\begin{lstlisting}
-mistarmeld  <options> [mistar file zipped] "popToMerge1,popToMerge2,.." "newid"
-\end{lstlisting}
-\normalsize
-
-Example of usage:
-\begin{lstlisting}
-mistarmeld data.mst.gz "Papuan,Austalian" "oceanians"
-\end{lstlisting}
-
-
-\subsection{Rename populations}
-
-\noindent This program will rename different specified populations.
-
-\small
-\begin{lstlisting}
-mistarRenamePop <options> [mistar file] "popOldName1,popOldName2,..." "popNewName1,popNewName2,..."
-\end{lstlisting}
-\normalsize
-
-Example of usage:
-\begin{lstlisting}
-mistarRenamePop data.mst "Papuan,Austalian" "Oceanians1,Oceanians2"
-\end{lstlisting}
-
-
-
-\subsection{Unique of union}
-
-\noindent This program will print the unique union of the mistar files to stdout. Used to merge the same files from different filters.
-
-\begin{lstlisting}
-mistaruniq [mistar file 1] [mistar file 2] ...
-\end{lstlisting}
-
-
-\subsection{replace ancestor}
-
-\noindent This program will print the first mistar file but with the ancestral information from the second one to stdout.
-
-\begin{lstlisting}
-replaceAncestor [mistar file 1] [mistar file 2]
-\end{lstlisting}
-
-
-\subsection{use population as root and ancestor}
-
-\noindent This program will use specified populations as root and ancestor and produce lines with only those two populations.
-
-\begin{lstlisting}
-usePopAsRootAnc <options> [mistar file] "poproot" "popanc"
-\end{lstlisting}
-
-
-
-\section{Statistics}
-
-
-
-\subsection{Summary statistics}
-
-\noindent This program takes a mistar matrix and prints some how many lines it has.
-\begin{lstlisting}
-mistarstats  <options> [mistar file]
-\end{lstlisting}
-
-
-\subsection{Relationships between individuals}
-
-
-\subsubsection{Neighbor joining tree}
-
-Compute a neighbor-joining tree using the mistar file.
-
-\begin{lstlisting}
-mistarcompute nj  <options> [mistar file]
-\end{lstlisting}
-
-\subsubsection{Pairwise average coalescence}
-
-To compute pairwise average coalescence.
-\begin{lstlisting}
-mistarcompute paircoacompute  <options> [mistar file]
-\end{lstlisting}
-
-\subsubsection{Pairwise nucleotide differences}
-
-To compute pairwise nucleotide differences.
-\begin{lstlisting}
-mistarcompute pairdiff <options> [mistar file]
-\end{lstlisting}
-
-\subsubsection{D-statistics}
-To compute triple-wise D-statistics
-\begin{lstlisting}
-mistarcompute dstat <options> [mistar file]
-\end{lstlisting}
-
+\newpage
 
 \section{Exporting data}
-\subsection{To treemix}
+\subsection{To BED}
 
-To print treemix input.
+To print an GLF/ACF as BED but where contiguous regions have been merged.
 \begin{lstlisting}
-mistar2treemix <options> [mistar file]
+glactools glac2bed  [options] <ACF/GLF file>
 \end{lstlisting}
 
-\subsection{To allele matrix}
-
-\noindent This program produces a matrix where each record for population becomes a single allele {A,C,G,T}.
-\begin{lstlisting}
-mistar2AlleleMatrix  [mistar file]
-\end{lstlisting}
-
-
-\subsection{To binary allele matrix}
-
-\noindent This program takes a mistar matrix and prints the alleles as a binary matrix (0=ancestral,1=derived)
-
-\begin{lstlisting}
-mistar2binary <options> [mistar file] [comma separated group]
-\end{lstlisting}
 
 \subsection{To binary PLINK}
 
-\noindent This program takes a mistar matrix and prints the genotype and SNP file in PLINK format
+\noindent This program takes an ACF file and prints the genotype and SNP file in PLINK format
 
 \tiny
 \begin{lstlisting}
-mistar2BinaryPLINK <options> [mistar file] [out (.bed)] [out (.bim)] [out SNP file (.fam)]
+glactools acf2bplink  [options] <ACF file> [out prefix]
 \end{lstlisting}
 \normalsize
 
-\subsection{To EIGENSTRAT}
-\noindent This program takes a mistar matrix and exports the data in EIGENSTRAT.
-\tiny
-\begin{lstlisting}
-mistar2EIGENSTRAT <options> [mistar file] [out genotype file (.geno)] [out SNP file (.snp)] [out SNP file (.ind)]
-\end{lstlisting}
-\normalsize
+\subsection{To FASTA}
 
-\subsection{To fasta}
-\noindent This program takes a mistar matrix and exports the data in EIGENSTRAT.
-\tiny
-\begin{lstlisting}
-mistar2EIGENSTRAT <options> [mistar file] [out genotype file (.geno)] [out SNP file (.snp)] [out SNP file (.ind)]
-\end{lstlisting}
-\normalsize
-\subsection{To fasta}
-
-\noindent This program takes a mistar matrix and prints a FASTA file using the allele information with one record per population. Each site generates one base pair.
+\noindent This program takes an ACF file and prints a FASTA file using the allele information with one record per population. Each site generates one base pair.
 
 \begin{lstlisting}
-mistar2fasta <options> [mistar file] 
+glactools acf2fasta  [options] <ACF file>
 \end{lstlisting}
+
+
+\subsection{To G-PhoCS}
+
+\noindent This program takes an ACF file and prints G-Phocs output given a certain range specified in a BED file.
+
+\begin{lstlisting}
+glactools acf2ghocs  [options]  <ACF file> <bedfile>
+\end{lstlisting}
+
+We recommend using glac2gphocsWrapper.pl is this automates the process and calls ``glac2bed'' for you.
 
 \subsection{To NEXUS}
 
-\noindent This program takes a mistar matrix and prints the alleles in nexus format.
+\noindent This program takes an ACF matrix and prints the alleles in NEXUS format.
 
 \begin{lstlisting}
-mistar2nexus <options> [mistar file]
+glactools acf2nexus [options] <ACF file> 
 \end{lstlisting}
+
+\subsection{To EIGENSTRAT}
+\noindent This program takes an ACF file and exports the data in EIGENSTRAT.
+\tiny
+\begin{lstlisting}
+glactools acf2eigenstrat  [options] <ACF file> [out prefix]
+\end{lstlisting}
+\normalsize
+
+\subsection{To Treemix}
+
+To print Treemix input.
+\begin{lstlisting}
+glactools acf2treemix  [options] <ACF file>
+\end{lstlisting}
+
+
+
+
 
 
 %\lipsum
