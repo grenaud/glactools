@@ -234,10 +234,10 @@ int T3andme2ACF::run(int argc, char *argv[]){
 
 
     string line;
-    bool hasData= getline (myfile,line);
+    bool hasData= (bool)getline (myfile,line);
     while (hasData ){
 	if(strBeginsWith(line,"#")){
-	    hasData = getline (myfile,line);
+	    hasData = (bool)getline (myfile,line);
 	    continue;
 	}
 	 
@@ -499,7 +499,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
 	}
         nextline:
         
-        hasData = getline (myfile,line);
+        hasData = (bool)getline (myfile,line);
 	
     }
 
