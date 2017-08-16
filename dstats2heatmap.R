@@ -5,11 +5,24 @@ library("gplots");
 library("reshape2");
 
 args=(commandArgs(TRUE))
-#paircoacompute2barplot [dstat file] [sample source] [pdf out prefix] [pdf size]
+#dstats2heatmap [dstat file] [sample source] [pdf out prefix] [pdf size]
 #write 10 as size to start with
 
 #print("reading data");
-data <- read.table(args[1],header=FALSE);
+
+
+#finding end of file
+
+cmd1<-paste("grep -n  \"^$\" ",args[1]," |tail -1 |sed \"s/://g\" ",sep="");
+linenumber <- system(cmd1, intern = TRUE)
+tmpf<-tempfile();
+cmd2<-paste("awk '{if(NR>",linenumber,"){print $0}}' ",args[1]," > ",tmpf);
+system(cmd2);
+data <- read.table(tmpf,header=FALSE);
+
+
+
+
 #print("individuals found");
 t1<-gsub("-([0-9][0-9]?)$","_\\1",data$V1)
 t2<-gsub("-([0-9][0-9]?)@","_\\1@",t1)
@@ -23,9 +36,6 @@ ind1<-l[c(TRUE, FALSE,FALSE)]
 ind2<-l[c(FALSE,TRUE, FALSE)]
 indS<-l[c(FALSE,FALSE,TRUE) ]
 
-
-
-
 m<-as.matrix(data)
 #m[lower.tri(m)] <- NA
 
@@ -36,9 +46,6 @@ dat<-dat[dat$V3==args[2],]
 
 cols = seq(3,length(dat)-2);
 dat[,cols] = apply(dat[,cols], 2, function(x) as.numeric(x));
-
-
-
 
 
 val<-acast(dat, V1~V2, value.var="V34")
@@ -56,19 +63,32 @@ valmax<- round(valmax,2)
 my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
 
 #val[lower.tri(val)] <- NA
+#print(as.integer(args[4]));
+#print(par("mar"));
+par(mar=c(0,0,0,0))
+#print(par("mar"));
+
 
 pdf(paste(args[3],"heat.pdf",sep=""),width = as.integer(args[4]), height = as.integer(args[4]))
 #png("filename.png",width=2000,height=800)
 #pdf("filename.pdf",width=24,height=8)
+par(cex.main=3)
+#par(cex.axis=3)
+
 
 p<-heatmap.2(val,
   cellnote = val,  # same data set for cell labels
+  notecex = 2.0,
+  cexRow =2.0,
+  cexCol =2.0,
+
   main = paste("Dstatistics using source ",args[2],sep=""), # heat map title
   notecol="black",      # change font color of cell labels to black
   density.info="none",  # turns off density plot inside color legend
   trace="none",         # turns off trace lines inside the heat map
-  margins =c(12,9),     # widens margins around plot
+  margins =c(4,4),     # widens margins around plot
   col=my_palette,       # use on color palette defined earlier
+             
           #breaks=col_breaks,    # enable color transition at specified limits
   dendrogram="none",     # only draw a row dendrogram
   key=FALSE, 
@@ -76,24 +96,38 @@ p<-heatmap.2(val,
           Rowv="NA",
              lwid=c(0.1,4), lhei=c(0.1,0.4)
           )            # turn off column clustering
+
 dev.off();
 
+
+#print(as.integer(args[4]));
+
+
+par(mar=c(0,0,0,0))
+#print(par("mar"));
 
 pdf(paste(args[3],"reorderheat.pdf",sep=""),width = as.integer(args[4]), height = as.integer(args[4]))
 #png("filename.png",width=2000,height=800)
 #pdf("filename.pdf",width=24,height=8)
+par(cex.main=3)
 
 p<-heatmap.2(val,
   cellnote = val,  # same data set for cell labels
-  main = paste("Dstatistics using source ",args[2],sep=""), # heat map title
+  notecex = 2.0,
+  cexRow =2.0,
+  cexCol =2.0,
+
+             main = paste("Dstatistics using source ",args[2],sep=""), # heat map title
   notecol="black",      # change font color of cell labels to black
   density.info="none",  # turns off density plot inside color legend
   trace="none",         # turns off trace lines inside the heat map
-  margins =c(12,9),     # widens margins around plot
+  margins =c(4,4),     # widens margins around plot
   col=my_palette,       # use on color palette defined earlier
           #breaks=col_breaks,    # enable color transition at specified limits
   dendrogram="none",     # only draw a row dendrogram
   key=FALSE, 
              lwid=c(0.1,4), lhei=c(0.1,0.4)
           )            # turn off column clustering
+
+
 dev.off();

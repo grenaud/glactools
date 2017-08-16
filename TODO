@@ -7,9 +7,8 @@
 
 
 
-ac2gphocsWrapper.pl 
-addghostPopgphocs.pl 
-intersectSplitChr.pl 
+
+add a intersectSplitChr.pl 
 
 dstats2heatmap.R 
 dstats2pdf.R 

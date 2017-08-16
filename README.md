@@ -52,6 +52,28 @@ Installation
 
 4) (optional) Either put the executable in the overall path or add the path to your $PATH environment or add an alias to be able to call "glactools" from any directory.
 
+Quick start
+-----------------
+If you are impatient, download some ACF and GLF data:
+
+     wget -O 2arch3modern.acf.gz https://www.dropbox.com/s/n4su20ghlb3jqni/2arch3modern.acf.gz?dl=0
+     wget -O YorubaB.glf.gz https://www.dropbox.com/s/w9af2n6mr9nafw8/YorubaB.glf.gz?dl=0
+
+The first file contains chromosome 21 from 2 archaic homins and 3 modern humans. The second are the genotype likelihoods for a Yoruba individual.
+
+You can now view the first lines:
+     glactools view 2arch3modern.acf.gz |head -n 20 
+     glactools view YorubaB.glf.gz       |head -n 20 
+
+You can index them:
+     glactools index 2arch3modern.acf.gz
+     glactools index YorubaB.glf.gz       
+
+You can view a chunk:
+     glactools view  2arch3modern.acf.gz       21:9675190-9675199 
+     glactools view  YorubaB.glf.gz            21:9560830-9560840
+
+     
 
 Documentation
 -----------------

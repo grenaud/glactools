@@ -3,15 +3,24 @@
 library("ggplot2");
 
 args=(commandArgs(TRUE))
-#paircoacompute2barplot [mst file] [samples to include, comma delim] [ancient samples to exclude, comma delim] [pdf out]
+#paircoacompute2barplot [output pairwise coa] [samples to include, comma delim] [ancient samples to exclude, comma delim] [pdf out]
 
 
-print(args[1]);
-print(args[2]);
-print(args[3]);
-print(args[4]);
+#print(args[1]);
+#print(args[2]);
+#print(args[3]);
+#print(args[4]);
 
-data <- read.table(args[1],header=FALSE);
+
+
+cmd1<-paste("grep -n  \"^$\" ",args[1]," |tail -1 |sed \"s/://g\" ",sep="");
+linenumber <- system(cmd1, intern = TRUE)
+tmpf<-tempfile();
+cmd2<-paste("awk '{if(NR>",linenumber,"){print $0}}' ",args[1]," > ",tmpf);
+system(cmd2);
+data <- read.table(tmpf,header=FALSE);
+
+#data <- read.table(args[1],header=FALSE);
 t1<-gsub("-([0-9][0-9]?)$","_\\1",data$V1)
 t2<-sub("-([0-9][0-9]?)-","_\\1-",t1)
 

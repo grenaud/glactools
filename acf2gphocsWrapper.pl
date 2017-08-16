@@ -56,9 +56,9 @@ sub usage
   print "\n\n
  This script is a wrapper to convert ACF files into the seq format
  of g-phocs. Normally, you have to run acf2gphocs using a bed file
- of regions to consider. This script finds these regions.
+ of regions to consider. This script finds these continuous regions.
 
-\n\n usage:\t".$0." <options> [acf file] \n\n".
+\n\n usage:\t".$0." <options> [ACF file] \n\n".
 
 " Options:\n".
 
@@ -87,23 +87,23 @@ my @arraycwd=split("/",abs_path($0));
 pop(@arraycwd);
 my $pathdir = join("/",@arraycwd);
 
-my $glactools         = $pathdir."/glactools";
-fileExistsExec($glactools);
-
-
-
+my $acf2bed        = $pathdir."/glactools acf2bed";
+my $acf2gphocs     = $pathdir."/glactools acf2gphocs";
 my $inputACFfile      = $ARGV[ $#ARGV  ];
 
-
+#fileExistsExec($acf2bed);
+#fileExistsExec($acf2gphocs);
+fileExists($inputACFfile);
 
 my $cmd;
 
+#call acf2bed
 
 
 
 
 
-$cmd=$glactools." glac2bed ".$inputACFfile." ";
+$cmd=$acf2bed." ".$inputACFfile." ";
 
 #detect mergeBed
 my $cmdmergebeddetect="which mergeBed";
@@ -135,7 +135,7 @@ runcmd($cmd);
 #running acf2phocs
 my $outputftemp=$outputf."_";
 
-$cmd = $glactools." acf2gphocs ";
+$cmd = $acf2gphocs;
 if($allowCpg){
   $cmd = $cmd." --allowCpg ";
 }

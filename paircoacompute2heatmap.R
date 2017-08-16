@@ -5,9 +5,19 @@ library("gplots");
 library("reshape2");
 
 args=(commandArgs(TRUE))
-#paircoacompute2barplot [mst file] [samples to include, comma delim] [pdf out prefix] [pdf size]
+#paircoacompute2heatmap.R [output pairwise coa] [samples to include, comma delim] [pdf out prefix] [pdf size]
 
-data <- read.table(args[1],header=FALSE);
+
+
+
+cmd1<-paste("grep -n  \"^$\" ",args[1]," |tail -1 |sed \"s/://g\" ",sep="");
+linenumber <- system(cmd1, intern = TRUE)
+tmpf<-tempfile();
+cmd2<-paste("awk '{if(NR>",linenumber,"){print $0}}' ",args[1]," > ",tmpf);
+system(cmd2);
+data <- read.table(tmpf,header=FALSE);
+
+#data <- read.table(args[1],header=FALSE);
 #data <- read.table("paircoa/15302_15304_cteam.mst.gz_all.noundef.div.gz",header=FALSE);
 t1<-gsub("-([0-9][0-9]?)$","_\\1",data$V1)
 t2<-sub("-([0-9][0-9]?)-","_\\1-",t1)

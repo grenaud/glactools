@@ -10,6 +10,8 @@
 %\usepackage{ifthen}
 \usepackage{lipsum}
 \usepackage{afterpage}
+\usepackage{graphicx}
+
 % ifthen wird vom Bild von N.Beebe gebraucht!
 
 \def\bs{\char'134 } % backslash in \tt font.
@@ -38,6 +40,45 @@ gabriel [dot] reno [at]  gmail.com}
 \makeindex 
 
 %\setcounter{tocdepth}{2}
+
+
+\usepackage{filecontents}
+\begin{filecontents}{bibli.bib}
+@article{prufer2010computational,
+  title={Computational challenges in the analysis of ancient {D}{N}{A}},
+  author={Pr{\"u}fer, Kay and Stenzel, Udo and Hofreiter, Michael and P{\"a}{\"a}bo, Svante and Kelso, Janet and Green, Richard E},
+  journal={Genome {B}iology},
+  volume={11},
+  number={5},
+  pages={R47},
+  year={2010},
+  publisher={BioMed Central Ltd}
+}
+
+@article{wilson1927probable,
+  title={Probable inference, the law of succession, and statistical inference},
+  author={Wilson, Edwin B},
+  journal={{J}ournal of the {A}merican {S}tatistical {A}ssociation},
+  volume={22},
+  number={158},
+  pages={209--212},
+  year={1927},
+  publisher={Taylor \& Francis Group}
+}
+
+@article{patterson2012ancient,
+  title={{A}ncient admixture in human history},
+  author={Patterson, Nick and Moorjani, Priya and Luo, Yontao and Mallick, Swapan and Rohland, Nadin and Zhan, Yiping and Genschoreck, Teri and Webster, Teresa and Reich, David},
+  journal={Genetics},
+  volume={192},
+  number={3},
+  pages={1065--1093},
+  year={2012},
+  publisher={Genetics Soc America}
+}
+
+\end{filecontents}
+\usepackage{natbib}
 
 \begin{document}
 
@@ -734,19 +775,118 @@ glactools closest [options] <ACF/GLF file>
 glactools compute -p <program> <ACF file>
 \end{lstlisting}
 
-As of now <program> can be ``paircoacompute'' and ``dstat''.
+As of now <program> can be: ``paircoacompute'' and ``dstat''. See further details in the subsections below.
+
+These programs usually separate results into the following categories:
+
+\begin{tabular}{c|c}
+{\bf category}  & {\bf meaning} \\
+\hline
+all            &  all sites \\
+onlyCpg        & restricted to CpG sites \\
+noCpg          & remove CpG sites from the calculations \\
+transitions    & restrict to transitions \\
+transversions  & restrict to transversions \\
+noDamage       & remove sites the ancestral->derived is either C->T or G->A \\
+\hline
+\end{tabular}
 
 
 
+\subsubsection{Pairwise coalescence}
+
+``glaccompute'' offers the possibility to compute the average coalescence (see \cite{prufer2010computational}) for all pairs of individuals. For any bi-allelic segregating site for which the ancestral allele is available and where one or both individuals of a pair carry the derived variant (DD), this derived change can be traced back to a given lineage (see Supplemental Figure \ref{fig:div}). If either one of the individuals carries the derived allele but the other still carries the ancestral (DA or AD), it is more likely to have arisen in the lineage specific to that individual. For the first individual, the average coalescence is computed as such: 
+
+\[
+\frac { DA} { DA+DD }
+\]
+
+\noindent and for the second individual:
+
+\[
+\frac {AD} { AD+DD }
+\]
+
+Average coalescence for an individual measures the fraction of sites that coalesce after the split from the other individual. An average coalescence of 100\% indicates a complete absence of shared alleles between two samples whereas a coalescence of 0\% means that both individuals are identical at segregating sites. Confidence intervals for the average coalescence for a given window are obtained  with a Wilson score interval (see \cite{wilson1927probable}). Let $\hat{p}$ be the computed average coalescence and $n$ the denominator from either of the average coalescence expressions above and let $z$ be error percentile score. The confidence on the measure is expressed by:
+
+
+\[
+\frac{  \hat{p} + \frac {z^2} {2n} \pm z \cdot \sqrt {  \frac {\hat{p}*(1-\hat{p})+ \frac {z^2} {4n} } {n} }} {1+ \frac {z^2} {n} }
+\]
+
+\begin{figure}[!tpb]%figure1
+  \centerline{\includegraphics[width=0.5\textwidth,natwidth=510,natheight=542]{coasnowhite.eps}}
+\caption{
+While conditioning on bi-allelic segregating sites, glactools can compute the fraction of such sites that coalesce in the common lineage. If both individuals carry the derived allele, it is likely to coalesce in the common branch. The average coalescence for a given individual attempts to measure the fraction of sites that coalesce in the lineage specific to that individual.}
+\label{fig:div}
+\end{figure}
+
+%\clearpage
+
+The results are reported for each window. The last ``window'' are all the data with bootstraps. Each window contains the following category: all, onlyCpg, noCpg, transitions, transversions, noDamage.\\
+
+Each category contains: absence of mutation ($AA$), mutation in the common branch ($DD$), mutation in branch for individual \#1 ($DA$), mutation in branch for individual \#2 ($AD$), $\frac { DA} { DA+DD }$, lower bound for $\frac { DA} { DA+DD }$, higher bound for $\frac { DA} { DA+DD }$, $\frac { AD} { AD+DD }$, lower bound for $\frac { AD} { AD+DD }$, higher bound for $\frac { AD} { AD+DD }$. If this is the last window with all the data with bootstraps, it also contains the mean from bootstraps, the standard deviation, $Z$ score.
+
+
+To plot the output, 2 R scripts are available, one to make barplots:
+
+\begin{lstlisting}
+paircoacompute2barplot.R [output pairwise coa] [samples to include, comma delim] [ancient samples to exclude, comma delim] [pdf out]
+\end{lstlisting}
+
+another to make a heatmap:
+\begin{lstlisting}
+paircoacompute2heatmap.R [output pairwise coa] [samples to include, comma delim] [pdf out prefix] [pdf size]
+\end{lstlisting}
+
+You might have to tweek the fonts and margins. If you get a margin problem, use a large pdf size (e.g. 20).
+
+
+\subsubsection{D-statistics}
+
+
+In the previous section, we focused on sites where an allele could be parsimoniously traced to a given lineage. However, given three individuals where a third falls outside of the variation of the first two, there are cases where derived mutations in this third individual cannot be parsimoniously traced to a specific lineage 2 (see Figure \ref{fig:dstat}). More precisely, there are two possibilities: if the ind\#1 carries the derived allele but the other does not (DADA) or vice-versa (ADDA). In practice, such cases occur due to the existence of both alleles in both populations but where one was not sampled. However, in the absence of admixture or substructure, both cases are expected to occur with equal frequency. If admixture occurred between the third individual (labeled ``source'' in Figure \ref{fig:dstat}) and one of the first two (either ind\#1 or ind\#2), more derived alleles will be seen in that individual. The D-statistic (see \cite{patterson2012ancient}) attempts to measure imbalance between both cases by computing the following ratio:
+
+
+\[
+D= \frac {ADDA-DADA} {ADDA+DADA}
+\]
+
+
+If the result is close to 0, this can indicate a lack of greater proximity of one of the two individuals to the third one. To obtain a confidence score, we compute the D-statistics for bootstrap sets and compute the average D-statistics  ($\mu_{D_{boot}}$)) and the standard deviation ($\sigma_{D_{boot}}$). To assess the confidence score  we use the standard score ($Z$ ) as such:
+
+\[
+Z = \frac { D - \mu_{D_{boot}}  } {\sigma_{D_{boot}}}
+\]
+
+
+\begin{figure}[!tpb]%figure1
+\centerline{\includegraphics[width=0.5\textwidth,natwidth=510,natheight=542]{dstatnowhite.eps}}
+\caption{Given gene flow, a certain individual will carry a greater proportion of derived alleles from the potential source.}
+\label{fig:dstat}
+\end{figure}
+
+%\afterpage{\clearpage}
+%
+
+The results are reported for each window. The last ``window'' are all the data with bootstraps. Each window contains the following category: all, onlyCpg, noCpg, transitions, transversions, noDamage.\\
+
+Each category contains: absence of mutation in both individuals ($AA$), individual \#1 has the ancestral allele but \#2 has the derived  ($AD$), individual \#1 has the derived allele but \#2 has the ancestral  ($DA$), absence of mutation in both individuals ($DD$),  $\frac {ADDA-DADA} {ADDA+DADA}$. If this is the last window (all the data plus bootstraps), it will also report next to the D-stats, the mean from bootstraps, the standard deviation from bootstraps, $Z$ score.
 
 
 
+To plot the output, 2 R scripts are available, one to make barplots:
 
+\begin{lstlisting}
+dstats2pdf.R [dstat file] [output prefix pdf]
+\end{lstlisting}
 
+another to make a heatmap:
+\begin{lstlisting}
+dstats2heatmap.R [dstat file] [sample source] [pdf out prefix] [pdf size]
+\end{lstlisting}
 
-
-
-
+You might have to tweek the fonts and margins. If you get a margin problem, use a large pdf size (e.g. 20).
 
 
 
@@ -849,7 +989,8 @@ glactools acf2treemix  [options] <ACF file>
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+\bibliographystyle{plainnat}
+\bibliography{bibli.bib} 
 
 
 \end{document}

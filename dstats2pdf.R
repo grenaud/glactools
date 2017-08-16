@@ -7,7 +7,15 @@ args=(commandArgs(TRUE))
 #./dstats2pdf [dstat file] [output prefix pdf]
 
 
-data <- read.table(args[1]);
+
+cmd1<-paste("grep -n  \"^$\" ",args[1]," |tail -1 |sed \"s/://g\" ",sep="");
+linenumber <- system(cmd1, intern = TRUE)
+tmpf<-tempfile();
+cmd2<-paste("awk '{if(NR>",linenumber,"){print $0}}' ",args[1]," > ",tmpf);
+system(cmd2);
+data <- read.table(tmpf,header=FALSE);
+
+#data <- read.table(args[1]);
 outprefix<-args[2];
 
 
