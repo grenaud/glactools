@@ -18,7 +18,7 @@ system(cmd2);
 data <- read.table(tmpf,header=FALSE);
 
 #data <- read.table(args[1],header=FALSE);
-#data <- read.table("paircoa/15302_15304_cteam.mst.gz_all.noundef.div.gz",header=FALSE);
+
 t1<-gsub("-([0-9][0-9]?)$","_\\1",data$V1)
 t2<-sub("-([0-9][0-9]?)-","_\\1-",t1)
 

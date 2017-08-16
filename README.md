@@ -1,5 +1,5 @@
-==========================================================
-  glactools: a suite of utilities for the management of Genotype likelihoods and allele counts
+
+  glactools: command-line toolset for the management of Genotype Likelihoods and Allele Counts
 ==========================================================
 
 QUESTIONS :
@@ -9,7 +9,7 @@ QUESTIONS :
 About
 ----------------------
 
-glactools is a set of command-line tools for the management of Genotype likelihood (GL) and allele counts (AC).
+glactools is a set of command-line tools for the management of Genotype Likelihood (GL) and Allele Counts (AC).
 
 
 Description
@@ -25,6 +25,18 @@ glactools is a suite of utilities to:
 * index for rapid retrieval
 * compute summary statistics on those matrices. 
 * export genotype likelihood (GLF) or allele count (ACF) to various formats for population genetics applications (treemix,fasta,EIGENSTRAT,G-PhoCS,PLINK).
+
+
+
+Examples of uses
+----------------------
+
+glactools aims at allowing users to convert genetic data into an intermediate format (either GLF for genotype likelihoods or ACF for allele counts), perform operations and export to different format. This set of tools enables users to perform various tasks without knowledge of scripting, here are some examples:
+
+* Compute D-statistics but use the Gorilla from UCSC as the ancestral allele.
+* Retain sites in the human genome where a certain population has the ancestral allele and a different population has the derived allele.
+* Produce Treemix input using a mixture of BAM and VCF files using transversions only
+* Combine a BAM file from a single individual and 1000Genomes data to G-PhoCS or ADMIXTURE input
 
 
 
@@ -54,7 +66,7 @@ Installation
 
 Quick start
 -----------------
-If you are impatient, download some ACF and GLF data:
+For the impatients, you can download some ACF and GLF data:
 
      wget -O 2arch3modern.acf.gz https://www.dropbox.com/s/n4su20ghlb3jqni/2arch3modern.acf.gz?dl=0
      wget -O YorubaB.glf.gz https://www.dropbox.com/s/w9af2n6mr9nafw8/YorubaB.glf.gz?dl=0
@@ -62,18 +74,33 @@ If you are impatient, download some ACF and GLF data:
 The first file contains chromosome 21 from 2 archaic homins and 3 modern humans. The second are the genotype likelihoods for a Yoruba individual.
 
 You can now view the first lines:
+ 
      glactools view 2arch3modern.acf.gz |head -n 20 
      glactools view YorubaB.glf.gz       |head -n 20 
 
 You can index them:
+
      glactools index 2arch3modern.acf.gz
      glactools index YorubaB.glf.gz       
 
 You can view a chunk:
+
      glactools view  2arch3modern.acf.gz       21:9675190-9675199 
      glactools view  YorubaB.glf.gz            21:9560830-9560840
 
-     
+You can view the defline:
+ 
+     glactools view -h 2arch3modern.acf.gz |head -n 20 
+   
+or just view which populations are defined:
+ 
+     glactools view -p 2arch3modern.acf.gz 
+
+or view the full header:
+ 
+     glactools view -P 2arch3modern.acf.gz 
+
+The header is particularly useful as it defines which operations were used to produce this file.
 
 Documentation
 -----------------
@@ -102,68 +129,69 @@ We will download 5 different, single individual VCF files as testData:
 
 - Convert the VCF files to ACF files:
 
-    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/AltaiNea.hg19_1000g.21.mod.vcf.gz      AltaiNean    > testData/AltaiNean.acf.gz
-    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/DenisovaPinky.hg19_1000g.21.mod.vcf.gz Denisova     > testData/Denisova.acf.gz
-    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004468.hg19_1000g.21.mod.vcf.gz     FrenchB      > testData/FrenchB.acf.gz
-    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004475.hg19_1000g.21.mod.vcf.gz     YorubaB      > testData/YorubaB.acf.gz
-    ./glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004477.hg19_1000g.21.mod.vcf.gz     AustralianB  > testData/AustralianB.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/AltaiNea.hg19_1000g.21.mod.vcf.gz      AltaiNean    > testData/AltaiNean.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/DenisovaPinky.hg19_1000g.21.mod.vcf.gz Denisova     > testData/Denisova.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004468.hg19_1000g.21.mod.vcf.gz     FrenchB      > testData/FrenchB.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004475.hg19_1000g.21.mod.vcf.gz     YorubaB      > testData/YorubaB.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004477.hg19_1000g.21.mod.vcf.gz     AustralianB  > testData/AustralianB.acf.gz
 
 
 - glactools index them:
-    ./glactools index testData/AltaiNean.acf.gz
-    ./glactools index testData/Denisova.acf.gz
-    ./glactools index testData/FrenchB.acf.gz
-    ./glactools index testData/YorubaB.acf.gz
-    ./glactools index testData/AustralianB.acf.gz
+
+      glactools index testData/AltaiNean.acf.gz
+      glactools index testData/Denisova.acf.gz
+      glactools index testData/FrenchB.acf.gz
+      glactools index testData/YorubaB.acf.gz
+      glactools index testData/AustralianB.acf.gz
 
 - Create an intersection:
 
-    ./glactools intersect testData/AltaiNean.acf.gz testData/Denisova.acf.gz testData/AustralianB.acf.gz testData/FrenchB.acf.gz testData/YorubaB.acf.gz > testData/2arch3modern.acf.gz
+      glactools intersect testData/AltaiNean.acf.gz testData/Denisova.acf.gz testData/AustralianB.acf.gz testData/FrenchB.acf.gz testData/YorubaB.acf.gz > testData/2arch3modern.acf.gz
 
 These commands are found in testData/Makefile
 
 - Visualize the intersection:
 
-    ./glactools view    testData/2arch3modern.acf.gz |less -S # view data
-    ./glactools view -h testData/2arch3modern.acf.gz |less -S # view data+defline
-    ./glactools view -H testData/2arch3modern.acf.gz |less -S # view data+full header
+      glactools view    testData/2arch3modern.acf.gz |less -S # view data
+      glactools view -h testData/2arch3modern.acf.gz |less -S # view data+defline
+      glactools view -H testData/2arch3modern.acf.gz |less -S # view data+full header
 
 
 - Merge the modern humans and archaic as one population:
 
-     ./glactools meld -u testData/2arch3modern.acf.gz   "AltaiNean,Denisova" "Archaics"  |./glactools meld /dev/stdin   "AustralianB,FrenchB,YorubaB" "Modern"  > testData/all.merged.acf.gz
+      glactools meld -u testData/2arch3modern.acf.gz   "AltaiNean,Denisova" "Archaics"  |./glactools meld /dev/stdin   "AustralianB,FrenchB,YorubaB" "Modern"  > testData/all.merged.acf.gz
 
 - Get basic statistics:
      
-     ./glactools stats testData/2arch3modern.acf.gz
+      glactools stats testData/2arch3modern.acf.gz
 
 - Index the file
      
-     ./glactools index testData/2arch3modern.acf.gz
+      glactools index testData/2arch3modern.acf.gz
 
 - View a genomic region:
 
-     ./glactools view testData/2arch3modern.acf.gz 21:25098220-25098230
+      glactools view testData/2arch3modern.acf.gz 21:25098220-25098230
 
 - View an entire chromosome:
 
-     ./glactools view testData/2arch3modern.acf.gz 21
+      glactools view testData/2arch3modern.acf.gz 21
 
 - Visualize sites where the archaics hominin and modern ones differ:
 
-     ./glactools snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern" |./glactools view - 
+      glactools snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern" |./glactools view - 
 
 - Visualize sites where the archaics hominin and modern ones differ and the archaic is ancestral and the modern humans are derived:
 
-     ./glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Archaics"|./glactools view -
+      glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Archaics"|./glactools view -
 
 - Visualize sites where the archaics hominin and modern differ and the archaic is derived and the modern humans are ancestral:
 
-     ./glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Modern"|./glactools view - 
+      glactools  snosharing -u testData/all.merged.acf.gz "Archaics"  "Modern"  | ./glactools sharing -u /dev/stdin  "root" "Modern"|./glactools view - 
 
 - Export to treemix:
 
-     ./glactools acf2treemix testData/2arch3modern.acf.gz    |gzip > testData/all.treemix.gz
+      glactools acf2treemix testData/2arch3modern.acf.gz    |gzip > testData/all.treemix.gz
 
 
 Problems/feature request
@@ -177,6 +205,8 @@ Tips
 ----------------------
 
 * when working with VCF files called from bcftools call, make sure that the -v option is not used because this will only print variable sites. If you use GATK, make sure you output every site using --output_mode EMIT_ALL_SITES.
+* Do not store ACF/GLF in raw text, it is a waste of disk space.
+
 
 FAQ
 ----------------------
@@ -209,7 +239,11 @@ The root is an individual or population that is an outgroup to all other individ
 
 if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc"
 
-### Can galactose handle data coming from simulations?
+### Can glactools handle data coming from simulations?
 
-Yes, but I recommend using msprime as it can produce directly VCF output.  The one issue is that it does not,  as of this writing, combine individuals together and merely reports haploid data.
+Yes, but I recommend using msprime as it can produce directly VCF output.  The one issue is that it does not,  as of this writing, combine individuals together and merely reports haploid data. So one would need to modify the GT field accordingly.
+
+### Can glactools handle BCF?
+
+Yes, simply use "bcftools view" and pipe into glactools.
 
