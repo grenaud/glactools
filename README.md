@@ -27,6 +27,7 @@ glactools is a suite of utilities to:
 * compute summary statistics on those matrices. 
 * export genotype likelihood (GLF) or allele count (ACF) to various formats for population genetics applications (treemix,fasta,EIGENSTRAT,G-PhoCS,PLINK).
 
+![diagram](https://github.com/grenaud/glactools/raw/master/doc/diagram.png "Diagram")
 
 
 Examples of uses
