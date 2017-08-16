@@ -199,7 +199,7 @@ These commands are found in testData/Makefile
 Problems/feature request
 ----------------------
 
-If you have a Github account, I recommend that you create an issue. That way other users can see what you wrote comma comment on it and I can keep track of it more easily. I welcome pull requests!
+If you have a Github account, I recommend that you create an issue. That way other users can see what you wrote, comment on it and I can keep track of it more easily. I more than welcome pull requests!
 
 Otherwise, send me a mail gabriel [dot] reno [at sign here] gmail [dot] com
 
@@ -215,7 +215,7 @@ FAQ
 
 ### Why do I have a bunch of garbled characters printed on the terminal when I use glactools?
 
-glactools ALWAYS prints compressed binary. The only thing to modify is the ability to print as uncompressed binary (-u option), this is recommended when using UNIX pipes. However if you wish to view an ACF/GLF as a text file, simply use "glactools view"
+glactools **ALWAYS** prints compressed binary. The only thing to modify is the ability to print as uncompressed binary (-u option), this is recommended when using UNIX pipes. However if you wish to view an ACF/GLF as a text file, simply use "glactools view"
 
 ### why do you have data import from single VCF and multi VCF at the same time?
 
