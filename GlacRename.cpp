@@ -115,7 +115,7 @@ int GlacRename::run(int argc, char *argv[]){
     newheader<<"#PG:"<<programLine<<"\n";;
     newheader<<"#GITVERSION: "<<returnGitHubVersion(argv[-1],"")<<"\n";;
     newheader<<"#DATE: "<<getDateString()<<"\n";;
-    newheader<<"#RENAME:"<<oldnames<<" "<<newheader<<"\n";
+    newheader<<"#RENAME:"<<oldnames<<" "<<newnames<<"\n";
     newheader<<gp.getHeaderNoSQNoDefline("#\t")<<"\n";
     newheader<<gp.getHeaderSQ("")<<"\n";
     string         newDefline  = gp.getDefline();
