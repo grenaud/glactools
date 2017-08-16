@@ -259,7 +259,7 @@ int GlacSharing::run(int argc, char *argv[]){
 
 
 	if(!gw->writeAlleleRecord(arr)){
-	    cerr<<"GlacSegsite: error record "<<*arr<<endl;
+	    cerr<<"GlacSharing: error record "<<*arr<<endl;
 	    exit(1);
 	}
 	keptRecords++;
@@ -273,7 +273,7 @@ int GlacSharing::run(int argc, char *argv[]){
     delete(gw);
 
 
-    cerr<<"Program segsite wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully"<<endl;
+    cerr<<"Program sharing wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully"<<endl;
 
     return 0;
 }
