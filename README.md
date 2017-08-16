@@ -16,7 +16,7 @@ Description
 ----------------------
 
 glactools is a suite of utilities to:
-* convert various file formats (VCF,BAM,23andme) into genotype likelihood (GLF) or allele count (ACF) matrices. 
+* convert various file formats (VCF,BAM,23andme) into **genotype likelihood (GLF)** or **allele count (ACF)** matrices. 
   * GLF files contains genotype likelihoods for a single individual
   * ACF files contains allele counts for either a single individual or a group of individuals (population)
 * GLF/ACF contain both variant and invariant sites
