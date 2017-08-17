@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>glactools by grenaud</title>
+  </head>
+
+<!-- Start of StatCounter Code for Default Guide -->
+<script type="text/javascript">
+var sc_project=10524193; 
+var sc_invisible=1; 
+var sc_security="67c3d222"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><a title="shopify stats"
+href="http://statcounter.com/shopify/" target="_blank"><img
+class="statcounter"
+src="http://c.statcounter.com/10524193/0/67c3d222/1/"
+alt="shopify stats"></a></div></noscript>
+<!-- End of StatCounter Code for Default Guide -->
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>glactools</h1>
+        <h2> A set of programs for the management of allele counts and genotype likelihoods </h2>
+
+        <section id="downloads">
+          <a href="https://github.com/grenaud/glactools/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/grenaud/glactools/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/grenaud/glactools" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+
+	
+	<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+<p> Instalation instructions are found in the README, here is a quick video of how to install the package on Ubuntu with cmake installed and gcc version 4.7:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tPkFziDoLl4" frameborder="0" allowfullscreen></iframe>
+
+
+	<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Motivation</h3>
+
+<p>Analysis of nuclear genomes often involves combining genotyping information from various individuals or populations to compute summary statistics or exporting them to various file formats (EIGENSTRAT, PLINK, etc..). This is achieved by parsing of multiple genotyping files (ex: VCF/BCF) to combined sets which are later exported to various formats or are used to compute summary statistics. </p>
+
+<p>Research groups usually do this by coding custom scripts tailored to the task at hand. New group members often cannot reproduce the analyses that were performed and often code their own scripts from scratch. This leads to time being wasted and an overall lack of reproducibility.</p>
+
+<p>glactools are a set or programs coded in C++ designed to extract allele counts from VCF files (or the raw base count from BAM files) and store it as an intermediate representation, compute summary statistics and export it to various file formats used by population genetics software. We consider 2 types of intermediate representations:
+
+<ul>
+  <li><b>GLF</b>: for storing genotype likelihoods, suffix: glf.gz</li>
+  <li><b>ACF</b>: for storing allele counts, suffix acf.gz</li>
+</ul>
+
+<p>both file formats are compressed binary files. For instance, a line in an ACF: </p>
+
+<pre><code>
+#chr	coord	REF,ALT	IndividualA
+7	35190	G,N	2,0:0
+</code></pre>
+
+<p>The line above that "IndividualA" had two reference alleles (G) and since no alternative alleles were found, the alternative is an N. The first column is the chromosome name, the second the coordinate, the third the bases for the reference and alternative. We do not consider tri-allelic sites. The fourth column is the allele count for the individual in the following format :
+
+<pre><code>
+REF,ALT:CPG
+</code></pre>
+
+<p> Where REF is the reference allele count and the ALT is the alternative allele count. The CPG field is a flag for CpG (0 is no CpG, 1 otherwise). In the presence of an alternative allele, the following representation is used:</p>
+
+<pre><code>
+#chr	coord	REF,ALT	IndividualA
+7	517798	T,C	1,1:0
+</code></pre>
+
+<p>The line above says that IndividualA had one T and one C at that position hence a heterozygous site. </p>
+
+<p>For GLF files, instead of having allele counts, there are raw genotypes likelihoods for three genotypes:  reference/reference,  reference/alternative,  alternative/alternative in that order:</p>
+
+<pre><code>
+#chr	coord	REF,ALT	IndividualA
+7	517798	T,C	255,0,100:0
+</code></pre>
+
+
+<p>glactools allows users to transform genotyping data into this intermediate allele count or genotype likelihood. Data from multiple sources can be combined, transformed and exported to numerous formats</p>
+
+<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test data</h3>
+
+<p> Either refer to the Quick Start or the section about downloading test data in the README. Here are some examples of downloading publicly available VCFs and converting them to ACF:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/MZbxAYR4gas" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/G9kctAotiUk" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/jLfDnz_bCNA" frameborder="0" allowfullscreen></iframe>
+
+	
+<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>File format</h3>
+
+<p>The glactools file can be divided into two parts, the header that details the operations that were performed and the allele count (or genotype likelihood) per se. Here is an example:</p>
+
+<pre><code>
+#ACF
+#PG:vcf2acf --fai human_g1k_v37.fasta.fai --epo all.epo.gz input.vcf.gz IndividualB 
+#GITVERSION: 262ef9596751f819a9846d59a88f059e85847b8c
+#DATE: 2017-08-09
+#VCF2ACF:
+#chr	coord	REF,ALT	root	anc	IndividualA
+4	72045	A,N	1,0:0	1,0:0	2,0:0
+4	72046	T,N	1,0:0	1,0:0	2,0:0
+4	72047	T,N	1,0:0	1,0:0	2,0:0
+4	72048	T,G	0,1:0	0,1:0	1,1:0
+4	72049	G,N	1,0:0	1,0:0	2,0:0
+4	72050	T,N	1,0:0	1,0:0	2,0:0
+4	72051	A,N	1,0:0	1,0:0	2,0:0
+4	72052	G,N	1,0:0	1,0:0	2,0:0
+</code></pre>
+
+<p>The header lines started with a # sign. Each operation made on the files from creation to transformation leaves a "watermark" that allows users to know precisely which operation was done and which version of glactools was used. The remaining lines contain the allele count for chromosome 4 for 8 sites. Three samples are present, the root allele, the most recent common ancestor and an individual named "IndividualA". For hominin samples, the root could be the chimp, the most recent common ancestor can be the chimp/human ancestor. If multiple individuals are combined, the allele count lines will appear as:</p>
+
+<pre><code>
+#chr	coord	REF,ALT	root	anc	IndividualA	IndividualB	IndividualC
+4	72045	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+4	72046	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+4	72047	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+4	72048	T,G	0,1:0	0,1:0	1,1:0	1,1:0	2,0:0
+4	72049	G,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+4	72050	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+4	72051	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+4	72052	G,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0
+</code></pre>
+
+<p>
+We recommend using bgzip to compress the files and index and query them using tabix from <a href="https://github.com/samtools" class="user-mention">htslib</a>.
+</p>
+
+<h3>Input data</h3>
+
+<p>
+Data can be transformed into glactools internal format from 
+<ul>
+<li> VCF
+<li> BAM
+<li> 23andme
+<li> AXT alignments
+</ul>
+</p>
+
+
+
+
+<h3>Operations on data</h3>
+
+<p>
+Using the data in the internal format, here are examples of operations that can be performed:
+<ul>
+<li> unions or intersections
+<li> meld two or mre populations as one
+<li> force two populations to share one or all alleles
+<li> add/remove populations
+</ul>
+
+For instance, for obtaining sites where all individuals in specific population are fixed derived the following workflow can be used:
+<ol>
+<li> transform individual VCF files into ACF files using "vcf2acf"
+<li> unite each individual files using "intersection" 
+<li> meld all individuals into a single population using "meld"
+<li> disable sharing of alleles with the ancestor using "snosharing"
+</ol>
+
+</p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/g--EKG5WXnM" frameborder="0" allowfullscreen></iframe>
+
+<h3>Exporting data</h3>
+<p>
+Data can be exported to the following formats:
+
+<ul>
+<li> Treemix
+<li> binary PLINK
+<li> EIGENSTRAT
+<li> NEXUS
+<li> FASTA
+</ul>
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/oct6sLmL2w8" frameborder="0" allowfullscreen></iframe>
+
+<h3>Documentation</h3>
+
+<p>
+Please refer to the documentation manual available <a href="https://github.com/grenaud/glactools/blob/master/doc/reference.pdf?raw=true">here</a>.
+</p>
+<BR>
+<BR>
+<BR>
+
+
+<h3>Questions ? Feature requests ?</h3>
+
+<p>
+Contact  <a href="https://grenaud.github.io/">Gabriel Renaud</a> (<a href="https://github.com/grenaud" class="user-mention">@grenaud</a>) : <BR><BR>
+
+<img src="http://grenaud.github.io/myaddr.png"></img>	 
+</p>
+
+
+    
+  </body>
+</html>
