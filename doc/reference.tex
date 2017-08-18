@@ -823,9 +823,9 @@ While conditioning on bi-allelic segregating sites, glactools can compute the fr
 
 %\clearpage
 
-The results are reported for each window. The last ``window'' are all the data with bootstraps. Each window contains the following category: all, onlyCpg, noCpg, transitions, transversions, noDamage.\\
+The results are reported for each window. The last ``window'' are all the data with the jacknifing. Each window contains the following category: all, onlyCpg, noCpg, transitions, transversions, noDamage.\\
 
-Each category contains: absence of mutation ($AA$), mutation in the common branch ($DD$), mutation in branch for individual \#1 ($DA$), mutation in branch for individual \#2 ($AD$), $\frac { DA} { DA+DD }$, lower bound for $\frac { DA} { DA+DD }$, higher bound for $\frac { DA} { DA+DD }$, $\frac { AD} { AD+DD }$, lower bound for $\frac { AD} { AD+DD }$, higher bound for $\frac { AD} { AD+DD }$. If this is the last window with all the data with bootstraps, it also contains the mean from bootstraps, the standard deviation, $Z$ score.
+Each category contains: absence of mutation ($AA$), mutation in the common branch ($DD$), mutation in branch for individual \#1 ($DA$), mutation in branch for individual \#2 ($AD$), $\frac { DA} { DA+DD }$, lower bound for $\frac { DA} { DA+DD }$, higher bound for $\frac { DA} { DA+DD }$, $\frac { AD} { AD+DD }$, lower bound for $\frac { AD} { AD+DD }$, higher bound for $\frac { AD} { AD+DD }$. If this is the last window with all the data with jacknifing, it also contains the mean from the jacknifing, the lower bound using the jacknifing and upper bound using the jacknifing.
 
 
 To plot the output, 2 R scripts are available, one to make barplots:
@@ -853,11 +853,13 @@ D= \frac {ADDA-DADA} {ADDA+DADA}
 \]
 
 
-If the result is close to 0, this can indicate a lack of greater proximity of one of the two individuals to the third one. To obtain a confidence score, we compute the D-statistics for bootstrap sets and compute the average D-statistics  ($\mu_{D_{boot}}$)) and the standard deviation ($\sigma_{D_{boot}}$). To assess the confidence score  we use the standard score ($Z$ ) as such:
+If the result is close to 0, this can indicate a lack of greater proximity of one of the two individuals to the third one. 
 
-\[
-Z = \frac { D - \mu_{D_{boot}}  } {\sigma_{D_{boot}}}
-\]
+%To obtain a confidence score, we compute the D-statistics for bootstrap sets and compute the average D-statistics  ($\mu_{D_{boot}}$)) and the standard deviation ($\sigma_{D_{boot}}$). To assess the confidence score  we use the standard score ($Z$ ) as such:
+
+%\[
+%Z = \frac { D - \mu_{D_{boot}}  } {\sigma_{D_{boot}}}
+%\]
 
 
 \begin{figure}[!tpb]%figure1
@@ -869,9 +871,9 @@ Z = \frac { D - \mu_{D_{boot}}  } {\sigma_{D_{boot}}}
 %\afterpage{\clearpage}
 %
 
-The results are reported for each window. The last ``window'' are all the data with bootstraps. Each window contains the following category: all, onlyCpg, noCpg, transitions, transversions, noDamage.\\
+The results are reported for each window. The last ``window'' are all the data with jacknifing. Each window contains the following category: all, onlyCpg, noCpg, transitions, transversions, noDamage.\\
 
-Each category contains: absence of mutation in both individuals ($AA$), individual \#1 has the ancestral allele but \#2 has the derived  ($AD$), individual \#1 has the derived allele but \#2 has the ancestral  ($DA$), absence of mutation in both individuals ($DD$),  $\frac {ADDA-DADA} {ADDA+DADA}$. If this is the last window (all the data plus bootstraps), it will also report next to the D-stats, the mean from bootstraps, the standard deviation from bootstraps, $Z$ score.
+Each category contains: absence of mutation in both individuals ($AA$), individual \#1 has the ancestral allele but \#2 has the derived  ($AD$), individual \#1 has the derived allele but \#2 has the ancestral  ($DA$), absence of mutation in both individuals ($DD$),  $\frac {ADDA-DADA} {ADDA+DADA}$. If this is the last window (all the data plus jacknifing), it will also report next to the D-stats, the mean from the jackknifing, the lower bound from the jackknifing and the upper bound from the jackknifing.
 
 
 
