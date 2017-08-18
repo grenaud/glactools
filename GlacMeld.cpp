@@ -262,7 +262,7 @@ int GlacMeld::run(int argc, char *argv[]){
 
     delete(gw);
 
-    cerr<<"Program glactools intersect terminated gracefully"<<endl;
+    cerr<<"Program glactools "<<argv[0]<<"  terminated gracefully"<<endl;
 
 
     return 0;

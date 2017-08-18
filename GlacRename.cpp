@@ -166,7 +166,7 @@ int GlacRename::run(int argc, char *argv[]){
     delete(gw);
 
 
-    cerr<<"Program segsite wrote  "<<totalRecords<<" terminated gracefully"<<endl;
+    cerr<<"Program glactools rename wrote  "<<totalRecords<<" terminated gracefully"<<endl;
 
     return 0;
 }
