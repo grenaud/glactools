@@ -1087,9 +1087,9 @@ bool GlacParser::hasData(){
 		
 	    if(sizeBytesACF ==2 ){ //uint16_t
 		
-		
-		allRecToReturn->vectorAlleles = new vector<SingleAllele>();
-		allRecToReturn->vectorAlleles->reserve(sizePops+2);
+		allRecToReturn->vectorAlleles = new vector<SingleAllele>((sizePops+2), SingleAllele() );
+		// allRecToReturn->vectorAlleles = new vector<SingleAllele>();
+		// allRecToReturn->vectorAlleles->reserve(sizePops+2);
 		//to remove
 
 		//cout<<"sizePops "<<sizePops<<endl;
@@ -1097,36 +1097,39 @@ bool GlacParser::hasData(){
 		for(unsigned j=0;j<(sizePops+2);j++){
 		    // short refC;
 		    // short altC;
-		    uint16_t refC;
-		    uint16_t altC;
+		    // uint16_t refC;
+		    // uint16_t altC;
 
-		    char  cpgC;
+		    // char  cpgC;
 		    //2b
-		    bytesread = bgzf_read(myFilezipped, &refC, sizeof(refC));
-		    if(bytesread != sizeof(refC)){
-			cerr<<"Error: GlacParser tried to read "<< sizeof(refC) <<" bytes but got "<<bytesread<<endl;
+		    bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorAlleles->at(j).refCount, 2);//sizeof(refC));
+		    if(bytesread != 2){//sizeof(refC)){
+			cerr<<"Error: GlacParser tried to read "<< 2 <<" bytes but got "<<bytesread<<endl;
 			exit(1);
 		    }
 
 		    //2b
-		    bytesread = bgzf_read(myFilezipped, &altC, sizeof(altC));
-		    if(bytesread != sizeof(altC)){
-			cerr<<"Error: GlacParser tried to read "<< sizeof(altC) <<" bytes but got "<<bytesread<<endl;
+		    bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorAlleles->at(j).altCount, 2);//sizeof(altC));
+		    if(bytesread != 2){//sizeof(altC)){
+			cerr<<"Error: GlacParser tried to read "<< 2 <<" bytes but got "<<bytesread<<endl;
 			exit(1);
 		    }
+		    allRecToReturn->vectorAlleles->at(j).totalCount = (allRecToReturn->vectorAlleles->at(j).refCount+allRecToReturn->vectorAlleles->at(j).altCount);
+
 		    //1b
-		    bytesread = bgzf_read(myFilezipped, &cpgC, sizeof(cpgC));
-		    if(bytesread != sizeof(cpgC)){
-			cerr<<"Error: GlacParser tried to read "<< sizeof(cpgC) <<" bytes but got "<<bytesread<<endl;
+		    bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorAlleles->at(j).isCpg, 1);//sizeof(cpgC));
+		    if(bytesread != 1){//sizeof(cpgC)){
+			//cerr<<"Error: GlacParser tried to read "<< sizeof(cpgC) <<" bytes but got "<<bytesread<<endl;
+			cerr<<"Error: GlacParser tried to read "<< 1 <<" bytes but got "<<bytesread<<endl;
 			exit(1);
 		    }
-
+		    //cout<<j<<"\t"<<allRecToReturn->vectorAlleles->at(j).refCount<<"\t"<<allRecToReturn->vectorAlleles->at(j).altCount<<"\t#"<<int(allRecToReturn->vectorAlleles->at(j).isCpg)<<"#"<<endl;
 		    //cout<<j<<"\t"<<refC<<"\t"<<altC<<"\t#"<<int(cpgC)<<"#"<<endl;
-		    SingleAllele sa (int( refC ),
-				     int( altC ),
-				     (cpgC == 1) );
-		    //cout<<j<<"\t"<<sa<<endl;
-		    allRecToReturn->vectorAlleles->push_back(sa);
+		    // SingleAllele sa (int( refC ),
+		    // 		     int( altC ),
+		    // 		     (cpgC == 1) );
+		    // //cout<<j<<"\t"<<sa<<endl;
+		    // allRecToReturn->vectorAlleles->push_back(sa);
 		    
 		}//each pop
 		
@@ -1146,52 +1149,55 @@ bool GlacParser::hasData(){
 
 	if(glFormat){
 
-	    allRecToReturn->vectorGLs = new vector<SingleGL>();
-	    allRecToReturn->vectorGLs->reserve(sizePops+2);
+	    allRecToReturn->vectorGLs = new vector<SingleGL>( (sizePops+2), SingleGL() );
+	    
+	    // allRecToReturn->vectorGLs = new vector<SingleGL>();
+	    // allRecToReturn->vectorGLs->reserve(sizePops+2);
+
 	    // cout<<"sizePops "<<sizePops<<endl;
 	    // cout<<glFormat<<endl;
 	    //exit(1);
 	    
 	    for(unsigned j=0;j<(sizePops+2);j++){
-		uint8_t rrC;
-		uint8_t raC;
-		uint8_t aaC;
-
-		uint8_t cpgC;
+		// uint8_t rrC;
+		// uint8_t raC;
+		// uint8_t aaC;
+		// uint8_t cpgC;
 		    
-		bytesread = bgzf_read(myFilezipped, &rrC, sizeof(rrC));
-		if(bytesread != sizeof(rrC)){
-		    cerr<<"Error: GlacParser tried to read "<< sizeof(rrC) <<" bytes but got "<<bytesread<<endl;
+
+		bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorGLs->at(j).rrGL, 1);
+		if(bytesread != 1){
+		    cerr<<"Error: GlacParser tried to read "<< 1 <<" bytes but got "<<bytesread<<endl;
 		    exit(1);
 		}
 
-		bytesread = bgzf_read(myFilezipped, &raC, sizeof(raC));
-		if(bytesread != sizeof(raC)){
-		    cerr<<"Error: GlacParser tried to read "<< sizeof(raC) <<" bytes but got "<<bytesread<<endl;
+		bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorGLs->at(j).raGL, 1);
+		if(bytesread != 1){
+		    cerr<<"Error: GlacParser tried to read "<< 1 <<" bytes but got "<<bytesread<<endl;
 		    exit(1);
 		}
 
-		bytesread = bgzf_read(myFilezipped, &aaC, sizeof(aaC));
-		if(bytesread != sizeof(aaC)){
-		    cerr<<"Error: GlacParser tried to read "<< sizeof(aaC) <<" bytes but got "<<bytesread<<endl;
+		bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorGLs->at(j).aaGL, 1);
+		if(bytesread != 1){
+		    cerr<<"Error: GlacParser tried to read "<< 1 <<" bytes but got "<<bytesread<<endl;
 		    exit(1);
 		}
 		    
-		bytesread = bgzf_read(myFilezipped, &cpgC, sizeof(cpgC));
-		if(bytesread != sizeof(cpgC)){
-		    cerr<<"Error: GlacParser tried to read "<< sizeof(cpgC) <<" bytes but got "<<bytesread<<endl;
+		bytesread = bgzf_read(myFilezipped, &allRecToReturn->vectorGLs->at(j).isCpg, 1);
+		if(bytesread != 1){
+		    cerr<<"Error: GlacParser tried to read "<< 1 <<" bytes but got "<<bytesread<<endl;
 		    exit(1);
 		}
 
 		//cout<<j<<"\t"<<refC<<"\t"<<altC<<"\t#"<<int(cpgC)<<"#"<<endl;
-		SingleGL gl (rrC,
-			     raC,
-			     aaC,			     
-			     (cpgC == 1) );
-		//cout<<j<<"\tgl="<<gl<<"#"<<endl;
-		//cout<<"j "<<j<<endl;
-		//exit(1);
-		allRecToReturn->vectorGLs->push_back(gl);
+		// SingleGL gl (rrC,
+		// 	     raC,
+		// 	     aaC,			     
+		// 	     (cpgC == 1) );
+		// //cout<<j<<"\tgl="<<gl<<"#"<<endl;
+		// //cout<<"j "<<j<<endl;
+		// //exit(1);
+		// allRecToReturn->vectorGLs->push_back(gl);
 		
 	    }//each pop
 	    // cout<<allRecToReturn<<endl;

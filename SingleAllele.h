@@ -14,7 +14,7 @@
 using namespace std;
 
 class SingleAllele{
-    //friend class GlacParser;
+    friend class GlacParser;
 private:
     int refCount;
     int altCount;

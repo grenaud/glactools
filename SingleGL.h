@@ -14,6 +14,7 @@
 using namespace std;
 
 class SingleGL{
+    friend class GlacParser;
 private:
 
     uint8_t rrGL;

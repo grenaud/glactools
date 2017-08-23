@@ -156,26 +156,25 @@ int GlacViewer::run(int argc, char *argv[]){
 		cout<<gp.getDefline()<<endl;
 	}
 
-	
+
+
 	while(gp.hasData()){
-
 	    ar = gp.getData();
-
-	    if(subsampleB)
+	    
+	    if(subsampleB)// if we subsample	    
 		if(randomProb() < subsampleProp)
 		    continue;
-
+	    
 	    if(uncompressed || printBin){//if binary
 		if(!gw->writeAlleleRecord(ar)){
 		    cerr<<"GlacViewer: error record "<<*ar<<endl;
 		    return 1;
 		}
-
 	    }else{
 		cout<<*ar<<endl;
 	    }	    
 	}
-
+	
 	delete(gw);
 
 	return 0;
