@@ -7,7 +7,7 @@ LIBGAB= $(realpath libgab/)
 
 CXXFLAGS = -Wall -lm -O3 -lz -Ihtslib/ -Ibamtools/include/ -Ibamtools/src/ -Itabixpp/ -I${LIBGAB} -I${LIBGAB}/gzstream/ -c
 LDFLAGS  =  -lpthread -lm -lbz2 -llzma -lz
-LDLIBS   = bamtools/build/src/utils/CMakeFiles/BamTools-utils.dir/*cpp.o
+
 
 all: libgab/utils.o tabixpp/tabix.o glactools 
 
@@ -36,8 +36,10 @@ bamtools/src/api/BamAlignment.h:
 bamtools/lib/libbamtools.so: bamtools/src/api/BamAlignment.h
 	cd bamtools/ && mkdir -p build/  && cd build/ && cmake .. && make && cd ../..
 
+bamtools/build/src/utils/CMakeFiles/BamTools-utils.dir/*cpp.o: bamtools/lib/libbamtools.so
 
- htslib/libhts.so:  htslib/hts_internal.h
+
+htslib/libhts.so:  htslib/hts_internal.h
 	cd htslib/ && make && cd ../
 
 htslib/hts_internal.h:
@@ -45,7 +47,7 @@ htslib/hts_internal.h:
 	git clone --recursive https://github.com/samtools/htslib.git
 
 
-glactools:	glactools.o GlacIndex.o GlacIDXSTATS.o GlacWriter.o MultiVCFreader.o GLF2ACF.o VcfMulti2ACF.o T3andme2ACF.o AXT2ACF.o Vcf2ACF.o Vcf2GLF.o AlleleRecords.o SingleAllele.o BAM2ACF.o SingleGL.o GlacUndef.o GlacSegsite.o GlacRename.o GlacSharing.o GlacNoSharing.o GlacNoStrictSharing.o GlacBedfilter.o Glac2FREQSPEC.o Glac2BED.o DstatResult.o DstatCounter.o Dstat_core.o ACF2BPLINK.o ACF2FASTA.o ACF2GPHOCS.o ACF2NEXUS.o ACF2TREEMIX.o ACF2EIGENSTRAT.o GlacViewer.o GlacParser.o GlacStats.o GlacReplaceAncestor.o GlacUsePopAsRootAnc.o GlacCAT.o VCFreader.o SimpleVCF.o CoreVCF.o ReadTabix.o SetVCFFilters.o GlacMeld.o GlacPopsub.o GlacCompute.o SumStatD.o SumStatAvgCoa.o AlleleCounter.o AvgCoaResult.o ComputeAvgCoa_core.o GlacClosest.o GlacRemovepop.o GlacIntersect.o GlacUnion.o GlacReheader.o FilterVCF.o GlactoolsOperations.o GenomicRange.o tabixpp/tabix.o htslib/libhts.a libgab/utils.o  $(LDLIBS) bamtools/lib/libbamtools.a libgab/gzstream/gzstream.o
+glactools:	glactools.o GlacIndex.o GlacIDXSTATS.o GlacWriter.o MultiVCFreader.o GLF2ACF.o VcfMulti2ACF.o T3andme2ACF.o AXT2ACF.o Vcf2ACF.o Vcf2GLF.o AlleleRecords.o SingleAllele.o BAM2ACF.o SingleGL.o GlacUndef.o GlacSegsite.o GlacRename.o GlacSharing.o GlacNoSharing.o GlacNoStrictSharing.o GlacBedfilter.o Glac2FREQSPEC.o Glac2BED.o DstatResult.o DstatCounter.o Dstat_core.o ACF2BPLINK.o ACF2FASTA.o ACF2GPHOCS.o ACF2NEXUS.o ACF2TREEMIX.o ACF2EIGENSTRAT.o GlacViewer.o GlacParser.o GlacStats.o GlacReplaceAncestor.o GlacUsePopAsRootAnc.o GlacCAT.o VCFreader.o SimpleVCF.o CoreVCF.o ReadTabix.o SetVCFFilters.o GlacMeld.o GlacPopsub.o GlacCompute.o SumStatD.o SumStatAvgCoa.o AlleleCounter.o AvgCoaResult.o ComputeAvgCoa_core.o GlacClosest.o GlacRemovepop.o GlacIntersect.o GlacUnion.o GlacReheader.o FilterVCF.o GlactoolsOperations.o GenomicRange.o tabixpp/tabix.o htslib/libhts.a libgab/utils.o  bamtools/build/src/utils/CMakeFiles/BamTools-utils.dir/*cpp.o bamtools/lib/libbamtools.a libgab/gzstream/gzstream.o
 	${CXX} -o $@ $^  $(LDFLAGS)
 
 clean :

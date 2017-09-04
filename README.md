@@ -75,6 +75,9 @@ For MacOS, if you have Homebrew (https://brew.sh/) installed:
    cd glactools
    make
 
+For MacOS, if you get the problem: fatal error: 'lzma.h' file not found, this is a problem building htslib with homebrew, please refer to the following htslib page: https://github.com/samtools/htslib/issues/493
+
+
 4) (optional) Either put the executable in the overall path or add the path to your $PATH environment or add an alias to be able to call "glactools" from any directory.
 
 Quick start
