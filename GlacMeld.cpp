@@ -15,6 +15,10 @@ GlacMeld::~GlacMeld(){
 
 }
 
+bool sortPairs(const pair<string,string> &a,const pair<string,string> &b){
+    //return a.second.compare(a.second);
+    return (a.second < b.second);
+}
 
 string GlacMeld::usage() const{
 
@@ -26,7 +30,10 @@ string GlacMeld::usage() const{
 	"\n"+
 	"Options:"+"\n"+
 	"\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
-
+	"\t"+"-f" + " [file]\t\t"+"Merge populations according to file in the following tab-delimited format:\n"+
+	"\t"+"\t\t\t"             +"popToMerge1_to_1,popToMerge2_to_1,.... newid1\n"+
+        "\t"+"\t\t\t"             +"popToMerge1_to_2,popToMerge2_to_2,.... newid2\n"+
+        "\n"+
 	"\t-k\t\t\tKeep the original populations in the output (Default "+boolStringify(keepOrig)+" )\n";
     ;
 }
@@ -36,8 +43,10 @@ string GlacMeld::usage() const{
 int GlacMeld::run(int argc, char *argv[]){
 
     int lastOpt=1;
-
-    for(int i=1;i<(argc-1);i++){ 
+    bool specifiedFile=false;
+    string filepops;
+    
+    for(int i=1;i<(argc);i++){ 
         //cout<<i<<"\t"<<string(argv[i])<<endl;
         if((string(argv[i]) == "-")  ){
             lastOpt=i;
@@ -46,6 +55,13 @@ int GlacMeld::run(int argc, char *argv[]){
         if(string(argv[i])[0] != '-' ){
             lastOpt=i;
             break;
+        }
+
+        if(string(argv[i]) == "-f"){
+            specifiedFile=true;
+	    filepops     = string(argv[i+1]);
+	    i++;
+            continue;
         }
 
         if(string(argv[i]) == "-u"){
@@ -67,21 +83,72 @@ int GlacMeld::run(int argc, char *argv[]){
     //     cerr<<"The last arguments are the  <acf file> \"popToMerge1,popToMerge2,....\" \"newid\" "<<endl;
     //     return 1;               
     // }
-
-    
+    // cerr<<lastOpt<<endl;
+    // return 1;
     string fileglac                  = string(argv[lastOpt  ]);
     vector<string> pop2mergeString;
     vector<string> mergedpopName  ;
     unsigned int numberOfMelds=0;
     unsigned int numberOfMeldPopsOrig=0;
+    if(specifiedFile){
+	vector< pair<string,string> > pops;
+	string line;
+	igzstream myfile;
+	myfile.open(filepops.c_str(), ios::in);
 
-    for(int i=lastOpt;i<(argc-2);i+=2){
-	pop2mergeString.push_back( string(argv[i+1]) );
-	mergedpopName.push_back(   string(argv[i+2]) );
-	cerr<<"replacing: "<<string(argv[i+1])<<" with "<<string(argv[i+2])<<endl;
-	numberOfMelds++;       
+	if (!myfile.good()){
+	    cerr << "Unable to open file "<<filepops<<endl;
+	    return 1;
+	}
+
+	while ( getline (myfile,line)){   
+	    vector<string> fields = allTokens( line ,'\t');
+	    if(fields.size()!=2){
+		cerr<<"Line "<<line<<" should have 2 TAB deliminated fields"<<endl;
+		return 1;
+	    }
+	    pops.push_back( pair<string,string>(fields[0],fields[1]) );
+	}
+	
+	myfile.close();
+	sort(pops.begin(), pops.end(), sortPairs );
+	string prepop="#";
+	string preind="#";
+	
+	for(unsigned int i=0;i<pops.size();i++){
+	    //cerr<<i<<" "<<pops[i].first<<" "<<pops[i].second<<endl;
+	    if(prepop  == "#"){
+		preind=pops[i].first;
+		prepop=pops[i].second;
+		continue;
+	    }
+
+	    if(prepop != pops[i].second){
+		//cerr<<i<<" "<<preind<<" "<<prepop<<endl;
+		pop2mergeString.push_back( preind  );
+		mergedpopName.push_back(   prepop  );
+		numberOfMelds++;       
+		preind=pops[i].first;
+		prepop=pops[i].second;
+	    }else{
+		preind=preind+","+pops[i].first;
+		prepop=pops[i].second;
+	    } 
+	}
+	if(prepop  != "#"){	
+	    pop2mergeString.push_back( preind  );
+	    mergedpopName.push_back(   prepop  );
+	    numberOfMelds++;       
+	}
+    }else{
+	for(int i=lastOpt;i<(argc-2);i+=2){
+	    pop2mergeString.push_back( string(argv[i+1]) );
+	    mergedpopName.push_back(   string(argv[i+2]) );
+	    cerr<<"replacing: "<<string(argv[i+1])<<" with "<<string(argv[i+2])<<endl;
+	    numberOfMelds++;       
+	}
     }
-
+    
     if(numberOfMelds<1){
         cerr<<"meld please specify a set of populations"<<endl;
         return 1;               	

@@ -23,7 +23,7 @@ static unsigned int limitToReOpenFP = 200; //if the coordinate is this far away,
 
 
 
-void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
+void BAM2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
 
     lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
     if(!lineLeftEPO){
@@ -122,7 +122,7 @@ class glacVisitor : public PileupVisitor {
 					   m_references[pileupData.RefId].RefName,
 					   posAlignInt,
 					   INT_MAX ); //the destructor should be called automatically
-		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		    BAM2ACF::setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 		}
 	    }
 
@@ -138,7 +138,7 @@ class glacVisitor : public PileupVisitor {
 		    //exit(1);
 		    //try to reposition
 		    rtEPO->repositionIterator(m_references[pileupData.RefId].RefName  , posAlignInt,INT_MAX);
-		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		    BAM2ACF::setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 		    if(epoChr != m_references[pileupData.RefId].RefName){
 			cerr<<"Error, the repositioning did not work, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<m_references[pileupData.RefId].RefName<<endl;
 			exit(1);
@@ -159,7 +159,7 @@ class glacVisitor : public PileupVisitor {
 		    }
 
 
-		    setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		    BAM2ACF::setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
 		}
 	    }
 	    //
@@ -570,7 +570,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     header+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";;
     //cout<<"#DATE: "<<getDateString()<<endl;
     header+="#DATE: "+getDateString()+"\n";;
-    header+="#BAM2ACF:";
+    header+="#BAM2ACF:\n";
 
     
     map<string,uint16_t> chr2index;

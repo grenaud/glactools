@@ -11,7 +11,7 @@ using namespace std;
 
 
 
-void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
+void T3andme2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
 
     lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
     if(!lineLeftEPO){
@@ -47,7 +47,7 @@ T3andme2ACF::~T3andme2ACF(){
 
 
 string T3andme2ACF::usage() const{
-    const string usage=string("")+ " 23andme2ACF [options] <23andme file> <name sample>"+"\n"+
+    const string usage=string("")+ " 23andme2acf [options] <23andme file> <name sample>"+"\n"+
 			      "\nThis program convert 23andme files into ACF (prints to the stdout)\n"+
 			      
 			      "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+

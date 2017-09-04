@@ -11,6 +11,7 @@
 #include "utils.h"
 
 #include "BAM2ACF.h"
+#include "EIGENSTRAT2ACF.h"
 #include "Vcf2ACF.h"
 #include "GLF2ACF.h"
 #include "Vcf2GLF.h"
@@ -76,6 +77,7 @@ int main (int argc, char *argv[]) {
 	"      vcfm2acf        Convert multi  sample VCF to acf "+"\n"+
 	"      bam2acf         Convert single sample BAM to acf "+"\n"+
 	"      axt2acf         Convert AXT alignment to acf "+"\n"+
+	"      eigen2acf       Convert EIGENSTRAT data to acf "+"\n"+
 	"      23andme2acf     Convert 23andme data to acf "+"\n"+
 	"\n"+
 	"   --Filtering:\n"+                       
@@ -205,6 +207,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return axt2acf_.run(argc, argv);
+		    
+    }else{      if(string(argv[1]) == "eigen2acf"){
+	EIGENSTRAT2ACF  eigen2acf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<eigen2acf_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return eigen2acf_.run(argc, argv);
 		    
     }else{      if(string(argv[1]) == "glf2acf"){
 	GLF2ACF  glf2acf_;
@@ -679,7 +695,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																			    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

@@ -37,6 +37,6 @@ public:
     
     string usage() const;
     int run(int argc, char *argv[]);
-
+    void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO);
 };
 #endif

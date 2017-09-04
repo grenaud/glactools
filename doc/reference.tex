@@ -118,6 +118,7 @@ Program & Use \\
       vcfm2acf    &    Convert multi  sample VCF to acf  \\
       bam2acf     &    Convert single sample BAM to acf  \\
       axt2acf     &    Convert AXT alignment to acf  \\
+      eigen2acf   &    Convert EIGENSTRAT data to acf \\
       23andme2acf &    Convert 23andme data to acf  \\
 \hline
 \multicolumn{2}{|l|}{Filtering} \\
@@ -443,6 +444,15 @@ If it is a VCF file with multiple individuals (e.g. 1000 Genomes), use:
 \begin{lstlisting}
  vcfm2acf [options] <vcf file>
 \end{lstlisting}
+
+\subsection{From EIGENSTRAT}
+
+\noindent This program convert EIGENSTRAT files into ACF (prints to the stdout)
+
+\begin{lstlisting}
+glactools eigen2ACF  <EIGENSTRAT prefix>
+\end{lstlisting}
+
 
 \subsection{From 23andme}
 

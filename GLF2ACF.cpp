@@ -89,7 +89,7 @@ int GLF2ACF::run(int argc, char *argv[]){
     newheader+="#GITVERSION: "+returnGitHubVersion(argv[-1],"")+"\n";;
 
     newheader+="#DATE: "+getDateString()+"\n";;
-    newheader+="#GLF2ACF:";
+    newheader+="#GLF2ACF:\n";
     newheader+=gp.getHeaderNoSQNoDefline("#\t")+"\n";
     newheader+=gp.getHeaderSQ("")+"\n";
     newheader+=gp.getDefline()+"\n";
