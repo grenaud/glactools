@@ -31,11 +31,11 @@ int GlacCAT::run(int argc, char *argv[]){
 
 
     AlleleRecords * arr;
-    AlleleRecords * arw;
-    GlacWriter * gw;
+    //AlleleRecords * arw;
+    GlacWriter * gw=NULL;
     string sqLines="";
     string defline="";
-
+    uint16_t chriRead=0;
     for(int i=1;i<(argc);i++){ 
 	string filename = string(argv[i]);
 	GlacParser gp (filename);
@@ -54,12 +54,22 @@ int GlacCAT::run(int argc, char *argv[]){
 		cerr<<"GlacCat: error writing header "<<endl;
 		return 1;
 	    }
-
+	    
+	    //first record
+	    if(gp.hasData()){
+		arr = gp.getData();
+		chriRead = arr->chri;
+		if(!gw->writeAlleleRecord(arr)){
+		    cerr<<"GlacCAT: error writing record "<<arr<<endl;
+		    exit(1);
+		}
+	    }
 
 	    while(gp.hasData()){
 		arr = gp.getData();
+
 		if(!gw->writeAlleleRecord(arr)){
-		    cerr<<"GlacCAT: error record "<<arw<<endl;
+		    cerr<<"GlacCAT: error writing record "<<arr<<endl;
 		    exit(1);
 		}
 	    }
@@ -74,11 +84,24 @@ int GlacCAT::run(int argc, char *argv[]){
 		return 1;
 	    }
 
+	    //first record
+	    if(gp.hasData()){
+		arr = gp.getData();
+		if(chriRead > arr->chri){
+		    cerr<<"GlacCAT: WARNING chromosomal coordinate in  "<<arr<<" is greater than in the previous file, indexing will not work"<<endl;
+		    
+		}
+		chriRead = arr->chri;
+		if(!gw->writeAlleleRecord(arr)){
+		    cerr<<"GlacCAT: error writing record "<<arr<<endl;
+		    exit(1);
+		}
+	    }
 
 	    while(gp.hasData()){
 		arr = gp.getData();
 		if(!gw->writeAlleleRecord(arr)){
-		    cerr<<"GlacCAT: error record "<<arw<<endl;
+		    cerr<<"GlacCAT: error writing record "<<arr<<endl;
 		    exit(1);
 		}
 	    }
