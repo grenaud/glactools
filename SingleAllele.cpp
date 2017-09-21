@@ -205,6 +205,29 @@ char  SingleAllele::printPLINK(){
     return 1;     //01
 }
 
+void SingleAllele::downsample(const int c){
+    if(totalCount==0)
+	return ;
+    int refCount_   = 0;
+    int altCount_   = 0;
+    int totalCount_ = 0;
+    
+    
+    for(int i=0;i<c;i++){
+	int r=randomInt(1,totalCount);
+	if(r<=refCount){//sampled ref
+	    refCount_++;
+	    refCount--;	    
+	}else{ //sampled alt
+	    altCount_++;
+	    altCount--;	    	    
+	}
+    }
+    refCount=refCount_;
+    altCount=altCount_;
+    totalCount=(refCount+altCount);    
+}
+
 char SingleAllele::generateRandomAlleleBias(const char ref,const char alt){
     if(totalCount==0){
 	// cerr<<"SingleAllele: cannot call generateRandomAlleleBias() where the allele count is 0 :"<<*this<<endl;

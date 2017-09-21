@@ -22,6 +22,7 @@
 #include "GlacClosest.h"
 #include "Glac2BED.h"
 #include "GlacMeld.h"
+#include "GlacDown.h"
 #include "GlacPopsub.h"
 #include "GlacRemovepop.h"
 #include "GlacReheader.h"
@@ -109,6 +110,7 @@ int main (int argc, char *argv[]) {
 	"      replaceanc      Use ancestral/root information from another file\n"+
 	"      usepopsrootanc  Use 2 specified pops as ancestral/root information\n"+
 	"      rename          Rename populations\n"+
+	"      down            Downsample the allele count of all/some populations\n"+
 	"\n"+
 	"   --Data export:\n"+                       
 	"      glac2bed        Convert a (GL|AC)f file to BED"+"\n"+
@@ -504,6 +506,20 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacmeld_.run(argc, argv);
 
+    }else{      if(string(argv[1]) == "down"){
+	GlacDown  glacdown_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacdown_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacdown_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "popsub"){
 	GlacPopsub  glacpopsub_;
 
@@ -695,7 +711,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																			    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

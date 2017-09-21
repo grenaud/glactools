@@ -39,7 +39,8 @@ public:
     bool   getIsCpg() const;
     char generateRandomAlleleBias(const char ref,const char alt);
     char generateRandomAllele(const char ref,const char alt);
-
+    void downsample(const int c);
+    
     int    printEIGENSTRAT();
     char  printPLINK();
 
