@@ -152,6 +152,7 @@ Program & Use \\
       replaceanc  &    Use ancestral/root information from another file \\
       usepopsrootanc &  Use 2 specified pops as ancestral/root information \\
       rename      &    Rename populations \\
+      down        &   Downsample the allele count of all/some populations \\
 \hline
 \multicolumn{2}{|l|}{Data export} \\
 \hline
@@ -697,7 +698,7 @@ glactools meld data.acf.gz "Papuan,Austalian" "Oceanians" > dataOceanians.acf.gz
 
 \small
 \begin{lstlisting}
-glactools rename [options] <ACF file> "oldpopname1,oldpopname2,..." "newpopname1,newpopname2,..."  
+glactools rename [options] <ACF/GLF file> "oldpopname1,oldpopname2,..." "newpopname1,newpopname2,..."  
 \end{lstlisting}
 \normalsize
 
@@ -706,6 +707,24 @@ Example of usage:
 glactools rename  data.acf.gz "Papuan,Austalian" "Oceanians1,Oceanians2"
 \end{lstlisting}
 
+\subsubsection{Subsample allele counts}
+
+\noindent This program will subsample the allele counts for all or some populations
+
+\small
+\begin{lstlisting}
+glactools down [options] <ACF file> "popname1,popname2,..." 
+\end{lstlisting}
+\normalsize
+
+
+\noindent If no populations are specified, all populations will be subsampled with the exception of the root/anc. Example of usage:
+
+\begin{lstlisting}
+glactools down -c 2  data.acf.gz "Papuan,Austalian" 
+\end{lstlisting}
+
+\noindent This command will downsample to 2 alleles the Papuans and Austalians populations. This can be useful for creating representative diploid individuals, subsampling a single base from BAM files or creating pseudo-haploid ACF files for diploid individuals. 
 
 
 \subsubsection{Use population as root and ancestor}
