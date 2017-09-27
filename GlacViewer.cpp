@@ -34,7 +34,8 @@ string GlacViewer::usage() const{
                   "\t"+"-h" + "\t\t\t"+"Also produce defline w/ text           (default: "+booleanAsString(printdefline)+")\n"+
                   "\t"+"-H" + "\t\t\t"+"Also produce full header w/ text       (default: "+booleanAsString(printheader)+")\n"+
                   "\n"+
-		  "\t"+"-s" + "\t[frac]\t\t"+"Subsample a [frac] of sites      (default: "+stringify(subsampleProp)+")\n");
+		  "\t"+"-s" + "\t[frac]\t\t"+"Subsample a [frac] of sites      (default: "+stringify(subsampleProp)+")\n"+
+                  "\t"+"-n" + "\t[num]\t\t"+"Only produce [num] sites      (default: inf\n");
 
 }
 
@@ -58,6 +59,13 @@ int GlacViewer::run(int argc, char *argv[]){
         if(string(argv[i])[0] != '-' ){
             lastOpt=i;
             break;
+        }
+
+        if(string(argv[i]) == "-n"){
+            headB    = true;
+            headBN   = destringify<unsigned int>(argv[i+1]);
+	    i++;
+            continue;
         }
 
         if(string(argv[i]) == "-s"){
@@ -117,7 +125,12 @@ int GlacViewer::run(int argc, char *argv[]){
 	    //return 1;		    
 	}
     }
-    
+
+    if(subsampleB && headB){
+        cerr<<"Error: cannot use both -s and -h"<<endl;
+        return 1;	
+    }
+
     if(lastOpt == (argc-1)){//no region given
 
 	string glacfile  = string(argv[lastOpt]);
@@ -157,10 +170,16 @@ int GlacViewer::run(int argc, char *argv[]){
 	}
 
 
-
+	unsigned int n=0;
 	while(gp.hasData()){
 	    ar = gp.getData();
-	    
+
+	    if(headB){// if we subsample	    
+		if(n>=headBN)
+		    break;
+		n++;
+	    }
+
 	    if(subsampleB)// if we subsample	    
 		if(randomProb() < subsampleProp)
 		    continue;

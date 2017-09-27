@@ -1,0 +1,6 @@
+C++ binding example
+
+This small program reads an ACF/GLF file and prints the contents to STDOUT. 
+Use:
+simply replace the "LIBGLACTOOLS   = ../../../" in the Makefile. 
+

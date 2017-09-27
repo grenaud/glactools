@@ -29,6 +29,8 @@ class GlacViewer{
     int bytesForGL=1;
     double subsampleProp=1.0;
     double subsampleB   =false;
+    double headB        =false;
+    unsigned int headBN =0;
 
  public:
     GlacViewer();
