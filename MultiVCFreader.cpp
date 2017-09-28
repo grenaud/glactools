@@ -305,24 +305,25 @@ bool MultiVCFreader::hasData(){
     //if first call and queue empty, populate
     if(needToPopulateQueue){
 #ifdef DEBUG		
-	cout<<"MultiVCFreader hasData()"<<endl;
+	cerr<<"MultiVCFreader hasData()"<<endl;
 #endif
 	bool loop=true;
 	int indexQueue=0;
 	while(loop){
 	    if(getNextLine()){
 #ifdef DEBUG		
-		cout<<"currentline "<<currentline<<endl;
+		cerr<<"currentline "<<currentline<<endl;
 #endif
 		vector<SimpleVCF *> *  svcfvec = new vector<SimpleVCF *>();
 		vector<string> fieldTab = allTokens(currentline,'\t');
 		CoreVCF * corevcf =  new CoreVCF(fieldTab);
+
 		for(int k=0;k<numPop;k++){
 		    
 		    SimpleVCF * svcf = new  SimpleVCF (fieldTab,corevcf,k==0);
 		    
 #ifdef DEBUG		
-		    cout<<"field#"<<k<<"/"<<numPop<<" = ->"<<fieldTab[k+9]<<"<- pos="<<svcf->getPosition()<<endl;
+		    cerr<<"field#"<<k<<"/"<<numPop<<" = ->"<<fieldTab[k+9]<<"<- pos="<<svcf->getPosition()<<endl;
 #endif
 
 		    svcfvec->push_back(svcf);
@@ -330,8 +331,8 @@ bool MultiVCFreader::hasData(){
 		
 		//SimpleVCF * svcfvec = new SimpleVCF(currentline);
 #ifdef DEBUG		
-		//cout<<"new1 "<<svcf<<endl;
-		cout<<"done "<<endl;
+		//cerr<<"new1 "<<svcf<<endl;
+		cerr<<"done "<<endl;
 #endif
 		
 		if(queueOfVCFs.size() != 0 ){
@@ -340,7 +341,7 @@ bool MultiVCFreader::hasData(){
 			flagCpG( queueOfVCFs.back()->at(k) , svcfvec->at(k) );
 		}
 #ifdef DEBUG
-	       cout<<"Adding "<<endl;
+	       cerr<<"Adding "<<endl;
 #endif
 		queueOfVCFs.push_back(svcfvec);
 

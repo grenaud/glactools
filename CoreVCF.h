@@ -36,11 +36,13 @@ class CoreVCF{
 
 
     vector<string> fields;
-    string infoFieldRaw;
+    string infoFieldRaw;    
     map<string, string> * infoField;
     bool haveInfoField;
     int fieldIndex;
     int fieldIndexINFO;
+    string rawFormatNames;
+    vector<string> * formatNames;
 
     template <typename T>
 	T   getInfoField(string tag)  {
@@ -83,7 +85,7 @@ public:
     CoreVCF(const CoreVCF & other);
     ~CoreVCF();
     CoreVCF & operator= (const CoreVCF & other);
-
+    const vector<string> * getFormatNames();
     friend class SimpleVCF;
 };
 #endif

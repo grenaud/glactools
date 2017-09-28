@@ -37,22 +37,26 @@ CoreVCF::CoreVCF(const vector<string> & fields){
     chrName=                     fields[fieldIndex++];
     position=string2uint(        fields[fieldIndex++]);
 
-    if(fields.size() != 9 )
-    	id     =                 fields[fieldIndex++];
-    else
-    	id     =                 "NA";
+    //if(fields.size() != 9 )
+    id     =                 fields[fieldIndex++];
+    // else
+    // 	id     =                 "NA";
 
-
+    //cerr<<"CoreVCF id="<<id<<" "<<fieldIndex<<endl;
     ref    =                     fields[fieldIndex++];
     alt    =                     fields[fieldIndex++];
-
+    // cerr<<"CoreVCF ref="<<ref<<" "<<fieldIndex<<endl;
+    // cerr<<"CoreVCF alt="<<alt<<" "<<fieldIndex<<endl;
+    // cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
     //for sites with multiple alt bases
     altAlleles      =     allTokens(alt,',');
+    //cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
     allAltResolvedSingleBasePair=true;
+    //cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
     for(unsigned int i=0;i<altAlleles.size();i++){
 	allAltResolvedSingleBasePair&=validAltBP( altAlleles[i] ); //true if ref = A,C,G,T or .
     }
-    
+    //cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;        
     
     //boolean flags for insert
     isIndel=isInsert(ref) || isInsert(alt);
@@ -61,26 +65,39 @@ CoreVCF::CoreVCF(const vector<string> & fields){
     //boolean flags for a single bp in ref or alt
     resolvedSingleBasePairREF=validOneBP(ref); //true if ref = A,C,G or T
     resolvedSingleBasePairALT=validAltBP(alt); //true if ref = A,C,G,T or .
-    
+    //cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
     int qualFieldIdx=fieldIndex++;
+    //cerr<<"CoreVCF qualFieldIdx="<<qualFieldIdx<<" "<<fieldIndex<<endl;
     if(fields[qualFieldIdx] == "."){
 	qual=0.0;
     }else{
 	qual   = destringify<float>( fields[qualFieldIdx] );
     }
+    //cerr<<"CoreVCF qual="<<qual<<endl;
+
     filter =                     fields[fieldIndex++];
-
-
+    // cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
+    // cerr<<"CoreVCF filter="<<filter<<endl;
     //INFO FIELD
     fieldIndexINFO    = fieldIndex;
+    //cerr<<"CoreVCF fieldIndex0 "<<fieldIndex<<endl;    
     infoFieldRaw      = fields[fieldIndex++] ;
+    // cerr<<"CoreVCF info="<<infoFieldRaw<<endl;
+    // cerr<<"CoreVCF fieldIndex1 "<<fieldIndex<<endl;    
+    //infoFieldsNames   = allTokens(infoFieldRaw ,':');
+
+
     haveInfoField=false;
     //if INDEL MARKED
     isIndel = isIndel || strBeginsWith(infoFieldRaw,"INDEL");
-
-
+    //cerr<<"CoreVCF fieldIndex2 "<<fieldIndex<<endl;    
     //increasing to skip GT FIELD
-    fieldIndex++;
+    rawFormatNames  =                fields[fieldIndex++];
+    
+    formatNames     = new vector<string> (allTokens(rawFormatNames ,':'));
+
+    //cerr<<"CoreVCF format="<<rawFormatNames<<endl;
+    //    fieldIndex++;
 
 }
 
@@ -89,9 +106,12 @@ CoreVCF::~CoreVCF(){
     if(haveInfoField)
 	delete infoField;
     // cerr<<"CoreVCF des2"<<endl;
+    delete formatNames;
 }
 
-
+const vector<string> * CoreVCF::getFormatNames(){
+    return formatNames;
+}
 
 void CoreVCF::parseInfoFields(){
     haveInfoField=true;

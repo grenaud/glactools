@@ -51,7 +51,7 @@ private:
     //bool closeIndel;
     /* bool isIndel; */
     //Format fields
-    string rawFormatNames;
+    //    string rawFormatNames;
     string rawFormatValues;
 
     int indexGenotype; //GT
@@ -102,7 +102,7 @@ private:
     /* map<string, string> * infoField; */
     /* bool haveInfoField; */
 
-    vector<string> formatFieldNames;
+    const vector<string> * formatFieldNames;
     vector<string> formatFieldValues;
 
 

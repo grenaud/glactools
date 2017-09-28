@@ -43,34 +43,36 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 
 
     // fields=allTokens(line,'\t');
-    // corevcf = corevcf_;
+    corevcf = corevcf_;
     
     int fieldIndex  = corevcf->getFieldIndexAndIncrease();
 #ifdef DEBUG
-    cout<<"fieldIndex "<<fieldIndex<<endl;
+    cerr<<"fieldIndex "<<fieldIndex<<endl;
 #endif
 
     //FORMAT FIELDS
-    rawFormatNames  = fields[ corevcf->getFieldIndexINFO()+1 ];
+    //rawFormatNames  = fields[ corevcf->getFieldIndexINFO()+1 ];
     rawFormatValues = fields[fieldIndex];
 
 #ifdef DEBUG
-    cout<<"rawFormatNames  "<<rawFormatNames<<endl;
-    cout<<"rawFormatValues "<<rawFormatValues<<endl;
+    //    cerr<<"rawFormatNames  "<<rawFormatNames<<endl;
+    cerr<<"rawFormatValues "<<rawFormatValues<<endl;
 #endif
 
-    formatFieldNames  = allTokens(rawFormatNames ,':');
+    //cout<<rawFormatValues<<endl;
+    //formatFieldNames  = allTokens(rawFormatNames ,':');
+    //formatFieldNames  = allTokens(rawFormatNames ,':');
+    formatFieldNames  = corevcf->getFormatNames();
     formatFieldValues = allTokens(rawFormatValues,':');
     
     if(rawFormatValues == "./."){
 	unresolvedGT=true; 
-
 	observedPL=false;
 	observedGL=false;
 	haploidCall=false;
     }else{
 
-	if(formatFieldNames.size() != formatFieldValues.size()){
+	if(formatFieldNames->size() != formatFieldValues.size()){
 	    //cerr<<"SimpleVCF: for line "<<vectorToString(fields,"\t")<<" the format field does not have as many fields as the values "<<formatFieldNames.size()<<" vs "<<formatFieldValues.size() <<endl;
 	    //exit(1);
 	}
@@ -78,9 +80,9 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
     observedPL=false;
     observedGL=false;
     haploidCall=false;
-    for(unsigned int i=0;i<formatFieldNames.size();i++){
+    for(unsigned int i=0;i<formatFieldNames->size();i++){
 	 // cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames[i]<<" = "<<formatFieldValues[i]<<endl;
-	if(formatFieldNames[i] == "GT"){ 
+	if(formatFieldNames->at(i) == "GT"){ 
 	    indexGenotype     =i; 
 	    formatFieldGT=                   formatFieldValues[i]; 
 	    bool determinedGenotype=false;
@@ -164,7 +166,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 
 
 
-	if(formatFieldNames[i] == "GQ"){ 
+	if(formatFieldNames->at(i) == "GQ"){ 
 	    if(formatFieldValues[i] == "."){
 		indexGenotypeQual =i; 
 		formatFieldGQ=0.0;
@@ -174,7 +176,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    } 
 	    continue; }
 
-	if(formatFieldNames[i] == "DP"){ 
+	if(formatFieldNames->at(i) == "DP"){ 
 	    indexDepth        =i; 
 	    if(!formatFieldValues[i].empty())
 		formatFieldDP=destringify<int>  (formatFieldValues[i]); 
@@ -183,7 +185,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    continue;
 	}
 
-	if(formatFieldNames[i] == "GL"){ 
+	if(formatFieldNames->at(i) == "GL"){ 
 	    observedGL=true;
 	    if(observedPL){
 		cerr<<"SimpleVCF: cannot observed both GL and PL "<<vectorToString(fields,"\t")<<""<<endl;
@@ -232,7 +234,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	}
 
 
-	if(formatFieldNames[i] == "PL"){ 
+	if(formatFieldNames->at(i) == "PL"){ 
 	    observedPL=true;
 
 	    if(observedGL){
@@ -258,10 +260,10 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    if( (formatFieldPL == "0" &&
 		 formatFieldGT == "0/0" )
 		||
-		(corevcf_->getAlt()  == ".")
+		(corevcf->getAlt()  == ".")
 	    ){ 
 #ifdef DEBUG
-		cerr<<"rawFormatNames  "<<rawFormatNames<<endl;
+		//		cerr<<"rawFormatNames  "<<rawFormatNames<<endl;
 		cerr<<"rawFormatValues "<<rawFormatValues<<endl;
 		cerr<<"unresolvedGT    "<<unresolvedGT<<endl;
 #endif
@@ -337,7 +339,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	}
 
 	//To uncomment the fields to get these fields
-	if(formatFieldNames[i] == "A"){   
+	if(formatFieldNames->at(i) == "A"){   
 	    vector<string> adfield = allTokens( formatFieldValues[i] ,',');
 	    for(unsigned int j=0;j<adfield.size();j++){
 		countA.push_back(   destringify<int>( adfield[j]) );
@@ -345,7 +347,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    continue;
 	}
 
-	if(formatFieldNames[i] == "C"){   
+	if(formatFieldNames->at(i) == "C"){   
 	    vector<string> adfield = allTokens( formatFieldValues[i] ,',');
 	    for(unsigned int j=0;j<adfield.size();j++){
 		countC.push_back(   destringify<int>( adfield[j]) );
@@ -353,7 +355,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    continue;
 	}
 
-	if(formatFieldNames[i] == "G"){   
+	if(formatFieldNames->at(i) == "G"){   
 	    vector<string> adfield = allTokens( formatFieldValues[i] ,',');
 	    for(unsigned int j=0;j<adfield.size();j++){
 		countG.push_back(   destringify<int>( adfield[j]) );
@@ -361,7 +363,7 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    continue;
 	}
 
-	if(formatFieldNames[i] == "T"){   
+	if(formatFieldNames->at(i) == "T"){   
 	    vector<string> adfield = allTokens( formatFieldValues[i] ,',');
 	    for(unsigned int j=0;j<adfield.size();j++){
 		countT.push_back(   destringify<int>( adfield[j]) );
@@ -588,7 +590,7 @@ void SimpleVCF::print(ostream& os) const{
       <<corevcf->qual<<"\t"
       <<corevcf->filter<<"\t"
       <<corevcf->infoFieldRaw<<"\t"
-      <<rawFormatNames<<"\t"
+	//      <<rawFormatNames<<"\t"
       <<rawFormatValues;
 
 
