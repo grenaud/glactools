@@ -51,7 +51,7 @@ Go to https://github.com/grenaud/glactools and either:
 
 or
 
-2) Do a "git clone https://github.com/grenaud/glactoolstools.git"
+2) Do a "git clone https://github.com/grenaud/glactools.git"
 
 Installation
 ----------------------
