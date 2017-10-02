@@ -71,9 +71,9 @@ For MacOS, if you have Homebrew (https://brew.sh/) installed:
 2) make sure you have gcc that supports -std=c++11, gcc version 4.7 or above. Type "gcc -v" and check the version. For both Ubuntu and MacOS, 
 
 
-3) Make sure you are connected to the internet and type :
-   cd glactools
-   make
+3) As the makefile uses "git clone" to download subpackages, please make sure that the computer on which you are installing glactools has access to the internet. Once done, simply type :
+     cd glactools
+     make
 
 For MacOS, if you get the problem: fatal error: 'lzma.h' file not found, this is a problem building htslib with homebrew, please refer to the following htslib page: https://github.com/samtools/htslib/issues/493
 
