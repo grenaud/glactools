@@ -263,3 +263,7 @@ Yes, but I recommend using msprime as it can produce directly VCF output.  The o
 
 Yes, simply use "bcftools view" and pipe into glactools.
 
+### Can glactools handle CRAM?
+
+Yes, simply use "samtools view -b in.cram" and pipe into glactools.
+
