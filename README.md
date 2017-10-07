@@ -261,9 +261,13 @@ Yes, but I recommend using msprime as it can produce directly VCF output.  The o
 
 ### Can glactools handle BCF?
 
-Yes, simply use "bcftools view" and pipe into glactools.
+Yes, simply use "bcftools view" and pipe into glactools as such:
+
+     glactools vcf2acf <(bcftools view in.bcf) put_name_of_sample_here 
 
 ### Can glactools handle CRAM?
 
-Yes, simply use "samtools view -b in.cram" and pipe into glactools.
+Yes, simply use "samtools view -b in.cram" and pipe into glactools:
+
+     glactools vcf2acf put_reference_here.fa <(samtools view -b in.cram) put_name_of_sample_here 
 
