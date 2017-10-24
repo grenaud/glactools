@@ -236,9 +236,10 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
     int sizePopRead=0;
     while ( getline (myfileI,linei)){   
 	//header<<line<<endl;
-	vector<string> fields = allTokens( linei ,' ');
+	trimWhiteSpacesBothEnds(&linei);
+	vector<string> fields = allTokensWhiteSpaces( linei );
 	if(fields.size()!=3){
-	    cerr<<"Line "<<linei<<" should have 3 TAB deliminated fields"<<endl;
+	    cerr<<"Line "<<linei<<" should have 3 TAB/space deliminated fields, found "<<fields.size()<<" tab/space deliminated fields"<<endl;
 	    return 1;
 	}
 	sizePopRead++;
@@ -292,8 +293,10 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 	totalRec++;
 	// cout<<lineS<<endl;
 	// cout<<lineG<<endl;
-
-	vector<string> token= allTokens(lineS,'\t');
+	trimWhiteSpacesBothEnds(&lineS);
+	
+	vector<string> token= allTokensWhiteSpaces(lineS);
+	
 	if(token.size() != 6){
 	    cerr<<"Error, SNP line should contain 6 fields"<<endl;
 	    return 1;
