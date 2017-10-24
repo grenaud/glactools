@@ -13,33 +13,33 @@ using namespace std;
 #include <sstream>
 #include <vector>
 #include <list>
-#include "AlleleCounter.h"
+#include "AvgCoaAlleleCounter.h"
 #include "utils.h"
 
 class AvgCoaResult{
  private:
  public:
     //This is everything
-    AlleleCounter all;
+    AvgCoaAlleleCounter all;
     //This is without the ones marked as CpG
-    AlleleCounter noCpg;
+    AvgCoaAlleleCounter noCpg;
     //This is only with the ones marked as CpG
-    AlleleCounter onlyCpg;
+    AvgCoaAlleleCounter onlyCpg;
     //This excludes the following cases:
     // S = C, R or A = T
     // S = T, R or A = C
     // S = A, R or A = G
     // S = G, R or A = A    
-    AlleleCounter transversions;
+    AvgCoaAlleleCounter transversions;
 
 
-    AlleleCounter transitions;
+    AvgCoaAlleleCounter transitions;
 
 
     //This excludes the following cases:
     // S = T, R or A = C
     // S = A, R or A = G
-    AlleleCounter noDamage;
+    AvgCoaAlleleCounter noDamage;
 
     AvgCoaResult();
     ~AvgCoaResult();

@@ -278,11 +278,11 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     //map<string,uint16_t> chri2chr;
 
     //int chr2indexCurrent=0;
-    uint16_t chriLast=UINT16_MAX;
+    //uint16_t chriLast=UINT16_MAX;
 
     //    int indexBin;
-    int lastBin=-1;
-    int chrBin=-1;
+    //    int lastBin=-1;
+    //int chrBin=-1;
 
     // AlleleRecords  * currentRecord;
     //vector< string  > * vecForBin;
@@ -303,15 +303,30 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     //int sizeRecordsRead=0;
 
     datachunk * chunkToAdd      = new datachunk;
-    chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
-    //cout<<"CREATING BUFFER1 "<<(void*)chunkToAdd->buffer<<endl;
-
-    chunkToAdd->sizeRecordsRead = 0;
-
     uint32_t coordinate=0;
     uint16_t chri=UINT16_MAX;
+    try {
+	chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
+    } catch (std::bad_alloc&) {
+	cerr<<"Could not allocate a buffer of size "<<(sizeBins*gp.getSizeRecord())<<endl;
+	exit(1);
+    }
 
-    while(gp.readBlockData(chunkToAdd->buffer,sizeBins,&chunkToAdd->sizeRecordsRead,&chri,&coordinate) ){
+    //cout<<"CREATING BUFFER1 "<<(void*)chunkToAdd->buffer<<endl;
+    
+    chunkToAdd->sizeRecordsRead = 0;
+    // cout<<"chunkToAdd1 "<<chunkToAdd<<endl;
+    // cout<<"chunkToAdd buffer #"<<(void *) chunkToAdd->buffer<<"#"<<endl;
+    // cout<<"buffer size "<<(sizeBins*gp.getSizeRecord())<<endl;
+    // cerr<<"reading block "<<sizeBins<<endl;
+    // cout<<"chunkToAdd2 "<<chunkToAdd<<" "<<&chunkToAdd<<endl;
+
+    
+    bool rbdReturn = gp.readBlockData(chunkToAdd->buffer,sizeBins,&chunkToAdd->sizeRecordsRead,&chri,&coordinate);
+    // cout<<"rbdReturn "<<rbdReturn<<endl;
+    // cout<<"chunkToAdd3 "<<chunkToAdd<<" "<<&chunkToAdd<<endl;
+
+    while( rbdReturn ){
 	//cout<<*arr<<endl;
 	cerr<<"GlacCompute reading new bin, currently  "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<endl;
 	
@@ -341,116 +356,57 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 	rc = pthread_mutex_unlock(&mutexQueue);
 	checkResults("pthread_mutex_unlock()\n", rc);
 	
-	chunkToAdd      = new datachunk;
+	chunkToAdd                  = new datachunk;
 	chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
 	//cout<<"CREATING BUFFER2 "<<(void*)chunkToAdd->buffer<<endl;
 	chunkToAdd->sizeRecordsRead = 0;
 	
 
-#ifdef OLD
-	if( chri !=  chriLast ){  //=UINT16_MAX)
-	    //chr2index[ chrS ]  = (chr2indexCurrent++);//adding
-	    chriLast = chri;
-	    // if(lastBin != -1)
-	    // 	currentBin = lastBin+1+currentBin;
-	    if(chrBin == -1){
-		chrBin = 0;
-	    }else{
-		chrBin = lastBin +1; //a step above the last bin
-	    }
-	    
-	    cerr<<"new chr found, processing chr #: "<<chri2chr[ chri ]<<endl;
-	    //(chrS)<<endl;
-	}
-	
-	int currentBin = chrBin+(coordinate/sizeBins);	
-	cout<<"GlacCompute chri "<<lastBin<<" "<<currentBin<<endl;
-
-	if(lastBin != currentBin){
-	    //cout<<"2: "<<arr->chr<<"\tc="<<arr->coordinate<<"\tbin="<<(currentBin)<<endl;
-
-	    //cout<<"new bin"<<endl;
-	    if( (currentBin%10)==0){
-		//cerr<<"processing : "<<chrBin<<":"<<coordSUI<<endl;
-		cerr<<"processing chr #: "<<(chri2chr[ chri ])<<":"<<coordinate<<endl;
-	    }
-
-	    if(lastBin == -1){ //first bin
-		cout<<"new bin first"<<endl;
-		//re-init
-		//vecForBin =  new vector< AlleleRecords > ();				
-		//vecForBin->reserve(sizeBins);
-		//buffer = new char [sizeBlock*gp.getSizeRecord()];
-		datachunk * chunkToAdd      = new datachunk;
-		chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
-		cout<<"CREATING BUFFER2 "<<(void*)chunkToAdd->buffer<<endl;
-		chunkToAdd->sizeRecordsRead = 0;
-		
-		//vecForBin =  new vector< string > ();		
-
-		lastBin=currentBin;
-	    }else{
-
-		int rc = pthread_mutex_lock(&mutexQueue);
-		checkResults("pthread_mutex_lock()\n", rc);
-		//cout<<"new bin old\t"<<int(queueFilesToprocess->size())<<"\tresadr\t"<<results<<"\tressize\t"<<results->size()<<endl;
-		
-		bool needToAskMutex=false;
-		//add old
-		while( int(queueFilesToprocess->size()) > numberOfThreads ){
-		    needToAskMutex=true;
-		    //unlock mutex
-		    rc = pthread_mutex_unlock(&mutexQueue);
-		    checkResults("pthread_mutex_unlock()\n", rc);
-
-		    //cout<<"Queue is full main threads will sleep for 10 seconds and wait for threads to finish"<<endl;
-		    sleep(4);
-		}
-
-		if(needToAskMutex){
-		    rc = pthread_mutex_lock(&mutexQueue);
-		    checkResults("pthread_mutex_lock()\n", rc);
-		}
-		
-		//queueFilesToprocess->push(vecForBin);
-		//buffer = new char [sizeBlock*gp.getSizeRecord()];
-		queueFilesToprocess->push(chunkToAdd);
-
-		rc = pthread_mutex_unlock(&mutexQueue);
-		checkResults("pthread_mutex_unlock()\n", rc);
-		
-		//cout<<"pushing "<<vecForBin<<endl;
-		// for(unsigned int j=0;j<vecForBin->size();j++){
-		//     cout<<"v "<<(vecForBin->at(j))<<endl;
-		// }
-		//re-init
-		//vecForBin =  new vector< string  > ();		
-		//vecForBin =  new vector< AlleleRecords  > ();
-		//vecForBin->reserve(sizeBins);
-		//buffer = new char [sizeBlock*gp.getSizeRecord()];
-		datachunk * chunkToAdd      = new datachunk;
-		chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
-		cout<<"CREATING BUFFER3 "<<(void*)chunkToAdd->buffer<<endl;
-		chunkToAdd->sizeRecordsRead = 0;
-
-
-		lastBin=currentBin;
-		//
-	    }
-	}else{
-	    //cout<<"old bin"<<endl;
-	}
-#endif	
 	//cout<<"p1#"<<arr->chr<<"\t"<<arr->coordinate<<endl;
 	//vecForBin->push_back(*arr);
 	//vecForBin->push_back(*arr);
 
 	//cout<<"p2#"<<arr->chr<<"\t"<<arr->coordinate<<endl;
 	//vecForBin->push_back(line);
-
+	rbdReturn = gp.readBlockData(chunkToAdd->buffer,sizeBins,&chunkToAdd->sizeRecordsRead,&chri,&coordinate);
     }//done reading
 
-	//queueFilesToprocess->push(vecForBin);//adding last bin
+    cerr<<"done reading, adding final chunk at "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<endl;
+    // cout<<"chunkToAdd "<<chunkToAdd<<endl;
+    // cout<<"chri "<<chri<<endl;
+    // cout<<"coordinate "<<coordinate<<endl;
+    // cout<<"done reading  "<< chunkToAdd->sizeRecordsRead<<endl;
+
+
+    //adding the last chunk
+    rc = pthread_mutex_lock(&mutexQueue);
+    checkResults("pthread_mutex_lock()\n", rc);
+	
+		
+    bool needToAskMutex=false;
+    //add old
+    while( int(queueFilesToprocess->size()) > numberOfThreads ){
+	needToAskMutex=true;
+	//unlock mutex
+	rc = pthread_mutex_unlock(&mutexQueue);
+	checkResults("pthread_mutex_unlock()\n", rc);
+	    
+	cerr<<"queue is full, sleeping for 4 seconds"<<endl;
+	sleep(4);
+    }
+
+    if(needToAskMutex){
+	rc = pthread_mutex_lock(&mutexQueue);
+	checkResults("pthread_mutex_lock()\n", rc);
+    }
+		
+    queueFilesToprocess->push(chunkToAdd);
+
+    rc = pthread_mutex_unlock(&mutexQueue);
+    checkResults("pthread_mutex_unlock()\n", rc);
+	
+
+    //queueFilesToprocess->push(vecForBin);//adding last bin
     //queueFilesToprocess->push(buffer);//adding last bin
     //queueFilesToprocess->push(chunkToAdd);//adding last bin
 
@@ -460,7 +416,7 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     // 	cerr << "Unable to open file "<<filename<<endl;
     // 	exit(1);
     // }
-
+    
 
 
     doneReading=true;
@@ -529,9 +485,11 @@ string GlacCompute::usage() const{
                                     "\nThis program computers summary stats on ACF files\n\n"+
 
 	                            "Options:\n"+ 
-                                    "\t"+"-p [program]"  +"\t\t" +"Program to use:\n"+
+                                    "\t"+"-p [stats]"  +"\t\t" +"Statistics to use:\n"+
          			      "\t"+"    paircoacompute"+"\tTo compute pairwise average coalescence\n"+
+	//			      "\t"+"    fst"+"\t\t\tTo compute pairwise Fst (Weir and Cockerham's 1984)\n"+
 			      "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n\n"+
+
 
 
                               "\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
@@ -592,8 +550,13 @@ int GlacCompute::run(int argc, char *argv[]){
 	    parallelP<SumStatD> pToRun;
 	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);	
 	}else{
-	    cerr<<"Wrong program "<<program<<endl;
-	    return 1;
+	    if(program == "fst"){
+		parallelP<SumStatFst> pToRun;
+		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);	
+	    }else{
+		cerr<<"Wrong program "<<program<<endl;
+		return 1;
+	    }
 	}
     }
 
@@ -602,3 +565,100 @@ int GlacCompute::run(int argc, char *argv[]){
     return 0;
 }
 
+
+
+// #ifdef OLD
+// 	exit(1);
+// 	if( chri !=  chriLast ){  //=UINT16_MAX)
+// 	    //chr2index[ chrS ]  = (chr2indexCurrent++);//adding
+// 	    chriLast = chri;
+// 	    // if(lastBin != -1)
+// 	    // 	currentBin = lastBin+1+currentBin;
+// 	    if(chrBin == -1){
+// 		chrBin = 0;
+// 	    }else{
+// 		chrBin = lastBin +1; //a step above the last bin
+// 	    }
+	    
+// 	    cerr<<"new chr found, processing chr #: "<<chri2chr[ chri ]<<endl;
+// 	    //(chrS)<<endl;
+// 	}
+	
+// 	int currentBin = chrBin+(coordinate/sizeBins);	
+// 	cout<<"GlacCompute chri "<<lastBin<<" "<<currentBin<<endl;
+
+// 	if(lastBin != currentBin){
+// 	    //cout<<"2: "<<arr->chr<<"\tc="<<arr->coordinate<<"\tbin="<<(currentBin)<<endl;
+
+// 	    //cout<<"new bin"<<endl;
+// 	    if( (currentBin%10)==0){
+// 		//cerr<<"processing : "<<chrBin<<":"<<coordSUI<<endl;
+// 		cerr<<"processing chr #: "<<(chri2chr[ chri ])<<":"<<coordinate<<endl;
+// 	    }
+
+// 	    if(lastBin == -1){ //first bin
+// 		cout<<"new bin first"<<endl;
+// 		//re-init
+// 		//vecForBin =  new vector< AlleleRecords > ();				
+// 		//vecForBin->reserve(sizeBins);
+// 		//buffer = new char [sizeBlock*gp.getSizeRecord()];
+// 		datachunk * chunkToAdd      = new datachunk;
+// 		chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
+// 		cout<<"CREATING BUFFER2 "<<(void*)chunkToAdd->buffer<<endl;
+// 		chunkToAdd->sizeRecordsRead = 0;
+		
+// 		//vecForBin =  new vector< string > ();		
+
+// 		lastBin=currentBin;
+// 	    }else{
+
+// 		int rc = pthread_mutex_lock(&mutexQueue);
+// 		checkResults("pthread_mutex_lock()\n", rc);
+// 		//cout<<"new bin old\t"<<int(queueFilesToprocess->size())<<"\tresadr\t"<<results<<"\tressize\t"<<results->size()<<endl;
+		
+// 		bool needToAskMutex=false;
+// 		//add old
+// 		while( int(queueFilesToprocess->size()) > numberOfThreads ){
+// 		    needToAskMutex=true;
+// 		    //unlock mutex
+// 		    rc = pthread_mutex_unlock(&mutexQueue);
+// 		    checkResults("pthread_mutex_unlock()\n", rc);
+
+// 		    //cout<<"Queue is full main threads will sleep for 10 seconds and wait for threads to finish"<<endl;
+// 		    sleep(4);
+// 		}
+
+// 		if(needToAskMutex){
+// 		    rc = pthread_mutex_lock(&mutexQueue);
+// 		    checkResults("pthread_mutex_lock()\n", rc);
+// 		}
+		
+// 		//queueFilesToprocess->push(vecForBin);
+// 		//buffer = new char [sizeBlock*gp.getSizeRecord()];
+// 		queueFilesToprocess->push(chunkToAdd);
+
+// 		rc = pthread_mutex_unlock(&mutexQueue);
+// 		checkResults("pthread_mutex_unlock()\n", rc);
+		
+// 		//cout<<"pushing "<<vecForBin<<endl;
+// 		// for(unsigned int j=0;j<vecForBin->size();j++){
+// 		//     cout<<"v "<<(vecForBin->at(j))<<endl;
+// 		// }
+// 		//re-init
+// 		//vecForBin =  new vector< string  > ();		
+// 		//vecForBin =  new vector< AlleleRecords  > ();
+// 		//vecForBin->reserve(sizeBins);
+// 		//buffer = new char [sizeBlock*gp.getSizeRecord()];
+// 		datachunk * chunkToAdd      = new datachunk;
+// 		chunkToAdd->buffer          = new char [sizeBins*gp.getSizeRecord()];
+// 		cout<<"CREATING BUFFER3 "<<(void*)chunkToAdd->buffer<<endl;
+// 		chunkToAdd->sizeRecordsRead = 0;
+
+
+// 		lastBin=currentBin;
+// 		//
+// 	    }
+// 	}else{
+// 	    //cout<<"old bin"<<endl;
+// 	}
+// #endif	

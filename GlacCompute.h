@@ -30,6 +30,7 @@
 #include "GlactoolsOperations.h"
 
 #include "SumStatAvgCoa.h"
+#include "SumStatFst.h"
 #include "SumStatD.h"
 
 using namespace std;
