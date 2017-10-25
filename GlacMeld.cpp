@@ -33,9 +33,10 @@ string GlacMeld::usage() const{
 	"\t"+"-f" + " [file]\t\t"+"Merge populations according to file in the following tab-delimited format:\n"+
 	"\t"+"\t\t\t"             +"popToMerge1_to_1,popToMerge2_to_1,.... newid1\n"+
         "\t"+"\t\t\t"             +"popToMerge1_to_2,popToMerge2_to_2,.... newid2\n"+
-	// "\t"+"-f2" + " [file]\t\t"+"Merge populations according to file in the following tab-delimited format:\n"+
-	// "\t"+"\t\t\t"             +"popToMerge1 newPopid1\n"+
-        // "\t"+"\t\t\t"             +"popToMerge2 newPopid2\n"+
+	"\n"+
+	 "\t"+ "\t\t\t"+"The file can also specify one individual/pop and the new id similar to a .ind file from EIGENSTRAAT (again tab-delimited):\n"+
+	 "\t"+"\t\t\t"             +"popToMerge1 newPopid1\n"+
+         "\t"+"\t\t\t"             +"popToMerge2 newPopid1\n"+
         "\n"+
 	"\t-k\t\t\tKeep the original populations in the output (Default "+boolStringify(keepOrig)+" )\n";
     ;
@@ -47,7 +48,6 @@ int GlacMeld::run(int argc, char *argv[]){
 
     int lastOpt=1;
     bool specifiedFile     =false;
-    // bool specifiedFile2cols=false;
 
     string filepops;
     
@@ -68,13 +68,6 @@ int GlacMeld::run(int argc, char *argv[]){
 	    i++;
             continue;
         }
-
-        // if(string(argv[i]) == "-f2"){
-        //     specifiedFile2cols=true;
-	//     filepops     = string(argv[i+1]);
-	//     i++;
-        //     continue;
-        // }
 
         if(string(argv[i]) == "-u"){
             uncompressed=true;
@@ -160,66 +153,18 @@ int GlacMeld::run(int argc, char *argv[]){
 	}
     }else{
 
-	// if(specifiedFile2cols){
-	//     vector< pair<string,string> > pops;
-	//     string line;
-	//     igzstream myfile;
-	//     myfile.open(filepops.c_str(), ios::in);
-
-	//     if (!myfile.good()){
-	// 	cerr << "Unable to open file "<<filepops<<endl;
-	// 	return 1;
-	//     }
-
-	//     while ( getline (myfile,line)){   
-	// 	vector<string> fields = allTokens( line ,'\t');
-	// 	if(fields.size()!=2){
-	// 	    cerr<<"Line "<<line<<" should have 2 TAB deliminated fields"<<endl;
-	// 	    return 1;
-	// 	}
-	// 	pops.push_back( pair<string,string>(fields[0],fields[1]) );
-	//     }
-	
-	//     myfile.close();
-
-	//     map<string,int> mergedPop2index;
-	//     for(unsigned int i=0;i<pops.size();i++){
-
-	// 	if ( mergedPop2index.find( pops[i].second ) == m.end() ) {//new pop
-	// 	    mergedPop2index[           pops[i].second ] = int( mergedpopName.size() );
-	// 	    mergedpopName.push_back(   pops[i].second  );
-	// 	}
-		
-	// 	// //cerr<<i<<" "<<pops[i].first<<" "<<pops[i].second<<endl;
-	// 	// if(prepop  == "#"){
-	// 	//     preind=pops[i].first;
-	// 	//     prepop=pops[i].second;
-	// 	//     continue;
-	// 	// }
-	// 	// if(prepop != pops[i].second){
-	// 	//     //cerr<<i<<" "<<preind<<" "<<prepop<<endl;
-	// 	//     pop2mergeString.push_back( preind  );
-	// 	//     mergedpopName.push_back(   prepop  );
-	// 	//     numberOfMelds++;       
-	// 	//     preind=pops[i].first;
-	// 	//     prepop=pops[i].second;
-	// 	// }else{
-	// 	//     preind=preind+","+pops[i].first;
-	// 	//     prepop=pops[i].second;
-	// 	// } 
-	//     }
-
-	// }else{
-
 	
 	for(int i=lastOpt;i<(argc-2);i+=2){
 	    pop2mergeString.push_back( string(argv[i+1]) );
 	    mergedpopName.push_back(   string(argv[i+2]) );
-	    cerr<<"replacing: "<<string(argv[i+1])<<" with "<<string(argv[i+2])<<endl;
 	    numberOfMelds++;       
 	}
-	    //}
     }
+
+    for(unsigned int i=0;i<pop2mergeString.size();i++){
+	cerr<<"replacing: "<<pop2mergeString[i]<<" with "<<mergedpopName[i]<<endl;	
+    }
+
     
     if(numberOfMelds<1){
         cerr<<"meld please specify a set of populations"<<endl;
