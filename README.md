@@ -271,3 +271,11 @@ Yes, simply use "samtools view -b in.cram" and pipe into glactools:
 
      glactools vcf2acf put_reference_here.fa <(samtools view -b in.cram) put_name_of_sample_here 
 
+
+### I got the following error message while building the package:  CMake Error at CMakeLists.txt:9 (cmake_minimum_required): CMake 3.0 or higher is required.  You are running version 2.X.XXX
+
+Update cmake, in Ubuntu, the following seems to work:
+
+     sudo -E add-apt-repository -y ppa:george-edison55/cmake-3.x
+     sudo -E apt-get update
+     sudo apt-get install cmake
