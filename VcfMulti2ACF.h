@@ -28,6 +28,7 @@ using namespace std;
 
 class VcfMulti2ACF{
 private:
+    bool onlyGT =false;
 
     int minPLdiffind=33;
     string epoFile   = "none";

@@ -64,7 +64,7 @@ string Vcf2ACF::usage() const{
 		  "\t"+"--minGQ  [gq]" +"\t\t"+"Minimal genotype quality (default: "+stringify(minGQcutoff)+")\n"+
 		  "\t"+"--minMQ  [mq]" +"\t\t"+"Minimal mapping quality (default: "+stringify(minMQcutoff)+")\n"+
 		  "\t"+"--minMap [minmap]" +"\t"+"Minimal mapability (default: "+stringify(minMapabilitycutoff)+")\n"+
-		  
+		  "\t"+"--onlyGT"        +"\t\t" +"Do not use PL values for alleles, simply use genotypes (GT)      (default: "+booleanAsString(onlyGT)+")\n"+ 
 		  "\t"+"--minPL [pl]"       +"\t\t" +"Use this as the minimum difference of PL values for alleles      (default: "+stringify(minPLdiffind)+")\n"+ 
 		  // "\t"+"--useanc"           +"\t\t" +"Use inferred ancestor instead of chimp      (default: "+stringify(ancAllele)+")\n"+ 
 		  
@@ -83,7 +83,8 @@ string Vcf2ACF::usage() const{
 int Vcf2ACF::run(int argc, char *argv[]){
 
     int lastOpt=1;
-
+    bool specifiedPL  = false;
+    
     for(int i=1;i<(argc-1);i++){ 
 	//cout<<i<<"\t"<<string(argv[i])<<endl;
 	if((string(argv[i]) == "-")  ){
@@ -121,9 +122,15 @@ int Vcf2ACF::run(int argc, char *argv[]){
         //     continue;
 	// }
 
-        if( string(argv[i]) == "--minPL"  ){
-            minPLdiffind=destringify<int>(argv[i+1]);
+        if( string(argv[i]) == "--onlyGT"  ){
+	    onlyGT  = true;
 	    //            specifiedPL  =true;
+            continue;
+	}
+
+        if( string(argv[i]) == "--minPL"  ){
+            minPLdiffind = destringify<int>(argv[i+1]);
+	    specifiedPL  = true;
             i++;
             continue;
 	}
@@ -195,6 +202,11 @@ int Vcf2ACF::run(int argc, char *argv[]){
 
     }
 
+    if(specifiedPL  && onlyGT){
+	cerr<<"Cannot both operate on GT and PL simultaneously "<<endl;
+	return 1;	
+    }
+    
     if(fastaIndex.size()==0){
 	cerr<<"Must specify fai file "<<endl;
 	return 1;	
@@ -451,7 +463,11 @@ int Vcf2ACF::run(int argc, char *argv[]){
 		
 #endif
 
-	    pair<int,int> pairCount= toprint->returnLikelyAlleleCountForRefAlt(minPLdiffind);
+	    pair<int,int> pairCount;
+	    if(onlyGT)
+		pairCount = toprint->returnLikelyAlleleCountForRefAltJustGT();
+	    else
+		pairCount = toprint->returnLikelyAlleleCountForRefAlt(minPLdiffind);
 
 #ifdef DEBUGPOS
 	    if(debugPosition){

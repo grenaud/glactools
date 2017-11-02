@@ -64,7 +64,8 @@ string VcfMulti2ACF::usage() const{
 	
 			      "\t"+"--epo [EPO file]"       +"\t" +"Use file as EPO alignment to set the (default: none)\n"+   
 			      "\t"+"                "       +"\t" +"ancestral/root alleles for hominin samples\n"+   
-			      
+
+			      "\t"+"--onlyGT"        +"\t\t" +"Do not use PL values for alleles, simply use genotypes (GT)      (default: "+booleanAsString(onlyGT)+")\n"+ 
 			      //"\t"+"--epo [EPO alignment file]"       +"\t\t" +"Use file as EPO alignment   (default: none)\n"+ 			      
 			      "\t"+"--minPL [pl]"       +"\t\t" +"Use this as the minimum difference of PL values for alleles      (default: "+stringify(minPLdiffind)+")\n"+ 
 			      // // "\t"+"--useanc"           +"\t\t" +"Use inferred ancestor instead of chimp      (default: "+stringify(ancAllele)+")\n"+ 
@@ -106,6 +107,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
     // epoFile   = "none";
     // epoFileB  = false;
 
+    bool specifiedPL  = false;
 
 
     for(int i=1;i<(argc-1);i++){ 
@@ -119,10 +121,16 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
             i++;
             continue;
         }
-                               
+            
+        if( string(argv[i]) == "--onlyGT"  ){
+	    onlyGT  = true;
+	    //            specifiedPL  =true;
+            continue;
+	}
+                   
         if(strcmp(argv[i],"--minPL") == 0 ){
             minPLdiffind=destringify<int>(argv[i+1]);
-	    //            specifiedPL  =true;
+	    specifiedPL  =true;
             i++;
             continue;
 	}
@@ -144,6 +152,11 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
        ){
 	cerr<<"Usage "<<usage()<<endl;
 	return 1;       
+    }
+    
+    if(specifiedPL  && onlyGT){
+	cerr<<"Cannot both operate on GT and PL simultaneously "<<endl;
+	return 1;	
     }
 
     if(fastaIndex.size()==0){
@@ -403,7 +416,9 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
 	for(unsigned int i=0;i<toprint->size();i++){
 	    pair<int,int> pairCount;
-	    if(toprint->at(i)->getObservedGL() ||toprint->at(i)->getObservedPL() ){
+	    if( !onlyGT &&
+		(toprint->at(i)->getObservedGL() ||toprint->at(i)->getObservedPL() )//has either GL or PL
+	    ){
 		pairCount = toprint->at(i)->returnLikelyAlleleCountForRefAlt(minPLdiffind);
 	    }else{//just use GT 
 		pairCount = toprint->at(i)->returnLikelyAlleleCountForRefAltJustGT();

@@ -31,6 +31,7 @@ private:
     string epoFile   = "none";
     bool   epoFileB  = false;
 
+    bool onlyGT =false;
     int minPLdiffind=33;
     int minGQcutoff=0;
     int minMQcutoff=0;
