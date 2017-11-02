@@ -1,6 +1,6 @@
 language: C++
 
-after_script: sed -i  "s/++11/++11\ -coverage/g" Makefile
+before_script: sed -i  "s/++11/++11\ -coverage/g" Makefile
 
 script: make test
 
