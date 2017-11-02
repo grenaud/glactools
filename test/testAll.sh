@@ -450,7 +450,7 @@ if [ ! $? -eq 0 ] ;then
 fi
 
 echo -n "cleaning up:"
-rm -f *md5sum *gz 2*reheader 2*closest 2*freqspec plink.{bed,bim,fam} eigenstrat.{geno,ind,snp}
+#rm -f *md5sum *gz 2*reheader 2*closest 2*freqspec plink.{bed,bim,fam} eigenstrat.{geno,ind,snp}
 echo -e "${GREEN}ok${NC}"    
 
 echo "Test completed";

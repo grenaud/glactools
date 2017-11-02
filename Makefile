@@ -55,6 +55,7 @@ glactools:	glactools.o  lib/libglactools.a htslib/libhts.a  bamtools/build/src/a
 clean :
 	rm -f *.o glactools
 
+.PHONY: test
 
 test:	glactools
-	test/runTests.sh
+	cd test/ && bash testAll.sh && cd ..
