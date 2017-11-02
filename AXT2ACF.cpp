@@ -173,9 +173,13 @@ int AXT2ACF::run(int argc, char *argv[]){
 	 
 	    vector<string> allToks = allTokens(line,' ');
 
-	    if(allToks[1]  != "chr"+chrname){
-		cerr<<"The chromosome name does not match the one provided on the command line"<<line<<endl;
-		return 1;
+	    if(allToks[1]  != chrname){
+		if(allToks[1]  != "chr"+chrname){		    
+		    cerr<<"The chromosome name "<<allToks[1]<<" does not match the one provided on the command line ("<<"chr"<<chrname<<"), full line:"<<line<<endl;
+		    return 1;
+		}else{
+		    chrname="chr"+chrname;
+		}
 	    }
 
 	    unsigned int  startC = destringify<unsigned int>(allToks[2]);

@@ -680,11 +680,13 @@ pair<int,int> SimpleVCF::returnLikelyAlleleCountForRefAlt(int minPLdiffind) cons
     // 	exit(1);
     // }
 
+    //cerr<<"SimpleVCF "<<formatFieldPLHomoRef<<" "<<formatFieldPLHetero<<" "<<formatFieldPLHomoAlt<<" "<<minPLdiffind<<" "<<unresolvedGT<<endl;
+
     if(unresolvedGT) //unresolved, we cannot infer anything
 	return pair<int,int>(0,0);
 
-    
-    
+
+
     if ( (formatFieldPLHetero-formatFieldPLHomoRef) >= minPLdiffind && (formatFieldPLHomoAlt-formatFieldPLHomoRef) >= minPLdiffind) {  //high likelihood of homo ref, produce 2 alleles ref
 	// refAlleles+=2;
 	// altAlleles+=0;
@@ -700,7 +702,7 @@ pair<int,int> SimpleVCF::returnLikelyAlleleCountForRefAlt(int minPLdiffind) cons
 		// altAlleles+=1;
 		return pair<int,int>(1,1);
 	    }else{
-		if ((formatFieldPLHomoRef-formatFieldPLHomoAlt) >= minPLdiffind && (formatFieldPLHetero-formatFieldPLHomoAlt) <minPLdiffind ) { //high likelihood of at least one alt, produce 1 allele alt 
+		if ((formatFieldPLHomoRef-formatFieldPLHomoAlt) >= minPLdiffind && (formatFieldPLHetero-formatFieldPLHomoAlt) < minPLdiffind ) { //high likelihood of at least one alt, produce 1 allele alt 
 		    // refAlleles+=0;
 		    // altAlleles+=1;
 		    return pair<int,int>(0,1);

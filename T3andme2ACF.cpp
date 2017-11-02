@@ -48,8 +48,8 @@ T3andme2ACF::~T3andme2ACF(){
 
 string T3andme2ACF::usage() const{
     const string usage=string("")+ " 23andme2acf [options] <23andme file> <name sample>"+"\n"+
-			      "\nThis program convert 23andme files into ACF (prints to the stdout)\n"+
-			      
+	"\nThis program convert 23andme files into ACF (prints to the stdout)\n"+
+	
 			      "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+
 			      "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
 
@@ -133,6 +133,12 @@ int T3andme2ACF::run(int argc, char *argv[]){
     //VCFreader vcfr   (string(argv[argc-3]),5);
     // BAMTABLEreader btr  (),5);
     string inputFile23 = string(argv[lastOpt]);
+
+    if(isDos(inputFile23)){
+        cerr << "Please convert the file "<<inputFile23<<" from DOS format to UNIX format"<<endl;
+        return 1;
+    }
+
     igzstream myfile;
     myfile.open(inputFile23.c_str(), ios::in);
 
@@ -452,7 +458,15 @@ int T3andme2ACF::run(int argc, char *argv[]){
 			altCount=1;
 		    }else{
 			//goto nextline;
-			cerr<<"Error: Potential error in the 23 and me file where the reference allele is not there "<<line<<"\t"<<lineFromEPO<<endl; //error
+			cerr<<"Error: Potential error in the 23 and me file where the reference allele is not there "<<endl;
+			cerr<<"line 23andme:"<<line<<endl;
+			cerr<<"line epo:"<<lineFromEPO<<endl; //error
+			// cerr<<"genotype "<<genotype<<"#"<<endl;
+			// cerr<<"rr "<<rr<<"#"<<endl;
+			// cerr<<"ra "<<ra<<"#"<<endl;
+			// cerr<<"ar "<<ar<<"#"<<endl;
+			// cerr<<"aa "<<aa<<"#"<<endl;
+			// cerr<<"rr==genotype "<<(genotype==rr)<<endl;
 			goto nextline;
 		    }			
 		}

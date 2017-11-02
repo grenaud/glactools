@@ -7,6 +7,8 @@
 
 #include "GLF2ACF.h"
 
+//#define DEBUGPOS 9484430
+
 GLF2ACF::GLF2ACF(){
 
 }
@@ -72,7 +74,11 @@ int GLF2ACF::run(int argc, char *argv[]){
     AlleleRecords * arr;
     AlleleRecords * arw;
     
-
+    if(!gp.isGLFormat()){
+        cerr<<"The input file must be in GLF"<<endl;
+        return 1;               
+    }
+    
     GlacWriter * gw = new GlacWriter(gp.getSizePops(),
 				     false,
 				     2,
@@ -109,18 +115,48 @@ int GLF2ACF::run(int argc, char *argv[]){
 	arw->chr           = arr->chr;
 	arw->chri          = arr->chri;
 	arw->coordinate    = arr->coordinate;
-	//cout<<arr->coordinate<<endl;
+
+	
+#ifdef DEBUGPOS
+	bool debugPosition=false;
+	if(arw->coordinate == DEBUGPOS){
+	    debugPosition=true;
+	    cerr<<*arr<<endl;
+	}
+#endif
+	//cerr<<arr->coordinate<<endl;
 	arw->sizePops      = arr->sizePops;
 	arw->ref           = arr->ref;
 	arw->alt           = arr->alt;
 	arw->vectorAlleles = new vector<SingleAllele>();
-	
+	bool foundAlt=false;
+	bool hasNonZero=false;
 	for(unsigned int i=0;i<arr->vectorGLs->size();i++){
 	    pair<int,int> pairCount= arr->vectorGLs->at(i).returnLikelyAlleleCountForRefAlt(minPLdiffind);
-	    //cout<<i<<"\t"<<pairCount.first<<"\t"<<pairCount.second<<"\t"<<arr->vectorGLs->at(i).getIsCpg()<<endl;
+
+#ifdef DEBUGPOS
+	    if( debugPosition ){
+		cerr<<i<<"\t"<<pairCount.first<<"\t"<<pairCount.second<<"\t"<<arr->vectorGLs->at(i).getIsCpg()<<endl;	    
+	    }
+#endif
+
+	    hasNonZero = hasNonZero || (pairCount.first != 0) || (pairCount.second != 0);
+	    foundAlt = (pairCount.second!=0) || foundAlt;
 	    SingleAllele saToWrite (pairCount.first, pairCount.second, arr->vectorGLs->at(i).getIsCpg());
 	    arw->vectorAlleles->push_back(saToWrite);
 	}
+	if(!hasNonZero)//skip positions with no information
+	    continue;
+	
+#ifdef DEBUGPOS
+	    if( debugPosition ){
+		return 1;
+	    }
+#endif
+
+	if(!foundAlt)
+	    arw->alt           = 'N';
+	
 	//cout<<"write"<<*arw<<endl;
 	if(!gw->writeAlleleRecord(arw)){
 	    cerr<<"GlacViewer: error record "<<*arw<<endl;

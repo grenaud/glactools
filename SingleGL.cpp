@@ -107,7 +107,8 @@ bool SingleGL::hasAlt() const{
 
 pair<int,int> SingleGL::returnLikelyAlleleCountForRefAlt(int minPLdiffind) const{
 
-        
+    //cerr<<int(rrGL)<<" "<<int(raGL)<<" "<<int(aaGL)<<" "<<minPLdiffind<<" "<<endl;
+    
     if ( (raGL-rrGL) >= minPLdiffind && (aaGL-rrGL) >= minPLdiffind) {  //high likelihood of homo ref, produce 2 alleles ref
 	// refAlleles+=2;
 	// altAlleles+=0;
@@ -135,6 +136,7 @@ pair<int,int> SingleGL::returnLikelyAlleleCountForRefAlt(int minPLdiffind) const
 		    }else{
 			// refAlleles+=0;
 			// altAlleles+=0;
+			
 			return pair<int,int>(0,0);
 		    }
 		}

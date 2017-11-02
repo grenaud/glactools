@@ -54,3 +54,7 @@ glactools:	glactools.o  lib/libglactools.a htslib/libhts.a  bamtools/build/src/a
 
 clean :
 	rm -f *.o glactools
+
+
+test:	glactools
+	test/runTests.sh

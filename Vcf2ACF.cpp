@@ -9,6 +9,7 @@
 
 static unsigned int limitToReOpenFP = 200; //if the coordinate is this far away, we will re-open the file pointer
 
+//#define DEBUGPOS 9484430
 
 Vcf2ACF::Vcf2ACF(){
 
@@ -343,10 +344,21 @@ int Vcf2ACF::run(int argc, char *argv[]){
     while(vcfr.hasData()){
     	SimpleVCF * toprint=vcfr.getData();
 
-
-	
+#ifdef DEBUGPOS
+	bool debugPosition=false;
+	if(toprint->getPosition() == DEBUGPOS){
+	    debugPosition=true;
+	    cerr<<*toprint<<endl;
+	}
+#endif
 	if(passedFilters(toprint,filtersVCF)){
 
+
+#ifdef DEBUGPOS
+	    if(debugPosition)
+		cerr<<"passed "<<endl;
+#endif
+	    
 	    if(firstLine){
 		firstLine=false;
 		if(epoFileB){
@@ -433,8 +445,22 @@ int Vcf2ACF::run(int argc, char *argv[]){
 	    
 
 	    
+#ifdef DEBUGPOS
+	    if(debugPosition)
+		cerr<<"debug pos"<<endl;
+		
+#endif
+
 	    pair<int,int> pairCount= toprint->returnLikelyAlleleCountForRefAlt(minPLdiffind);
-	    //cerr<<pairCount.first<<"\t"<<pairCount.second<<endl;
+
+#ifdef DEBUGPOS
+	    if(debugPosition){
+		cerr<<pairCount.first<<"\t"<<pairCount.second<<"\t"<<minPLdiffind<<endl;
+		//return 1;
+	    }
+#endif
+	    
+	    
 	    if(pairCount.first != 0 || pairCount.second != 0 ){
 		char alt=(toprint->getAlt()=="."?'N':toprint->getAlt()[0]);
 		// string chimpString;
@@ -527,7 +553,14 @@ int Vcf2ACF::run(int argc, char *argv[]){
 		// SingleAllele root;
 		// SingleAllele anc;
 		SingleAllele sample (pairCount.first, pairCount.second, toprint->isCpg());
-		
+
+		//takes care of the case where for low coverage
+		if(!root.hasAlt()    &&
+		   !anc.hasAlt()    && 
+		   !sample.hasAlt()   ){
+		    arToWrite.alt           = 'N';
+		}
+		   
 		arToWrite.vectorAlleles->push_back(root);
 		arToWrite.vectorAlleles->push_back(anc);
 		arToWrite.vectorAlleles->push_back(sample);
@@ -538,8 +571,17 @@ int Vcf2ACF::run(int argc, char *argv[]){
 		}
 
 
+	    }else{
+		//the allele count is 0
 	    }
 	    //<<endl;
+	}else{
+
+#ifdef DEBUGPOS
+	    if(debugPosition)
+		cerr<<"did not passed "<<endl;
+#endif
+	    
 	}
 
     }
