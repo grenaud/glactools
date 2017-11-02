@@ -1,2 +1,3 @@
 language: C++
 script: make test
+after_script: pip install --user pyyaml cpp-coveralls && coveralls
