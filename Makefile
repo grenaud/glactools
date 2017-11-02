@@ -57,5 +57,5 @@ clean :
 
 .PHONY: test
 
-test:	glactools
+test:	all
 	cd test/ && bash testAll.sh && cd ..
