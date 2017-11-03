@@ -478,7 +478,7 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 	
 	if(alt!='N'){
 	    if(genotypeAlt != alt ){   // has alternative
-		cerr<<"eigen2acf: WARNING The alternative allele between the EPO and the .geno file disagrees, could be triallelic at chr:pos "<<chr<<":"<<pos<<", skipping"<<endl;		
+		cerr<<"eigen2acf: WARNING The alternative allele between the EPO and the .geno file disagrees, could be triallelic at chr:pos "<<chr<<":"<<thousandSeparator(pos)<<", skipping"<<endl;		
 		goto nextline;
 	    }	    
 	}

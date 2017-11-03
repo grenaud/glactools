@@ -11,6 +11,8 @@
 //#define DEBUGWRITEREFALT
 //#define DEBUGWRITEAR
 #include <cinttypes>
+#include <string.h>
+
 #include "htslib/bgzf.h"
 
 #include "AlleleRecords.h"

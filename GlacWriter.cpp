@@ -188,48 +188,73 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 #endif
 	if(bytesForRecord==2){
 
+	    //filling a buffer per line
+	    size_t sizeRecord = 2*sizeof(tempSh)+sizeof(tempCh);
+	    size_t sizeBuffer = (sizePops+2)*sizeRecord;
+	    char buffTemp [ sizeBuffer  ];//2Ref + 2Alt + 1    
 	    
+	    size_t offset = 0;
 	    for(uint32_t j=0;j<(sizePops+2);j++){//plus 2 for root anc
-		//2 bytes
+		
 		tempSh= uint16_t( toWrite->vectorAlleles->at(j).getRefCount() );
-#ifdef DEBUGWRITEAR
-		cerr<<j<<" ref count"<<tempSh<<endl;
-#endif
-
-		if(uncompressed){
-		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
-		}else{
-		    if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return false;   }  
-		}
-
-		//2 bytes
+		memcpy( (void *)(buffTemp+offset) ,  &tempSh , sizeof(tempSh));
+		offset += sizeof(tempSh);
+		
 		tempSh= uint16_t( toWrite->vectorAlleles->at(j).getAltCount() );
-#ifdef DEBUGWRITEAR
-		cerr<<j<<" alt count"<<tempSh<<endl;
-#endif
+		memcpy( (void *)(buffTemp+offset) ,  &tempSh , sizeof(tempSh));
+		offset += sizeof(tempSh);
 
-		
-		if(uncompressed){
-		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
-		}else{
-		    if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return false;   }  
-		}
-
-		//1 byte
 		tempCh= uint8_t( toWrite->vectorAlleles->at(j).getIsCpg() );
+		memcpy( (void *)(buffTemp+offset) ,  &tempCh , sizeof(tempCh));
+		offset += sizeof(tempCh);
 
-#ifdef DEBUGWRITEAR
-		cerr<<j<<" alt count"<<tempCh<<endl;
-#endif
-		
-		if(uncompressed){
-		    if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
-		}else{
-		    if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return false;   }  
-		}
+	    }
+	    if(uncompressed){
+	    	if(write(1,&buffTemp,sizeBuffer) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
+	    }else{
+	    	if( bgzf_write(fpBGZF, &buffTemp,sizeBuffer) != sizeBuffer ){   cerr<<"Write error"<<endl;            return false;   }  
+	    }
 
 	    
-	    }//end for each pop
+	    // 	    //old code
+	    // 	    for(uint32_t j=0;j<(sizePops+2);j++){//plus 2 for root anc
+
+	    // 		//2 bytes
+	    // 		tempSh= uint16_t( toWrite->vectorAlleles->at(j).getRefCount() );
+	    // #ifdef DEBUGWRITEAR
+	    // 		cerr<<j<<" ref count"<<tempSh<<endl;
+	    // #endif
+	    // 		if(uncompressed){
+	    // 		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
+	    // 		}else{
+	    // 		    if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return false;   }  
+	    // 		}
+
+	    // 		//2 bytes
+	    // 		tempSh= uint16_t( toWrite->vectorAlleles->at(j).getAltCount() );
+	    // #ifdef DEBUGWRITEAR
+	    // 		cerr<<j<<" alt count"<<tempSh<<endl;
+	    // #endif	
+	    // 		if(uncompressed){
+	    // 		    if(write(1,&tempSh,sizeof(tempSh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
+	    // 		}else{
+	    // 		    if( bgzf_write(fpBGZF, &tempSh,sizeof(tempSh)) != sizeof(tempSh) ){   cerr<<"Write error"<<endl;            return false;   }  
+	    // 		}
+
+		
+	    // 		//1 byte
+	    // 		tempCh= uint8_t( toWrite->vectorAlleles->at(j).getIsCpg() );
+	    // #ifdef DEBUGWRITEAR
+	    // 		cerr<<j<<" alt count"<<tempCh<<endl;
+	    // #endif	
+	    // 		if(uncompressed){
+	    // 		    if(write(1,&tempCh,sizeof(tempCh)) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
+	    // 		}else{
+	    // 		    if( bgzf_write(fpBGZF, &tempCh,sizeof(tempCh)) != sizeof(tempCh) ){   cerr<<"Write error"<<endl;            return false;   }  
+	    // 		}
+
+	    
+	    // 	    }//end for each pop
 	}else{//bytes for record=2
 	    cerr<<"not yet implemented"<<endl;
 	    exit(1);
