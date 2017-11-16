@@ -83,6 +83,9 @@ ReadTabix::~ReadTabix(){
     delete tb;
 }
 
+const kstring_t * ReadTabix::getKstringPtr(){
+    return tb->getKstringPtr();
+}
 
 string ReadTabix::getHeader(){
     //adapted from main.c from tabix
@@ -161,5 +164,12 @@ bool ReadTabix::readLine(string & line){
 
 
     return toReturn;
+}
+
+
+
+//The user is responsible for getting the addr of the kstring using getKstringPtr 
+bool ReadTabix::readLineKS(){
+    return tb->getNextLineKS();
 }
 
