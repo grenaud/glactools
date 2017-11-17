@@ -26,9 +26,11 @@ SimpleVCF::SimpleVCF(const vector<string> & fields, CoreVCF *  corevcf_,bool del
     init(fields,corevcf_);
 }
 
-void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //string line){
+SimpleVCF::SimpleVCF(const char * p, CoreVCF *  corevcf_,bool deleteCore_):corevcf(corevcf_),deleteCore(deleteCore_){ //string line){
+    initWithString(p,corevcf_);
+}
 
-
+void SimpleVCF::init_(CoreVCF *  corevcf_){ 
     unresolvedGT=false;
     homozygousREF=false;
     heterozygous=false;
@@ -44,6 +46,12 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 
     // fields=allTokens(line,'\t');
     corevcf = corevcf_;
+
+}
+
+void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //string line){
+
+    init_(corevcf_);
     
     int fieldIndex  = corevcf->getFieldIndexAndIncrease();
 #ifdef DEBUG
@@ -53,6 +61,26 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
     //FORMAT FIELDS
     //rawFormatNames  = fields[ corevcf->getFieldIndexINFO()+1 ];
     rawFormatValues = fields[fieldIndex];
+    init2();
+}
+
+void SimpleVCF::initWithString(const char * p, CoreVCF *  corevcf_){ //string line){
+
+    init_(corevcf_);
+    
+    //     int fieldIndex  = corevcf->getFieldIndexAndIncrease();
+    // #ifdef DEBUG
+    //     cerr<<"fieldIndex "<<fieldIndex<<endl;
+    // #endif
+
+    //FORMAT FIELDS
+    //rawFormatNames  = fields[ corevcf->getFieldIndexINFO()+1 ];
+    //rawFormatValues = fields[fieldIndex];
+    rawFormatValues = string(p);
+    init2();
+}
+
+void SimpleVCF::init2(){
 
 #ifdef DEBUG
     //    cerr<<"rawFormatNames  "<<rawFormatNames<<endl;
@@ -154,7 +182,8 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    //    ){ determinedGenotype=true; unresolvedGT=true; 
 
 	    if(!determinedGenotype){
-		cerr<<"SimpleVCF: unable to determine genotype for line "<<vectorToString(fields,"\t")<<" field=#"<<formatFieldGT<<"#"<<endl;
+		//cerr<<"SimpleVCF: unable to determine genotype for line "<<vectorToString(fields,"\t")<<" field=#"<<formatFieldGT<<"#"<<endl;
+		cerr<<"SimpleVCF: unable to determine genotype for field=#"<<formatFieldGT<<"#"<<endl;
 		exit(1);
 	    }
 
@@ -188,7 +217,8 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	if(formatFieldNames->at(i) == "GL"){ 
 	    observedGL=true;
 	    if(observedPL){
-		cerr<<"SimpleVCF: cannot observed both GL and PL "<<vectorToString(fields,"\t")<<""<<endl;
+		//cerr<<"SimpleVCF: cannot observed both GL and PL "<<vectorToString(fields,"\t")<<""<<endl;
+		cerr<<"SimpleVCF: cannot observed both GL and PL"<<endl;
 		exit(1);
 	    }
 
@@ -198,7 +228,8 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 
 	    if(glfields.size() == 2){ //haploid calls (e.g. X for a male)
 		if(!haploidCall){
-		    cerr<<"SimpleVCF: cannot observed 2 GL fields for a non-haploid record "<<vectorToString(fields,"\t")<<""<<endl;
+		    //cerr<<"SimpleVCF: cannot observed 2 GL fields for a non-haploid record "<<vectorToString(fields,"\t")<<""<<endl;
+		    cerr<<"SimpleVCF: cannot observed 2 GL fields for a non-haploid record "<<endl;
 		    exit(1);
 		}
 		formatFieldPLHomoRef =  int(-10.0*destringify<double>(glfields[0]));
@@ -238,7 +269,8 @@ void SimpleVCF::init(const vector<string> & fields, CoreVCF *  corevcf_){ //stri
 	    observedPL=true;
 
 	    if(observedGL){
-		cerr<<"SimpleVCF: cannot observed both GL and PL "<<vectorToString(fields,"\t")<<""<<endl;
+		//cerr<<"SimpleVCF: cannot observed both GL and PL "<<vectorToString(fields,"\t")<<""<<endl;
+		cerr<<"SimpleVCF: cannot observed both GL and PL"<<endl;
 		exit(1);
 	    }
 

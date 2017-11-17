@@ -28,7 +28,10 @@ private:
     string     epoFile      = "none";
     bool       epoFileB     = false;
     string     fastaIndex   = "";
-    void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO);
+    void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO);
+
+    const kstring_t * kstringPtrEPO;
+    ks_tokaux_t aux;
 
 public:
     EIGENSTRAT2ACF();

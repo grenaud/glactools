@@ -111,8 +111,10 @@ private:
     CoreVCF *  corevcf;
     bool deleteCore;
 
+    void init_(CoreVCF *  corevcf_);//called by both init() and initWithString() prior to specifics for each function
     void init(const vector<string> & fields, CoreVCF *  corevcf_);
-    
+    void init2();//called by both init() and initWithString() after to specifics for each function
+    void initWithString(const char * p, CoreVCF *  corevcf_);
 public:
     
     //! Constructor 
@@ -127,7 +129,8 @@ public:
       \param corevcf:  
     */
     SimpleVCF(const vector<string> & fields, CoreVCF *  corevcf_,bool deleteCore_=true); //string line){
-    
+
+    SimpleVCF(const char * p, CoreVCF *  corevcf_,bool deleteCore_=true);
 
     //! Dummy constructor, do not use 
     SimpleVCF();

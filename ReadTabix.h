@@ -28,13 +28,16 @@ class ReadTabix{
     /* tabix_t * fpTab; */
     /* ti_iter_t iteratorTab; */
     Tabix * tb;
- 
+    const kstring_t * str;
+
  public:
     ReadTabix(string file,string indexForFile,string chrName,int start,int end);
     ReadTabix(string file,string indexForFile,string chrName);
+    const kstring_t * getKstringPtr();
 
     ~ReadTabix();
     bool readLine(string & line);
+    bool readLineKS();
     void repositionIterator(string chrName,int start,int end);
     void repositionIterator(string chrName);
 

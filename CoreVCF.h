@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <vector> 
 #include <map>
 #include "utils.h"
@@ -80,11 +81,22 @@ class CoreVCF{
     int getFieldIndexINFO();
 
 public:
-
+    CoreVCF();
     CoreVCF(const vector<string> & fields);
     CoreVCF(const CoreVCF & other);
     ~CoreVCF();
     CoreVCF & operator= (const CoreVCF & other);
+    
+    void setName(  const char * p);
+    void setPos(   const char * p);
+    void setID(    const char * p);
+    void setREF(   const char * p);
+    void setALT(   const char * p);
+    void setQUAL(  const char * p);
+    void setFILTER(const char * p);
+    void setINFO(  const char * p);
+    void setFORMAT(const char * p);
+    
     const vector<string> * getFormatNames();
     friend class SimpleVCF;
 };

@@ -11,26 +11,68 @@ using namespace std;
 
 
 
-void EIGENSTRAT2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
+void EIGENSTRAT2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO){
 
-    lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
+    //lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
+    lineLeftEPO=(rtEPO->readLineKS(  ));
+    //cerr<<kstringPtrEPO->s<<endl;
     if(!lineLeftEPO){
 	cerr<<"Error, missing data in the EPO file"<<endl;
 	exit(1);
     }
 
-    vector<string> fieldsEPO  = allTokens(lineFromEPO,'\t');
-    epoChr                   = fieldsEPO[0];
-    epoCoord                 = string2uint(fieldsEPO[1]);					
-    if(fieldsEPO[9] == "1")
-	cpgEPO=true;		    
-    else
-	cpgEPO=false;		    
+    char *p, *q;
+    int i;
+
+    for (p = kstrtok(kstringPtrEPO->s, "\t", &aux), i = 0; p; p = kstrtok(0, 0, &aux), ++i) {
+	q = (char*)aux.p;
+	*q = 0;
+	//cout<<i<<" >"<<p<<"<  "<<endl;
+	if(i==0){//chr
+	    epoChr                   = string(p);
+	    continue;
+	}
+	if(i==1){//coord
+	    epoCoord                 = (unsigned int)strtoul(p, NULL, 0);//strtoul(p);
+	    continue;
+	}
+	if(i==2){//human ref
+	    allel_ref   = p[0];
+	    continue;
+	}
+	if(i==3){//ancestor
+	    allel_anc     = p[0];
+	    continue;
+	}
+	if(i==4){//chimp
+	    allel_chimp   = p[0];
+	    continue;
+	}
+	if(i<9) continue;
+	if(i==9){
+	    if(strcmp(p,"1")==0){
+		cpgEPO=true;		    
+	    }else{
+		cpgEPO=false;
+	    }
+	    continue;
+	}
+
+	break;
+    }
+
+    // vector<string> fieldsEPO  = allTokens(lineFromEPO,'\t');
+    // epoChr                   = fieldsEPO[0];
+    // epoCoord                 = string2uint(fieldsEPO[1]);					
+    // if(fieldsEPO[9] == "1")
+    // 	cpgEPO=true;		    
+    // else
+    // 	cpgEPO=false;		    
 
 
-    allel_ref   = fieldsEPO[2][0];//reference allele
-    allel_anc   = fieldsEPO[3][0];//inferred ancestor
-    allel_chimp = fieldsEPO[4][0];//chimp;
+    // allel_ref   = fieldsEPO[2][0];//reference allele
+    // allel_anc   = fieldsEPO[3][0];//inferred ancestor
+    // allel_chimp = fieldsEPO[4][0];//chimp;
 
 
 }
@@ -38,6 +80,7 @@ void EIGENSTRAT2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int &
 
 
 EIGENSTRAT2ACF::EIGENSTRAT2ACF(){
+
 
 }
 
@@ -188,7 +231,7 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
     unsigned int epoCoord;
 
     ReadTabix * rtEPO =NULL;
-    string lineFromEPO;
+    //string lineFromEPO;
     bool lineLeftEPO;
     bool cpgEPO=false;
     bool firstLine=true;
@@ -319,8 +362,9 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 				       epoFileidx.c_str()  , 
 				       chr,
 				       int(pos),INT_MAX ); //the destructor should be called automatically
-
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		kstringPtrEPO = rtEPO->getKstringPtr();
+		memset(&aux, 0, sizeof(ks_tokaux_t));
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO);
 	    }
 	}
 
@@ -335,14 +379,14 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 		if( (pos - epoCoord ) >= limitToReOpenFP){ //seeking in the file
 		    rtEPO->repositionIterator(chr , int(pos),INT_MAX);
 		}	       	    
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO);
 	    }
 
 
 
 	    while(epoCoord != pos){
 		if(epoCoord > pos){
-		    cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(lineS)<<"\t"<<lineFromEPO<<endl;
+		    cerr<<"Error, are all the sites in EPO there? Difference between coords "<<(lineS)<<"\tEPO="<<kstringPtrEPO->s<<endl;
 		    return 1;
 		}
 		
@@ -351,12 +395,12 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 		}
 		
 	    
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO,lineFromEPO);
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO);
 	    }
 
 
 	    if(epoCoord != pos){
-		cerr<<"Error, are all the sites in EPO there? Difference between coords "<<lineS<<"\t"<<lineFromEPO<<endl;
+		cerr<<"Error, are all the sites in EPO there? Difference between coords "<<lineS<<"\tEPO="<<kstringPtrEPO->s<<endl;
 		return 1;
 	    }
 	}//end if epoFileB
