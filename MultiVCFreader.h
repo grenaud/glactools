@@ -13,6 +13,8 @@
 #include <memory> 
 #include <gzstream.h>
 
+#include "htslib/kstring.h"
+
 #include "SimpleVCF.h"
 #include "ReadTabix.h"
 #include "AlleleInfoReader.h"
@@ -62,7 +64,12 @@ private:
     int numberOfTimesHasDataWasCalled;
 
     ReadTabix * rt;
-    string currentline;
+    const kstring_t * strTbx;
+    kstring_t       * strText;
+    const kstring_t * str;
+    ks_tokaux_t aux;
+
+    //string currentline;
     int readAhead;
     list< vector<SimpleVCF *> * > queueOfVCFs;
     int indexInQueueOfIndels; //this is the index of the last element of the list that is an insert, -1 if none
@@ -81,7 +88,9 @@ private:
     int  numPop;
     bool repoCalledHasData; //flag if the repositionIterator was called, set to true by repositionIterator() and false by hasData()
 
-    igzstream vcfFile; //for text mode
+    //igzstream vcfFile; //for text mode
+    BGZF *fpVCF;
+
     inline bool getNextLine();
     vector<SimpleVCF *> * svcfToReturn;
     inline void flagCpG(SimpleVCF * previous,SimpleVCF * current);

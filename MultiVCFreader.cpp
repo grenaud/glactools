@@ -12,12 +12,16 @@
 MultiVCFreader::MultiVCFreader(string file,string indexForFile,string chrName,int start,int end,int indelsAhead){
     readAhead=indelsAhead;
     rt = new ReadTabix (file,indexForFile,chrName,start,end);
+    strTbx = rt->getKstringPtr();
+    str = strTbx;
+    memset(&aux, 0, sizeof(ks_tokaux_t));
     
     //    cerr<<"first const"<<endl;
     //reading header
     istringstream f (rt->getHeader());
     string line;    
     numPop=0;
+    // V not exactly optimized but this part is not time critical V
     while (getline(f, line)) {
         //std::cout << line << std::endl;
 	if(strBeginsWith(line,"#CHROM") 
@@ -71,21 +75,36 @@ MultiVCFreader::MultiVCFreader(string file,int indelsAhead){
     numberOfTimesHasDataWasCalled=0;
     svcfToReturn=0;
 
-    vcfFile.open(file.c_str(), ios::in);    // open the streams
-    if (vcfFile.good()) {
-	//fine
-    }else{
-	cerr<<"Unable to open the file "<<file<<endl;
-	exit(1);
+    //vcfFile.open(file.c_str(), ios::in);    // open the streams
+
+    if( (fpVCF = bgzf_open(file.c_str(), "r")) == 0){ 
+    	cerr<<"Unable to open the file "<<file<<endl;
+    	exit(1);
     }
+
+    // if (vcfFile.good()) {
+    // 	//fine
+    // }else{
+    // 	cerr<<"Unable to open the file "<<file<<endl;
+    // 	exit(1);
+    // }
 
     bool firstLine=true;
     bool haveCaptureCHROM=false;
     numPop=0;
 
+
     while(1){
-	bool flag=(bool)getline(vcfFile,currentline);
-	
+	//bool flag=(bool)getline(vcfFile,currentline);
+	int ret;
+	strText= new kstring_t();
+	strText->s = 0; strText->l = strText->m = 0;
+	str = strText;
+        memset(&aux, 0, sizeof(ks_tokaux_t));
+
+	bool flag= ((ret = bgzf_getline(fpVCF, '\n', strText)) >= 0); 
+	string currentline (strText->s); //copy but this is just the header
+
 	if(!flag){
 	    cerr<<"ERROR file : "+file+" is probably empty"<<endl;
 	    exit(1);
@@ -94,6 +113,7 @@ MultiVCFreader::MultiVCFreader(string file,int indelsAhead){
 	if(firstLine){
 
 	    if(currentline.length() > 0 && currentline[0] != '#'){
+	    
 		cerr<<"ERROR first line in "<<file<<"does not begin with #"<<endl;
 		exit(1);
 	    }
@@ -103,8 +123,10 @@ MultiVCFreader::MultiVCFreader(string file,int indelsAhead){
 
 	if(!firstLine){
 
+	    
 	    if(currentline.length() > 0){
 		if(currentline[0] == '#'){
+
 
 		    if(strBeginsWith(currentline,"#CHROM") 
 		       // ||
@@ -181,7 +203,11 @@ MultiVCFreader::~MultiVCFreader(){
     }
 
     if(textMode)
-	vcfFile.close();
+	delete strText;
+    //vcfFile.close();
+    bgzf_close(fpVCF);
+    
+
 
     // if(!queueOfVCFs.empty()){
     // 	cerr<<"The queue still contains elements " <<endl;
@@ -271,16 +297,20 @@ vector<string> MultiVCFreader::getPopulationNames() const {
 
 bool MultiVCFreader::getNextLine(){
     if(tabixMode){
-	return rt->readLine(currentline);
+	//return rt->readLine(currentline);
+	return rt->readLineKS();//string is found  in strTbx
     }
 
     if(textMode){
 	while(1){
-	    bool flag=(bool)getline(vcfFile,currentline);
+	    //bool flag=(bool)getline(vcfFile,currentline);
+	    int ret;
+	    bool flag= ((ret = bgzf_getline(fpVCF, '\n', strText)) >= 0); 
 
 	    if(!flag)
 		return false;	   
-	    if(currentline.length() > 0 && currentline[0] != '#')
+	    //if(currentline.length() > 0 && currentline[0] != '#')
+	    if(strText->l > 0 && strText->s[0] != '#')
 		return true;
 	}
     }
@@ -315,19 +345,48 @@ bool MultiVCFreader::hasData(){
 		cerr<<"currentline "<<currentline<<endl;
 #endif
 		vector<SimpleVCF *> *  svcfvec = new vector<SimpleVCF *>();
-		vector<string> fieldTab = allTokens(currentline,'\t');
-		CoreVCF * corevcf =  new CoreVCF(fieldTab);
+		//vector<string> fieldTab = allTokens(currentline,'\t');
+		char *p, *q;
+		int i;
+		CoreVCF * corevcf =  new CoreVCF();
+		int k=0;
+		for (p = kstrtok(str->s, "\t", &aux), i = 0; p; p = kstrtok(0, 0, &aux), ++i) {
+		    q = (char*)aux.p;
+		    *q = 0;
 
-		for(int k=0;k<numPop;k++){
-		    
-		    SimpleVCF * svcf = new  SimpleVCF (fieldTab,corevcf,k==0);
-		    
-#ifdef DEBUG		
-		    cerr<<"field#"<<k<<"/"<<numPop<<" = ->"<<fieldTab[k+9]<<"<- pos="<<svcf->getPosition()<<endl;
-#endif
+		    if(i<9){//core VCF fields
+			if(i == 0){ corevcf->setName(  p); continue; }
+			if(i == 1){ corevcf->setPos(   p); continue; }
+			if(i == 2){ corevcf->setID(    p); continue; }
+			if(i == 3){ corevcf->setREF(   p); continue; }
+			if(i == 4){ corevcf->setALT(   p); continue; }
+			if(i == 5){ corevcf->setQUAL(  p); continue; }
+			if(i == 6){ corevcf->setFILTER(p); continue; }
+			if(i == 7){ corevcf->setINFO(  p); continue; }
+			if(i == 8){ corevcf->setFORMAT(p); continue; }
+		    }else{
+			
+			SimpleVCF * svcf = new  SimpleVCF (p,corevcf,k==0);
+			svcfvec->push_back(svcf);
+			k++;
+		    }
 
-		    svcfvec->push_back(svcf);
 		}
+
+		if( (9+numPop) != i){
+		    cerr<<"Found "<<i<<" fields but expected "<<(9+numPop)<<endl;
+		    exit(1);
+		}
+		// 		for(int k=0;k<numPop;k++){
+     
+// 		    SimpleVCF * svcf = new  SimpleVCF (fieldTab,corevcf,k==0);
+		    
+// #ifdef DEBUG		
+// 		    cerr<<"field#"<<k<<"/"<<numPop<<" = ->"<<fieldTab[k+9]<<"<- pos="<<svcf->getPosition()<<endl;
+// #endif
+
+// 		    svcfvec->push_back(svcf);
+// 		}
 		
 		//SimpleVCF * svcfvec = new SimpleVCF(currentline);
 #ifdef DEBUG		
@@ -374,12 +433,46 @@ bool MultiVCFreader::hasData(){
 	    // SimpleVCF * svcf = new  SimpleVCF(currentline);
 
 	    vector<SimpleVCF *> *  svcfvec = new vector<SimpleVCF *>();
-	    vector<string> fieldTab = allTokens(currentline,'\t');
-	    CoreVCF * corevcf =  new CoreVCF(fieldTab);
-	    for(int k=0;k<numPop;k++){
-		SimpleVCF * svcf = new SimpleVCF (fieldTab,corevcf,k==0);
-		svcfvec->push_back(svcf);
+
+	    char *p, *q;
+	    int i;
+	    CoreVCF * corevcf =  new CoreVCF();
+	    int k=0;
+	    for (p = kstrtok(str->s, "\t", &aux), i = 0; p; p = kstrtok(0, 0, &aux), ++i) {
+		q = (char*)aux.p;
+		*q = 0;
+
+		//cerr<<"tokenizer token#1"<<i<<"="<<p<<"#"<<endl;
+		if(i<9){//core VCF fields
+		    if(i == 0){ corevcf->setName(  p); continue; }
+		    if(i == 1){ corevcf->setPos(   p); continue; }
+		    if(i == 2){ corevcf->setID(    p); continue; }
+		    if(i == 3){ corevcf->setREF(   p); continue; }
+		    if(i == 4){ corevcf->setALT(   p); continue; }
+		    if(i == 5){ corevcf->setQUAL(  p); continue; }
+		    if(i == 6){ corevcf->setFILTER(p); continue; }
+		    if(i == 7){ corevcf->setINFO(  p); continue; }
+		    if(i == 8){ corevcf->setFORMAT(p); continue; }
+		}else{
+			
+		    SimpleVCF * svcf = new  SimpleVCF (p,corevcf,k==0);
+		    svcfvec->push_back(svcf);
+		    k++;
+		}
+
 	    }
+
+	    if( (9+numPop) != i){
+		cerr<<"Found "<<i<<" fields but expected "<<(9+numPop)<<endl;
+		exit(1);
+	    }
+
+	    // vector<string> fieldTab = allTokens(currentline,'\t');
+	    // CoreVCF * corevcf =  new CoreVCF(fieldTab);
+	    // for(int k=0;k<numPop;k++){
+	    // 	SimpleVCF * svcf = new SimpleVCF (fieldTab,corevcf,k==0);
+	    // 	svcfvec->push_back(svcf);
+	    // }
 		
 #ifdef DEBUG		
 	    //cout<<"new2 "<<*svcf<<endl;

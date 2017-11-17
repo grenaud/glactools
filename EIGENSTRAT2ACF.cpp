@@ -13,24 +13,65 @@ using namespace std;
 
 void EIGENSTRAT2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_ref,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
 
-    lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
+    //lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
+    lineLeftEPO=(rtEPO->readLineKS(  ));
+
     if(!lineLeftEPO){
 	cerr<<"Error, missing data in the EPO file"<<endl;
 	exit(1);
     }
 
-    vector<string> fieldsEPO  = allTokens(lineFromEPO,'\t');
-    epoChr                   = fieldsEPO[0];
-    epoCoord                 = string2uint(fieldsEPO[1]);					
-    if(fieldsEPO[9] == "1")
-	cpgEPO=true;		    
-    else
-	cpgEPO=false;		    
+    char *p, *q;
+    int i;
+
+    for (p = kstrtok(kstringPtrEPO->s, "\t", &aux), i = 0; p; p = kstrtok(0, 0, &aux), ++i) {
+	q = (char*)aux.p;
+	*q = 0;
+	//cout<<i<<" >"<<p<<"<  #"<<*q<<"#"<<endl;
+	if(i==0){//chr
+	    epoChr                   = string(p);
+	    continue;
+	}
+	if(i==1){//coord
+	    epoCoord                 = (unsigned int)strtoul(p, NULL, 0);//strtoul(p);
+	    continue;
+	}
+	if(i==2){//human ref
+	    continue;
+	}
+	if(i==3){//ancestor
+	    allel_anc     = p[0];
+	    continue;
+	}
+	if(i==4){//chimp
+	    allel_chimp   = p[0];
+	    continue;
+	}
+	if(i<9) continue;
+	if(i==9){
+	    if(strcmp(p,"1")==0){
+		cpgEPO=true;		    
+	    }else{
+		cpgEPO=false;
+	    }
+	    continue;
+	}
+
+	break;
+    }
+
+    // vector<string> fieldsEPO  = allTokens(lineFromEPO,'\t');
+    // epoChr                   = fieldsEPO[0];
+    // epoCoord                 = string2uint(fieldsEPO[1]);					
+    // if(fieldsEPO[9] == "1")
+    // 	cpgEPO=true;		    
+    // else
+    // 	cpgEPO=false;		    
 
 
-    allel_ref   = fieldsEPO[2][0];//reference allele
-    allel_anc   = fieldsEPO[3][0];//inferred ancestor
-    allel_chimp = fieldsEPO[4][0];//chimp;
+    // allel_ref   = fieldsEPO[2][0];//reference allele
+    // allel_anc   = fieldsEPO[3][0];//inferred ancestor
+    // allel_chimp = fieldsEPO[4][0];//chimp;
 
 
 }

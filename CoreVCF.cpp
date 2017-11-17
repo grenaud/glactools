@@ -7,6 +7,11 @@
 
 #include "CoreVCF.h"
 
+CoreVCF::CoreVCF(){
+    closeIndel=false;
+    fieldIndex=0;
+}
+
 CoreVCF::CoreVCF(const vector<string> & fields){
     closeIndel=false;
 
@@ -34,17 +39,94 @@ CoreVCF::CoreVCF(const vector<string> & fields){
 
 	//    }
 
-    chrName=                     fields[fieldIndex++];
-    position=string2uint(        fields[fieldIndex++]);
+    //chrName=                     fields[fieldIndex++];
+    setName( fields[fieldIndex++].c_str() );
+
+    //position=string2uint(        fields[fieldIndex++]);
+    setPos( fields[fieldIndex++].c_str() );
 
     //if(fields.size() != 9 )
-    id     =                 fields[fieldIndex++];
+    //id     =                 fields[fieldIndex++];
+    setID( fields[fieldIndex++].c_str() );
+
     // else
     // 	id     =                 "NA";
 
     //cerr<<"CoreVCF id="<<id<<" "<<fieldIndex<<endl;
-    ref    =                     fields[fieldIndex++];
-    alt    =                     fields[fieldIndex++];
+    // ref    =                     fields[fieldIndex++];
+    // resolvedSingleBasePairREF=validOneBP(ref); //true if ref = A,C,G or T
+    setREF( fields[fieldIndex++].c_str() );
+
+
+    setALT( fields[fieldIndex++].c_str() );
+    setQUAL(  fields[fieldIndex++].c_str() );
+    // int qualFieldIdx=fieldIndex++;
+    // //cerr<<"CoreVCF qualFieldIdx="<<qualFieldIdx<<" "<<fieldIndex<<endl;
+    // if(fields[qualFieldIdx] == "."){
+    // 	qual=0.0;
+    // }else{
+    // 	qual   = destringify<float>( fields[qualFieldIdx] );
+    // }
+    //cerr<<"CoreVCF qual="<<qual<<endl;
+
+    //filter =                     fields[fieldIndex++];
+    setFILTER(  fields[fieldIndex++].c_str() );
+    //INFO FIELD
+    fieldIndexINFO    = fieldIndex;
+    setINFO(  fields[fieldIndex++].c_str() );
+    // cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
+    // cerr<<"CoreVCF filter="<<filter<<endl;
+
+
+    //cerr<<"CoreVCF fieldIndex0 "<<fieldIndex<<endl;    
+
+
+    //infoFieldRaw      = fields[fieldIndex++] ;
+    // cerr<<"CoreVCF info="<<infoFieldRaw<<endl;
+    // cerr<<"CoreVCF fieldIndex1 "<<fieldIndex<<endl;    
+    //infoFieldsNames   = allTokens(infoFieldRaw ,':');
+
+
+
+    //cerr<<"CoreVCF fieldIndex2 "<<fieldIndex<<endl;    
+    //increasing to skip GT FIELD
+    
+    setFORMAT(  fields[fieldIndex++].c_str() );
+
+
+    //cerr<<"CoreVCF format="<<rawFormatNames<<endl;
+    //    fieldIndex++;
+
+}
+
+CoreVCF::~CoreVCF(){
+    // cerr<<"CoreVCF des1"<<endl;
+    if(haveInfoField)
+	delete infoField;
+    // cerr<<"CoreVCF des2"<<endl;
+    delete formatNames;
+}
+
+void CoreVCF::setName(  const char * p){
+    chrName=                 string(p);
+}
+
+void CoreVCF::setPos(   const char * p){
+    position = (unsigned int)strtoul(p, NULL, 0);
+    //position=string2uint(        fields[fieldIndex++]);
+}
+
+void CoreVCF::setID(    const char * p){
+    id     =                 string(p);
+}
+
+void CoreVCF::setREF(   const char * p){
+    ref                      = string(p);
+    resolvedSingleBasePairREF= validOneBP(ref); //true if ref = A,C,G or T
+}
+
+void CoreVCF::setALT(   const char * p){
+    alt    =                     string(p);
     // cerr<<"CoreVCF ref="<<ref<<" "<<fieldIndex<<endl;
     // cerr<<"CoreVCF alt="<<alt<<" "<<fieldIndex<<endl;
     // cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
@@ -63,51 +145,42 @@ CoreVCF::CoreVCF(const vector<string> & fields){
     
     //cerr<<"isIndel "<<isIndel<<endl;
     //boolean flags for a single bp in ref or alt
-    resolvedSingleBasePairREF=validOneBP(ref); //true if ref = A,C,G or T
     resolvedSingleBasePairALT=validAltBP(alt); //true if ref = A,C,G,T or .
     //cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
-    int qualFieldIdx=fieldIndex++;
+
+}
+
+
+void CoreVCF::setQUAL(  const char * p){
+    //int qualFieldIdx=fieldIndex++;
     //cerr<<"CoreVCF qualFieldIdx="<<qualFieldIdx<<" "<<fieldIndex<<endl;
-    if(fields[qualFieldIdx] == "."){
+    //if(fields[qualFieldIdx] == "."){
+    if(strcmp(p,".") == 0 ){
 	qual=0.0;
     }else{
-	qual   = destringify<float>( fields[qualFieldIdx] );
+	qual   = atof(p); //destringify<float>( fields[qualFieldIdx] );
     }
-    //cerr<<"CoreVCF qual="<<qual<<endl;
 
-    filter =                     fields[fieldIndex++];
-    // cerr<<"CoreVCF fieldIndex "<<fieldIndex<<endl;    
-    // cerr<<"CoreVCF filter="<<filter<<endl;
-    //INFO FIELD
-    fieldIndexINFO    = fieldIndex;
-    //cerr<<"CoreVCF fieldIndex0 "<<fieldIndex<<endl;    
-    infoFieldRaw      = fields[fieldIndex++] ;
-    // cerr<<"CoreVCF info="<<infoFieldRaw<<endl;
-    // cerr<<"CoreVCF fieldIndex1 "<<fieldIndex<<endl;    
-    //infoFieldsNames   = allTokens(infoFieldRaw ,':');
+}
 
+void CoreVCF::setFILTER(const char * p){
+    filter =           string(p);
+}
 
+void CoreVCF::setINFO(  const char * p){
+
+    infoFieldRaw      = string(p);
     haveInfoField=false;
     //if INDEL MARKED
     isIndel = isIndel || strBeginsWith(infoFieldRaw,"INDEL");
-    //cerr<<"CoreVCF fieldIndex2 "<<fieldIndex<<endl;    
-    //increasing to skip GT FIELD
-    rawFormatNames  =                fields[fieldIndex++];
-    
+
+}
+
+void CoreVCF::setFORMAT(const char * p){
+    rawFormatNames  =                string(p);
     formatNames     = new vector<string> (allTokens(rawFormatNames ,':'));
-
-    //cerr<<"CoreVCF format="<<rawFormatNames<<endl;
-    //    fieldIndex++;
-
 }
 
-CoreVCF::~CoreVCF(){
-    // cerr<<"CoreVCF des1"<<endl;
-    if(haveInfoField)
-	delete infoField;
-    // cerr<<"CoreVCF des2"<<endl;
-    delete formatNames;
-}
 
 const vector<string> * CoreVCF::getFormatNames(){
     return formatNames;
