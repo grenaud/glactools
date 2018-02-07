@@ -183,12 +183,12 @@ void SimpleVCF::init2(){
 
 	    if(!determinedGenotype){
 		//cerr<<"SimpleVCF: unable to determine genotype for line "<<vectorToString(fields,"\t")<<" field=#"<<formatFieldGT<<"#"<<endl;
-		cerr<<"SimpleVCF: unable to determine genotype for field=#"<<formatFieldGT<<"#"<<endl;
-		exit(1);
+	      cerr<<"SimpleVCF: unable to determine genotype for field=#"<<formatFieldGT<<"#"<<" at position: "<<corevcf->getChr()<<":"<<corevcf->getPosition()<<endl;
+	      exit(1);
 	    }
 
 	    if(formatFieldValues.size() == 1 ){//weird case where the remaining fields are missing
-		break;
+	      break;
 	    }
 	    continue;
 	}
