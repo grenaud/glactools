@@ -165,20 +165,24 @@ int GlacUnion::run(int argc, char *argv[]){
 
 
     while(stayLoop){
+	//if none have data, break
 	if(!atLeastOneHasData ){
 	    stayLoop=false;
 	    break;
 	}
 
 #ifdef DEBUG
-	cerr<<"coordCurrent "<<chr1<<"\t"<<coordCurrent<<endl;
+	cerr<<"coordCurrent "<<vectorOfGP[0]->getChromosomeName(chr1)<<" chri="<<chr1<<"\t"<<coordCurrent<<endl;
 #endif
-
+	//check if at least someone has data and is at 
 	vector<bool> hasCoordinate (vectorOfGP.size(),false);
 	bool atLeastOneHasCoordinate=false;
 	for(unsigned int i=0;i<vectorOfGP.size();i++){ 
 	    if(hasData[i]){
-		if(coordCurrent  == vecAlleleRecords[i]->coordinate){
+		if( (chr1          == vecAlleleRecords[i]->chri)       //    same chromosome index
+		    &&
+		    (coordCurrent  == vecAlleleRecords[i]->coordinate) //and same chromosome coordinate 
+		){
 		    hasCoordinate[i]=true;
 		    atLeastOneHasCoordinate=true;
 		}
@@ -189,7 +193,8 @@ int GlacUnion::run(int argc, char *argv[]){
 	
 	//we print
 	if(atLeastOneHasCoordinate){
-	    
+
+	    //flushing out the ones with data
 	    printAllele(vectorOfGP,
 			hasData,
 			hasCoordinate,
@@ -203,9 +208,11 @@ int GlacUnion::run(int argc, char *argv[]){
 
 
 	    // 	seekdata:
-	     atLeastOneHasData=false;
 
-	     for(unsigned int i=0;i<vectorOfGP.size();i++){ 
+	    atLeastOneHasData=false;
+
+	    //moving to the next record for those that had data
+	    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
 		 
 		 if(hasData[i] ){
 
