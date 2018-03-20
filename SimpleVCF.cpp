@@ -109,7 +109,7 @@ void SimpleVCF::init2(){
     observedGL=false;
     haploidCall=false;
     for(unsigned int i=0;i<formatFieldNames->size();i++){
-	 // cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames[i]<<" = "<<formatFieldValues[i]<<endl;
+	//cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames->at(i)<<" = "<<formatFieldValues[i]<<endl;
 	if(formatFieldNames->at(i) == "GT"){ 
 	    indexGenotype     =i; 
 	    formatFieldGT=                   formatFieldValues[i]; 
@@ -206,11 +206,16 @@ void SimpleVCF::init2(){
 	    continue; }
 
 	if(formatFieldNames->at(i) == "DP"){ 
-	    indexDepth        =i; 
-	    if(!formatFieldValues[i].empty())
-		formatFieldDP=destringify<int>  (formatFieldValues[i]); 
-	    else
+	    indexDepth        =i;
+
+	    if(formatFieldValues[i] == "."){
 		formatFieldDP=-1;//if the DP field is missing
+	    }else{
+		if(!formatFieldValues[i].empty())
+		    formatFieldDP=destringify<int>  (formatFieldValues[i]); 
+		else
+		    formatFieldDP=-1;//if the DP field is missing
+	    }
 	    continue;
 	}
 
