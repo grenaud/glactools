@@ -12,7 +12,7 @@ readACFGLFFile.o:	readACFGLFFile.cpp
 	${CXX} ${CXXFLAGS} readACFGLFFile.cpp
 
 
-readACFGLFFile:	readACFGLFFile.o ${LIBGLACTOOLS}/lib/libglactools.a ${LIBGLACTOOLS}/htslib/libhts.a ${LIBGLACTOOLS}/bamtools/lib/libbamtools.a
+readACFGLFFile:	readACFGLFFile.o ${LIBGLACTOOLS}/lib/libglactools.a ${LIBGLACTOOLS}/htslib/libhts.a ${LIBGLACTOOLS}/bamtools/build/src/api/libbamtools.a
 	${CXX} -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 clean :
