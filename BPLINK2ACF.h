@@ -1,12 +1,12 @@
 /*
- * EIGENSTRAT2ACF
+ * BPLINK2ACF
  * Date: Jul-30-2017 
  * Author : Gabriel Renaud gabriel.reno [at sign here] gmail.com
  *
  */
 
-#ifndef EIGENSTRAT2ACF_h
-#define EIGENSTRAT2ACF_h
+#ifndef BPLINK2ACF_h
+#define BPLINK2ACF_h
 
 #include <string>
 #include <climits>
@@ -29,7 +29,7 @@
 
 using namespace std;
 
-class EIGENSTRAT2ACF{
+class BPLINK2ACF{
 private:
     bool uncompressed=0;    
     string     epoFile      = "none";
@@ -42,10 +42,10 @@ private:
     ks_tokaux_t aux;
 
 public:
-    EIGENSTRAT2ACF();
-    EIGENSTRAT2ACF(const EIGENSTRAT2ACF & other);
-    ~EIGENSTRAT2ACF();
-    EIGENSTRAT2ACF & operator= (const EIGENSTRAT2ACF & other);
+    BPLINK2ACF();
+    BPLINK2ACF(const BPLINK2ACF & other);
+    ~BPLINK2ACF();
+    BPLINK2ACF & operator= (const BPLINK2ACF & other);
     
     string usage() const;
     int run(int argc, char *argv[]);

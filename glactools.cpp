@@ -12,6 +12,8 @@
 
 #include "BAM2ACF.h"
 #include "EIGENSTRAT2ACF.h"
+#include "BPLINK2ACF.h"
+
 #include "Vcf2ACF.h"
 #include "GLF2ACF.h"
 #include "Vcf2GLF.h"
@@ -79,7 +81,9 @@ int main (int argc, char *argv[]) {
 	"      bam2acf         Convert single sample BAM to acf "+"\n"+
 	"      axt2acf         Convert AXT alignment to acf "+"\n"+
 	"      eigen2acf       Convert EIGENSTRAT data to acf "+"\n"+
+	"      bplink2acf      Convert binary PLINK to acf"+"\n"+
 	"      23andme2acf     Convert 23andme data to acf "+"\n"+
+	
 	"\n"+
 	"   --Filtering:\n"+                       
 	"      noundef         No undefined sites for populations"+"\n"+
@@ -223,6 +227,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return eigen2acf_.run(argc, argv);
+	
+    }else{      if(string(argv[1]) == "bplink2acf"){
+	BPLINK2ACF  bplink2acf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<bplink2acf_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return bplink2acf_.run(argc, argv);
 		    
     }else{      if(string(argv[1]) == "glf2acf"){
 	GLF2ACF  glf2acf_;
@@ -711,7 +729,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																				    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

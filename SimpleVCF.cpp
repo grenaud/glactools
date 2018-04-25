@@ -109,7 +109,7 @@ void SimpleVCF::init2(){
     observedGL=false;
     haploidCall=false;
     for(unsigned int i=0;i<formatFieldNames->size();i++){
-	 // cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames[i]<<" = "<<formatFieldValues[i]<<endl;
+	//cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames->at(i)<<" = "<<formatFieldValues[i]<<endl;
 	if(formatFieldNames->at(i) == "GT"){ 
 	    indexGenotype     =i; 
 	    formatFieldGT=                   formatFieldValues[i]; 
@@ -206,11 +206,16 @@ void SimpleVCF::init2(){
 	    continue; }
 
 	if(formatFieldNames->at(i) == "DP"){ 
-	    indexDepth        =i; 
-	    if(!formatFieldValues[i].empty())
-		formatFieldDP=destringify<int>  (formatFieldValues[i]); 
-	    else
+	    indexDepth        =i;
+
+	    if(formatFieldValues[i] == "."){
 		formatFieldDP=-1;//if the DP field is missing
+	    }else{
+		if(!formatFieldValues[i].empty())
+		    formatFieldDP=destringify<int>  (formatFieldValues[i]); 
+		else
+		    formatFieldDP=-1;//if the DP field is missing
+	    }
 	    continue;
 	}
 
@@ -314,42 +319,42 @@ void SimpleVCF::init2(){
 	    vector<string> plfields = allTokens(formatFieldPL,',');
 
 	    if(plfields.size() == 3){ //biallelic
-		formatFieldPLHomoRef =  destringify<int>(plfields[0]);
-		formatFieldPLHetero  =  destringify<int>(plfields[1]);
-		formatFieldPLHomoAlt =  destringify<int>(plfields[2]);
+		formatFieldPLHomoRef =  plString2Int(plfields[0]);
+		formatFieldPLHetero  =  plString2Int(plfields[1]);
+		formatFieldPLHomoAlt =  plString2Int(plfields[2]);
 
 	    }else{
 		if(plfields.size() == 6){ //triallelic
 		    //according to VCF docs it has the following order AA,AB,BB,AC,BC,CC
-		    formatFieldPLHomoRef  =  destringify<int>(plfields[0]); //r-r
+		    formatFieldPLHomoRef  =  plString2Int(plfields[0]); //r-r
 
-		    formatFieldPLHetero1  =  destringify<int>(plfields[1]); //r-a1
-		    formatFieldPLHomoAlt1 =  destringify<int>(plfields[2]); //a1-a1
+		    formatFieldPLHetero1  =  plString2Int(plfields[1]); //r-a1
+		    formatFieldPLHomoAlt1 =  plString2Int(plfields[2]); //a1-a1
 
-		    formatFieldPLHetero2  =  destringify<int>(plfields[3]); //r-a2
+		    formatFieldPLHetero2  =  plString2Int(plfields[3]); //r-a2
 
-		    formatFieldPLHetero12 =  destringify<int>(plfields[4]); //a1-a2
-		    formatFieldPLHomoAlt2 =  destringify<int>(plfields[5]); //a2-a2
+		    formatFieldPLHetero12 =  plString2Int(plfields[4]); //a1-a2
+		    formatFieldPLHomoAlt2 =  plString2Int(plfields[5]); //a2-a2
 
 		}else{
 		    if(plfields.size() == 10){ //penta allelic
 			//according to VCF docs it has the following order  AA,AB,BB,AC,BC,CC, AD,BD,CD,DD
-			formatFieldPLHomoRef  =  destringify<int>(plfields[0]); //r-r
+			formatFieldPLHomoRef  =  plString2Int(plfields[0]); //r-r
 			
-			formatFieldPLHetero1  =  destringify<int>(plfields[1]); //r-a1
-			formatFieldPLHomoAlt1 =  destringify<int>(plfields[2]); //a1-a1
+			formatFieldPLHetero1  =  plString2Int(plfields[1]); //r-a1
+			formatFieldPLHomoAlt1 =  plString2Int(plfields[2]); //a1-a1
 
-			formatFieldPLHetero2  =  destringify<int>(plfields[3]); //r-a2
+			formatFieldPLHetero2  =  plString2Int(plfields[3]); //r-a2
 
-			formatFieldPLHetero12 =  destringify<int>(plfields[4]); //a1-a2
-			formatFieldPLHomoAlt2 =  destringify<int>(plfields[5]); //a2-a2
+			formatFieldPLHetero12 =  plString2Int(plfields[4]); //a1-a2
+			formatFieldPLHomoAlt2 =  plString2Int(plfields[5]); //a2-a2
 
-			formatFieldPLHetero3  =  destringify<int>(plfields[6]); //r-a3
+			formatFieldPLHetero3  =  plString2Int(plfields[6]); //r-a3
 			
-			formatFieldPLHetero13 =  destringify<int>(plfields[7]); //a1-a3
-			formatFieldPLHetero23 =  destringify<int>(plfields[8]); //a2-a3
+			formatFieldPLHetero13 =  plString2Int(plfields[7]); //a1-a3
+			formatFieldPLHetero23 =  plString2Int(plfields[8]); //a2-a3
 			
-			formatFieldPLHomoAlt3 =  destringify<int>(plfields[9]); //a1-a1
+			formatFieldPLHomoAlt3 =  plString2Int(plfields[9]); //a1-a1
 
 		    }else{
 			//to take care of such things:

@@ -179,7 +179,7 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     
     if(!glFormat){//not GLF so ACF
 	if(int(toWrite->vectorAlleles->size()) != int(sizePops+2)){
-	    cerr<<"Discrepancy between vector of alleles "<<int(toWrite->vectorAlleles->size())<<" and given number of pops "<< int(sizePops+2)<<endl;
+	    cerr<<"GlacWriter: Discrepancy between vector of alleles "<<int(toWrite->vectorAlleles->size())<<" and given number of pops "<< int(sizePops+2)<<endl;
 	    return false;
 	}
 

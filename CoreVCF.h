@@ -42,6 +42,7 @@ class CoreVCF{
     bool haveInfoField;
     int fieldIndex;
     int fieldIndexINFO;
+    bool haveFormatNames;
     string rawFormatNames;
     vector<string> * formatNames;
 

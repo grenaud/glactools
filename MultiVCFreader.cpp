@@ -340,9 +340,10 @@ bool MultiVCFreader::hasData(){
 	bool loop=true;
 	int indexQueue=0;
 	while(loop){
+	popqueuegetnextline:	    
 	    if(getNextLine()){
 #ifdef DEBUG		
-		cerr<<"currentline "<<currentline<<endl;
+		cerr<<"currentline "<<str->s<<endl;
 #endif
 		vector<SimpleVCF *> *  svcfvec = new vector<SimpleVCF *>();
 		//vector<string> fieldTab = allTokens(currentline,'\t');
@@ -350,28 +351,36 @@ bool MultiVCFreader::hasData(){
 		int i;
 		CoreVCF * corevcf =  new CoreVCF();
 		int k=0;
+		//bool breakLoop=false;
 		for (p = kstrtok(str->s, "\t", &aux), i = 0; p; p = kstrtok(0, 0, &aux), ++i) {
 		    q = (char*)aux.p;
 		    *q = 0;
+		    
+#ifdef DEBUG		
+		    cerr<<"pq i "<<i<<" p "<<string(p)<<endl;
+#endif
 
+		    
 		    if(i<9){//core VCF fields
 			if(i == 0){ corevcf->setName(  p); continue; }
 			if(i == 1){ corevcf->setPos(   p); continue; }
 			if(i == 2){ corevcf->setID(    p); continue; }
-			if(i == 3){ corevcf->setREF(   p); continue; }
-			if(i == 4){ corevcf->setALT(   p); continue; }
+			if(i == 3){ if(strlen(p) != 1){ delete svcfvec; delete corevcf; goto popqueuegetnextline;} corevcf->setREF(   p); continue; }
+			if(i == 4){ if(strlen(p) != 1){ delete svcfvec; delete corevcf; goto popqueuegetnextline;} corevcf->setALT(   p); continue; }
 			if(i == 5){ corevcf->setQUAL(  p); continue; }
 			if(i == 6){ corevcf->setFILTER(p); continue; }
 			if(i == 7){ corevcf->setINFO(  p); continue; }
 			if(i == 8){ corevcf->setFORMAT(p); continue; }
-		    }else{
-			
+		    }else{			
 			SimpleVCF * svcf = new  SimpleVCF (p,corevcf,k==0);
 			svcfvec->push_back(svcf);
 			k++;
 		    }
 
 		}
+		
+		// if(breakLoop)
+		//     break;
 
 		if( (9+numPop) != i){
 		    cerr<<"Found "<<i<<" fields but expected "<<(9+numPop)<<endl;
@@ -429,8 +438,13 @@ bool MultiVCFreader::hasData(){
 
     //if subsequent call, and queue full
     if(fullQueue){
+    fullqueuegetnextline:
+	
 	if(getNextLine()){
 	    // SimpleVCF * svcf = new  SimpleVCF(currentline);
+#ifdef DEBUG		
+		cerr<<"currentline "<<str->s<<endl;
+#endif
 
 	    vector<SimpleVCF *> *  svcfvec = new vector<SimpleVCF *>();
 
@@ -438,23 +452,27 @@ bool MultiVCFreader::hasData(){
 	    int i;
 	    CoreVCF * corevcf =  new CoreVCF();
 	    int k=0;
+	    
 	    for (p = kstrtok(str->s, "\t", &aux), i = 0; p; p = kstrtok(0, 0, &aux), ++i) {
 		q = (char*)aux.p;
 		*q = 0;
+		    
+#ifdef DEBUG		
+		cerr<<"fq i "<<i<<" p "<<string(p)<<endl;
+#endif
 
 		//cerr<<"tokenizer token#1"<<i<<"="<<p<<"#"<<endl;
 		if(i<9){//core VCF fields
 		    if(i == 0){ corevcf->setName(  p); continue; }
 		    if(i == 1){ corevcf->setPos(   p); continue; }
 		    if(i == 2){ corevcf->setID(    p); continue; }
-		    if(i == 3){ corevcf->setREF(   p); continue; }
-		    if(i == 4){ corevcf->setALT(   p); continue; }
+		    if(i == 3){ if(strlen(p) != 1){ delete svcfvec; delete corevcf; goto fullqueuegetnextline;} corevcf->setREF(   p); continue; }
+		    if(i == 4){ if(strlen(p) != 1){ delete svcfvec; delete corevcf; goto fullqueuegetnextline;} corevcf->setALT(   p); continue; }
 		    if(i == 5){ corevcf->setQUAL(  p); continue; }
 		    if(i == 6){ corevcf->setFILTER(p); continue; }
 		    if(i == 7){ corevcf->setINFO(  p); continue; }
 		    if(i == 8){ corevcf->setFORMAT(p); continue; }
-		}else{
-			
+		}else{			
 		    SimpleVCF * svcf = new  SimpleVCF (p,corevcf,k==0);
 		    svcfvec->push_back(svcf);
 		    k++;

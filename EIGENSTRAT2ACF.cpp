@@ -92,7 +92,13 @@ EIGENSTRAT2ACF::~EIGENSTRAT2ACF(){
 string EIGENSTRAT2ACF::usage() const{
     const string usage=string("")+ " eigen2acf [options] <EIGENSTRAT prefix> "+"\n"+
 			      "\nThis program convert EIGENSTRAT files into ACF (prints to the stdout)\n"+
-			      
+
+	"\nThe <EIGENSTRAT prefix> must include the following files:\n"+
+"\t<EIGENSTRAT prefix>.geno\n"+
+"\t<EIGENSTRAT prefix>.snp\n"+
+"\t<EIGENSTRAT prefix>.ind\n"+
+"\n"+
+	
 			      "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+
 			      "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
 
@@ -158,14 +164,24 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
     }
 
 
-    if(fastaIndex.size()==0){
+    if(fastaIndex.size()==0 ){
 	cerr<<"Must specify fai file "<<endl;
 	return 1;	
     }
 
+    if( !strEndsWith(fastaIndex,".fai") ){
+	cerr<<"fasta index must end with .fai file "<<endl;
+	return 1;	
+    }
+    fastaFile = fastaIndex.substr(0,fastaIndex.size()-4);
+    
     if(!epoFileB){
-    	cerr<<"Must specify EPO file as this file format does not have the reference information "<<endl;
-    	return 1;	
+	if(!isFile( fastaFile ) ){
+	    cerr<<"If you do not specify EPO file, we need the fasta index  as this file format does not have the reference information"<<endl<<"fasta file "<<fastaFile<<" does not exist"<<endl;
+	    return 1;
+	}
+    	//cerr<<"Must specify EPO file as this file format does not have the reference information "<<endl;	
+    	//return 1;	
     }
 
     vector<chrinfo> chrFound;
@@ -223,8 +239,8 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 
 
     
-    
-
+    BamTools::Fasta fastaReference;
+   
     string epoFileidx = epoFile+".tbi";
 
     string epoChr;
@@ -365,6 +381,11 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 		kstringPtrEPO = rtEPO->getKstringPtr();
 		memset(&aux, 0, sizeof(ks_tokaux_t));
 		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_ref,allel_chimp,allel_anc,lineLeftEPO);
+	    }else{
+		if ( !fastaReference.Open(fastaFile , fastaIndex) ){ 
+		    cerr << "ERROR: failed to open fasta file " <<fastaFile<<" and index " <<fastaIndex<<endl;
+		    return 1;
+		}		
 	    }
 	}
 
@@ -403,8 +424,16 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 		cerr<<"Error, are all the sites in EPO there? Difference between coords "<<lineS<<"\tEPO="<<kstringPtrEPO->s<<endl;
 		return 1;
 	    }
-	}//end if epoFileB
+	}else{ //end if epoFileB
 
+	    //allel_ref =
+	    if ( !fastaReference.GetBase(chr2index[chr], pos, allel_ref ) ) {
+		cerr << "glactools ERROR:  could not read reference base from FASTA file at chr:"<<chr2index[chr]<<" position:"<<(pos) << endl;
+		 return 1;
+	     }
+
+	}
+	
 	char alt='N';
 	string s="ACGT";
 	string chimpString;
@@ -421,29 +450,33 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 	    goto nextline;
 	}
 
-	if(epoFileB){
-	    if(isResolvedDNA(allel_ref)){
-		if(allel_ref != genotypeRef){
-		    //cerr<<"eigen2acf: WARNING: The reference allele between the EPO ("<<allel_ref<<") and the ref from the .geno file ("<<genotypeRef<<") disagrees at chr:pos "<<chr<<":"<<pos<<endl;
-		    if(allel_ref != genotypeAlt){
-			cerr<<"eigen2acf: WARNING: The reference allele between the EPO ("<<allel_ref<<") and the alt from the .geno file ("<<genotypeRef<<") also disagrees at chr:pos "<<chr<<":"<<pos<<", skiping"<<endl;			
-			goto nextline;
-		    }else{
-			refIsAltfromSNPfile=true;
-			char c_     = genotypeRef;
-			genotypeRef = genotypeAlt;
-			genotypeAlt = c_;
-		    }
-		    
+	if(isResolvedDNA(allel_ref)){
+	    if(allel_ref != genotypeRef){
+		//cerr<<"eigen2acf: WARNING: The reference allele between the EPO ("<<allel_ref<<") and the ref from the .geno file ("<<genotypeRef<<") disagrees at chr:pos "<<chr<<":"<<pos<<endl;
+		if(allel_ref != genotypeAlt){
+		    cerr<<"eigen2acf: WARNING: The reference allele between the EPO/FASTA ("<<allel_ref<<") and the alt from the .geno file ("<<genotypeRef<<") also disagrees at chr:pos "<<chr<<":"<<pos<<", skiping"<<endl;			
+		    goto nextline;
 		}else{
-		    //fine
+		    refIsAltfromSNPfile=true;
+		    char c_     = genotypeRef;
+		    genotypeRef = genotypeAlt;
+		    genotypeAlt = c_;
 		}
+		    
 	    }else{
-		goto nextline;
+		//fine
 	    }
-	    
+	}else{
+	    goto nextline;
 	}
-	
+
+	//todo
+
+    // 	    if ( !m_fastaReference->GetBase(pileupData.RefId, posAlign-1, referenceBase ) ) {
+    // 	cerr << "bamtools convert ERROR: pileup conversion - could not read reference base from FASTA file at chr "<<pileupData.RefId<<" position "<<(posAlign-1) << endl;
+    // 	exit(1);
+    // }
+
 	//determine alternative allele
 	// for(int i=0;i<4;i++){
 	//     if(s[i] != allel_ref){

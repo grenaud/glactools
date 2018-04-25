@@ -9,6 +9,8 @@
 
 CoreVCF::CoreVCF(){
     closeIndel=false;
+    haveInfoField  =false;
+    haveFormatNames=false;
     fieldIndex=0;
 }
 
@@ -100,11 +102,12 @@ CoreVCF::CoreVCF(const vector<string> & fields){
 }
 
 CoreVCF::~CoreVCF(){
-    // cerr<<"CoreVCF des1"<<endl;
+
     if(haveInfoField)
 	delete infoField;
-    // cerr<<"CoreVCF des2"<<endl;
-    delete formatNames;
+
+     if(haveFormatNames)
+	 delete formatNames;
 }
 
 void CoreVCF::setName(  const char * p){
@@ -178,6 +181,7 @@ void CoreVCF::setINFO(  const char * p){
 
 void CoreVCF::setFORMAT(const char * p){
     rawFormatNames  =                string(p);
+    haveFormatNames = true;
     formatNames     = new vector<string> (allTokens(rawFormatNames ,':'));
 }
 

@@ -19,6 +19,8 @@
 
 using namespace std;
 
+
+
 //! A  class to hold VCF info for a single individual
 /*!
 The constructor parses the line from the VCF and populates the fields. 
@@ -287,5 +289,11 @@ public:
 	return corevcf->getInfoField<T>(tag);
 	//}
     }
+
+    inline int plString2Int(const string & s){
+	if(s==".") return 1000;
+	return destringify<int>(s);
+    }
+    
 };
 #endif
