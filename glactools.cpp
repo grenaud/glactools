@@ -46,6 +46,7 @@
 #include "GlacSharing.h"
 #include "GlacNoSharing.h"
 #include "GlacNoStrictSharing.h"
+#include "GlacNosingle.h"
 
 #include "GlacCAT.h"
 #include "ACF2BPLINK.h" 
@@ -92,6 +93,7 @@ int main (int argc, char *argv[]) {
 	"      sharing         Retain sites that share alleles between populations"+"\n"+
 	"      nosharing       Retain sites that do NOT share alleles between populations"+"\n"+
 	"      snosharing      Retain sites that STRICKLY do NOT share alleles between populations"+"\n"+
+	"      nosingle        Retain variant sites where 2 individuals/pop or more have the variant"+"\n"+
 	"\n"+
 	"   --Computations:\n"+                       
 	"      freqspec        Compute the frequency spectrum"+"\n"+
@@ -481,6 +483,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glacnostrictsharing_.run(argc, argv);
+	
+    }else{      if(string(argv[1]) == "nosingle"){
+	GlacNosingle  glacnosingle_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacnosingle_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacnosingle_.run(argc, argv);
 
     }else{      if(string(argv[1]) == "freqspec"){
 	Glac2FREQSPEC  glac2freqspec_;
@@ -729,7 +745,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																				    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																					}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }
