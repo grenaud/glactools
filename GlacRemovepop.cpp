@@ -65,13 +65,20 @@ int GlacRemovepop::run(int argc, char *argv[]){
 
     
     string fileglac                  = string(argv[lastOpt  ]);
-    string pop2remove                  = string(argv[lastOpt+1]);
+    string pop2remove                = string(argv[lastOpt+1]);
     GlacParser gp (fileglac);
 
-    vector<string> g1v = allTokens(pop2remove,',');
+    vector<string> g1v_ = allTokens(pop2remove,',');
+    vector<string> g1v;
+    set<string> s1v;
+    for(unsigned int i=0;i<g1v_.size();i++){
+	s1v.insert( g1v_[i] );
+    }
+    g1v.assign( s1v.begin(), s1v.end() );
+
     // vector<unsigned int>   g1i;
     vector<bool> flagsPopToAdd = vector<bool>(gp.getPopulationsNames()->size()+2,true);
-	    	    
+    //cerr<<vectorToString(g1v)<<endl;
 
     for(unsigned k=0;k<g1v.size();k++){
 	bool found=false;
