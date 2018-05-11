@@ -28,6 +28,7 @@ using namespace std;
 class ACF2TREEMIX{
 private:
 
+    bool noroot = false;
     bool limitToTransversions=false;
     bool noprivate=false;
     bool printAnc=false;

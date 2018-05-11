@@ -20,6 +20,7 @@ string ACF2TREEMIX::usage() const{
 	"This program takes an ACF matrix and prints the segregating sites in Treemix format\n"+
 	"\n"+
 	"Options:\n"+
+	"\t--noroot\t\tDo not print the root/anc  (Default "+boolStringify(noroot)+" )\n"+
 	"\t--justtransv\t\tOnly allow transversions (Default "+boolStringify(limitToTransversions)+" )\n"+
 	"\t--noprivate\t\tDo not allow private mutations (Default "+boolStringify(noprivate)+" )\n"+
 	"\t--anc\t\tPrint ancestral value, not the root (Default "+boolStringify(printAnc)+" )\n";
@@ -39,8 +40,8 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
     }
 
     int lastOpt=1;    
-    for(int i=1;i<(argc-1);i++){ 
-
+    for(int i=1;i<(argc);i++){ 
+	
 	if((string(argv[i]) == "-")  ){
 	    lastOpt=i;
 	    break;          
@@ -50,6 +51,11 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
 	    lastOpt=i;
 	    break;
 	}       	
+
+        if( string(argv[i]) == "--noroot"  ){
+	    noroot=true;
+            continue;
+        }
 
         if( string(argv[i]) == "--anc"  ){
 	    printAnc=true;
@@ -70,12 +76,20 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
 	exit(1);
     }
 
+    if(printAnc && !noroot){
+	cerr<<"ACF2TREEMIX Error: cannot specify --noroot and --anc "<<endl;
+	exit(1);
+    }
 
     GlacParser gp (argv[lastOpt]);
 
     vector<string> toprintPop;
+    unsigned jinit=0;
+    if(noroot){
+	jinit=2;
+    }
 
-    for(unsigned j=0;j<gp.getPopulationsNames()->size();j++){
+    for(unsigned j=jinit;j<gp.getPopulationsNames()->size();j++){
 
 	if(j == 0){
 	    if(printAnc)
@@ -123,7 +137,7 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
 	int counterIndRef=0;
 	int counterIndAlt=0;
 
-	for(unsigned j=0;j<test->vectorAlleles->size();j++){
+	for(unsigned j=jinit;j<test->vectorAlleles->size();j++){
 
 	    if(j == 0){
 		if(printAnc)
@@ -141,6 +155,7 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
 		(test->vectorAlleles->at(j).getAltCount() == 0) ){
 		goto nextiteration;
 	    }
+
 	    if(test->vectorAlleles->at(j).getRefCount() != 0)
 		counterIndRef++;
 	    if(test->vectorAlleles->at(j).getAltCount() != 0)
