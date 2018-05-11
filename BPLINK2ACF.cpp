@@ -463,6 +463,9 @@ int BPLINK2ACF::run(int argc, char *argv[]){
     	     }
 
     	}
+	//to be safe
+	allel_ref = toupper( allel_ref );
+	allel_anc = toupper( allel_anc );
 	
     	char alt='N';
     	string s="ACGT";
@@ -522,7 +525,7 @@ int BPLINK2ACF::run(int argc, char *argv[]){
 		    
 		}else{
 		    //ref not found
-		    cerr<<"bplink2acf: WARNING: The reference allele between the EPO/FASTA ("<<allel_ref<<") was not found in the the .bim file (found: "<<genotypeMaj<<","<<genotypeMin<<") at chr:pos "<<chr<<":"<<pos<<endl;
+		    cerr<<"bplink2acf: WARNING: The reference allele between the EPO/FASTA ("<<allel_ref<<") was not found in the the .bim file (found: "<<genotypeMaj<<","<<genotypeMin<<") at chr:pos "<<chr<<":"<<pos<<" at line "<<lineBIM<<endl;
 		    return 1;
 		    goto nextline;
 		}

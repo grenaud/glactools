@@ -434,6 +434,10 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 
 	}
 	
+	//to be safe
+	allel_ref = toupper( allel_ref );
+	allel_anc = toupper( allel_anc );
+
 	char alt='N';
 	string s="ACGT";
 	string chimpString;
