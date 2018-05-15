@@ -101,7 +101,7 @@ void SimpleVCF::init2(){
     }else{
 
 	if(formatFieldNames->size() != formatFieldValues.size()){
-	    //cerr<<"SimpleVCF: for line "<<vectorToString(fields,"\t")<<" the format field does not have as many fields as the values "<<formatFieldNames.size()<<" vs "<<formatFieldValues.size() <<endl;
+	    //cerr<<"SimpleVCF: for line "<<vectorToString(formatFieldValues,":")<<" the format field does not have as many fields as the values "<<formatFieldNames->size()<<" vs "<<formatFieldValues.size() <<endl;
 	    //exit(1);
 	}
 
@@ -110,12 +110,15 @@ void SimpleVCF::init2(){
     haploidCall=false;
     for(unsigned int i=0;i<formatFieldNames->size();i++){
 	//cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames->at(i)<<" = "<<formatFieldValues[i]<<endl;
+	
 	if(formatFieldNames->at(i) == "GT"){ 
 	    indexGenotype     =i; 
 	    formatFieldGT=                   formatFieldValues[i]; 
 	    bool determinedGenotype=false;
 	    //Taken from http://www.broadinstitute.org/gatk/guide/topic?name=intro
-	    if(formatFieldGT == "./."){ determinedGenotype=true; unresolvedGT=true;       }
+
+	    
+	    if(formatFieldGT == "./."){ determinedGenotype=true; unresolvedGT=true;	    } 
 
 	    if(formatFieldGT == "0"){   determinedGenotype=true; homozygousREF=true;   haploidCall=true;   }
 	    if(formatFieldGT == "1"){   determinedGenotype=true; homozygousALT=true;   haploidCall=true;   }
@@ -180,13 +183,20 @@ void SimpleVCF::init2(){
 	       
 	       
 	    //    ){ determinedGenotype=true; unresolvedGT=true; 
+	   
 
+	    
 	    if(!determinedGenotype){
 		//cerr<<"SimpleVCF: unable to determine genotype for line "<<vectorToString(fields,"\t")<<" field=#"<<formatFieldGT<<"#"<<endl;
 	      cerr<<"SimpleVCF: unable to determine genotype for field=#"<<formatFieldGT<<"#"<<" at position: "<<corevcf->getChr()<<":"<<corevcf->getPosition()<<endl;
 	      exit(1);
 	    }
 
+	    if(formatFieldNames->size() != formatFieldValues.size()){
+		cerr<<"SimpleVCF: WARNING: for the record "<<vectorToString(formatFieldValues,":")<<", the format field does not have as many fields as the values "<<formatFieldNames->size()<<" vs "<<formatFieldValues.size() <<", we used "<<formatFieldGT<<" as genotype and ignored the rest"<<endl;	
+		break;
+	    }
+	    
 	    if(formatFieldValues.size() == 1 ){//weird case where the remaining fields are missing
 	      break;
 	    }
