@@ -485,11 +485,20 @@ string GlacCompute::usage() const{
                                     "\nThis program computers summary stats on ACF files\n\n"+
 
 	                            "Options:\n"+ 
-                                    "\t"+"-p [stats]"  +"\t\t" +"Statistics to use:\n"+
+	"\t"+"-p [stats]"  +"\t\t" +"Statistics to use:\n"+
          			      "\t"+"    paircoacompute"+"\tTo compute pairwise average coalescence\n"+
 	//			      "\t"+"    fst"+"\t\t\tTo compute pairwise Fst (Weir and Cockerham's 1984)\n"+
-			      "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n\n"+
-
+			      "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n"+
+			    //   "\t"+"    dist"+"\t\tTo compute simple pairwise distance\n\n"+
+			    //   "\t"+"    For the \"dist\" mode, specify the model:\n"+
+			    //   "\t"+"    "+"\t--model [model]\tUse this model for DNA distance\n"+
+                            //   "\n"+
+	                    //   "\t"+"    "+"\tnone\t"+           "all mutations with equal footing (default)\n"+
+			    //   "\t"+"    "+"\ttransv\t"+	        "Just transversions\n"+
+			    //   "\t"+"    "+"\tJC69\t"+		"Jukes Cantor 1969\n"+
+			    //   "\t"+"    "+"\tK80\t"+		"Kimura 1980\n"+
+                            // //"\t"+"    "+"\t\t\tHKY85\t"+		"Hasegawa, Kishino and Yano 1985\n"+
+                              "\n"+
 
 
                               "\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
@@ -516,6 +525,7 @@ int GlacCompute::run(int argc, char *argv[]){
     //cout<<"run()"<<endl;
     //cout<<populationNames<<" "<<vectorToString(*populationNames)<<endl;
 
+    bool dnaDistModeSpecified=false;
 
     for(int i=1;i<(argc-1);i++){ 
 	
@@ -537,10 +547,25 @@ int GlacCompute::run(int argc, char *argv[]){
             continue;
         }
 
+        if(string(argv[i]) == "--model" ){
+	    dnaDistMode=string(argv[i+1]);
+	    dnaDistModeSpecified=true;
+            i++;
+            continue;
+        }
+
         cerr<<"Wrong option "<<argv[i]<<endl;
         return 1;
 
     }
+    
+    if( dnaDistModeSpecified ){
+	if(program != "dist"){
+	    cerr<<"GlacCompute: ERROR: Cannot specify --model if the option \"dist\" is not used "<<endl;
+	    return 1;	    
+	}
+    }
+
 
     if(program == "paircoacompute"){
 	parallelP<SumStatAvgCoa> pToRun;
@@ -554,8 +579,13 @@ int GlacCompute::run(int argc, char *argv[]){
 		parallelP<SumStatFst> pToRun;
 		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);	
 	    }else{
-		cerr<<"Wrong program "<<program<<endl;
-		return 1;
+		if(program == "dist"){
+		    parallelP<SumStatDist> pToRun;
+		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);		    
+		}else{
+		    cerr<<"Wrong program "<<program<<endl;
+		    return 1;
+		}
 	    }
 	}
     }

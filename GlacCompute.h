@@ -32,6 +32,7 @@
 #include "SumStatAvgCoa.h"
 #include "SumStatFst.h"
 #include "SumStatD.h"
+#include "SumStatDist.h"
 
 using namespace std;
 
@@ -52,7 +53,7 @@ private:
     int numberOfThreads =       1;
     int sizeBins        = 1000000;
     string program;
-
+    string dnaDistMode;
 public:
     GlacCompute();
     GlacCompute(const GlacCompute & other);
