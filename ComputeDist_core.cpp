@@ -23,130 +23,46 @@
 
 
 
-inline bool isTransition(char allel_sample,char allel_reference,char allel_chimpHumanAncestor){
+inline bool isTransition(char allel_1,char allel_2){
     return (  
-	    (allel_sample == 'C' && (allel_reference == 'T' || (allel_chimpHumanAncestor == 'T') ) ) || 
-	    (allel_sample == 'T' && (allel_reference == 'C' || (allel_chimpHumanAncestor == 'C') ) ) || 
-	    (allel_sample == 'A' && (allel_reference == 'G' || (allel_chimpHumanAncestor == 'G') ) ) || 
-	    (allel_sample == 'G' && (allel_reference == 'A' || (allel_chimpHumanAncestor == 'A') ) ) 
+	    (allel_1 == 'C' && allel_2 == 'T' ) || 
+	    (allel_1 == 'T' && allel_2 == 'C' ) || 
+	    (allel_1 == 'A' && allel_2 == 'G' ) || 
+	    (allel_1 == 'G' && allel_2 == 'A' ) 
 	      );
 }
 
 
-inline bool     isDamage(char allel_sample,char allel_reference,char allel_chimpHumanAncestor){
+inline bool     isDamage(char allel_anc,char allel){
+    //return isTransition(allel_1,allel_2);//we have no way of polarizing the direction of the mutation
     return (  
-	    (allel_sample == 'T' && (allel_reference == 'C' || (allel_chimpHumanAncestor == 'C') ) ) || 
-	    (allel_sample == 'A' && (allel_reference == 'G' || (allel_chimpHumanAncestor == 'G') ) ) 		  
-	      );
+            (allel_anc == 'C' && allel == 'T' ) || 
+            (allel_anc == 'G' && allel == 'A' )              
+              );
 }
 
-void computeDiv(char allel_chimpHumanAncestor,char allel_reference,char allel_sample,bool isCpG,DistResult * divr){
-    if( (allel_chimpHumanAncestor == allel_reference ) && //no mutation
-	(allel_chimpHumanAncestor == allel_sample ) ){
-		
-	//no need to call isTransition() isDamage() since no mutation
-	divr->all.counterSame++;
-	if(isCpG)
-	    divr->onlyCpg.counterSame++;
-	else
-	    divr->noCpg.counterSame++;
+void computeDist(const char allel_anc,const char allel_1,const char allel_2,bool isCpG,DistResult * divr){
+
+    int allePairIndex=allelePair2Int(allel_1,allel_2);
+    //cerr<<allel_1<<" "<<allel_2<<" "<<allePairIndex<<endl;
+    divr->all.addAllelePair(allePairIndex);
+    if(isCpG)
+	divr->onlyCpg.addAllelePair(allePairIndex);
+    else
+	divr->noCpg.addAllelePair(allePairIndex);
+
+    if(isTransition(allel_1,allel_2)){
+	divr->transitions.addAllelePair(allePairIndex);
+    }else{
+	divr->transversions.addAllelePair(allePairIndex);
     }
-
-
-    if( (allel_chimpHumanAncestor != allel_reference ) || //mutation occured 
-	(allel_chimpHumanAncestor != allel_sample ) ){
-
-
-
-	if(allel_reference == allel_sample){ //common		    
-#ifdef DEBUG3
-	    cout<<"common"<<endl;
-#endif
-
-
-	    if(isTransition(allel_sample,allel_reference,allel_chimpHumanAncestor)){
-		divr->transitions.counterCommon++;
-	    }else{
-		divr->transversions.counterCommon++;
-	    }
-
-	    if(!isDamage(    allel_sample,allel_reference,allel_chimpHumanAncestor)){
-		divr->noDamage.counterCommon++;
-	    }else{
-	    }
-
-
-
-	    divr->all.counterCommon++;
-	    if(isCpG)
-		divr->onlyCpg.counterCommon++;
-	    else
-		divr->noCpg.counterCommon++;
-
-	}
-
-
-	if( (allel_chimpHumanAncestor == allel_reference ) && //mutation occured in sample
-	    (allel_chimpHumanAncestor != allel_sample ) ){
-
-			    
-#ifdef DEBUG3
-	    cout<<"sample"<<endl;
-#endif
-
-	    if(isTransition(allel_sample,allel_reference,allel_chimpHumanAncestor)){
-		divr->transitions.counterSample++;
-	    }else{
-		divr->transversions.counterSample++;
-
-	    }
-
-	    if(!isDamage(    allel_sample,allel_reference,allel_chimpHumanAncestor)){
-		divr->noDamage.counterSample++;
-	    }
-
-
-	    divr->all.counterSample++;
-	    if(isCpG)
-		divr->onlyCpg.counterSample++;
-	    else
-		divr->noCpg.counterSample++;
-
-	}
-
-	if( (allel_chimpHumanAncestor != allel_reference ) && //mutation occured in reference
-	    (allel_chimpHumanAncestor == allel_sample ) ){
-
-
-			    
-#ifdef DEBUG3
-	    cout<<"reference"<<endl;
-#endif
-
-
-
-	    if(isTransition(allel_sample,allel_reference,allel_chimpHumanAncestor)){
-		divr->transitions.counterReference++;
-	    }else{
-		divr->transversions.counterReference++;
-	    }
-
-	    if(!isDamage(    allel_sample,allel_reference,allel_chimpHumanAncestor)){
-		divr->noDamage.counterReference++;
-	    }
-
-
-
-	    divr->all.counterReference++;
-	    if(isCpG)
-		divr->onlyCpg.counterReference++;
-	    else
-		divr->noCpg.counterReference++;
-
-	}
-				 
+    
+    
+    if( (allel_anc != 'N')              && 
+	!isDamage( allel_anc,allel_1)   &&
+	!isDamage( allel_anc,allel_2)  ){
+	divr->noDamage.addAllelePair(allePairIndex);
+    }else{
     }
 			     
-
-
 }

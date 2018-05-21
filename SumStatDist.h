@@ -16,7 +16,7 @@ using namespace std;
 
 class SumStatDist{
  private:
-    DistResult  ** divergenceResults;//[numberOfPopulations][numberOfPopulations];
+    DistResult  ** distanceResults;//[numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
 
  public:
@@ -48,7 +48,7 @@ class SumStatDist{
 	for(unsigned i=0;i<numberOfPopulations;i++){
 	    for(unsigned j=0;j<numberOfPopulations;j++){	       
 	   
-		divergenceResults[i][j]+=other.divergenceResults[i][j];
+		distanceResults[i][j]+=other.distanceResults[i][j];
 
 	    }
 	}
@@ -81,7 +81,7 @@ class SumStatDist{
 	for(unsigned i=0;i<numberOfPopulations;i++){
 	    for(unsigned j=0;j<numberOfPopulations;j++){	       
 		
-		divergenceResults[i][j]-=other.divergenceResults[i][j];
+		distanceResults[i][j]-=other.distanceResults[i][j];
 
 	    }
 	}
@@ -94,7 +94,7 @@ class SumStatDist{
     void computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined);
 
     string print() const;
-    string printWithBootstraps(const   vector<SumStatDist *> * bootstr) const;
+    string printWithBootstraps(const   vector<SumStatDist *> * bootstr,const string & dnaDistMode) const;
 
     friend ostream& operator<<(ostream& os, const SumStatDist & ct){
 	os<<ct.print();

@@ -94,7 +94,7 @@ class SumStatAvgCoa{
     void computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined);
 
     string print() const;
-    string printWithBootstraps(const   vector<SumStatAvgCoa *> * bootstr) const;
+    string printWithBootstraps(const   vector<SumStatAvgCoa *> * bootstr, const string & dnaDistMode) const;
 
     friend ostream& operator<<(ostream& os, const SumStatAvgCoa & ct){
 	os<<ct.print();

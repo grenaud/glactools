@@ -74,7 +74,7 @@ FstResult const * const *  SumStatFst::getFstResult() const{
     return fstResults;
 }
 
-string SumStatFst::printWithBootstraps(const   vector<SumStatFst *> * jackVec) const{ //all boostraps or jacknife
+string SumStatFst::printWithBootstraps(const   vector<SumStatFst *> * jackVec,  const string & dnaDistMode) const{ //all boostraps or jacknife
     // string toReturn;
     
     stringstream toReturn;

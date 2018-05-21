@@ -14,9 +14,9 @@ using namespace std;
 
 
 
-inline bool isTransition(char allel_sample,char allel_reference,char allel_chimpHumanAncestor);
-inline bool     isDamage(char allel_sample,char allel_reference,char allel_chimpHumanAncestor);
-void computeDiv(char allel_chimpHumanAncestor,char allel_reference,char allel_sample, bool isCpg, DistResult * divr);
+inline bool isTransition(const char allel_1,const char allel_2);
+inline bool     isDamage(const char allel_1,const char allel_2);
+void computeDist(const char allel_anc,const char allel_1,const char allel_2,bool isCpg, DistResult * divr);
 
 /* class ComputeDist_core{ */
 /* private: */

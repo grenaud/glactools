@@ -74,7 +74,7 @@ AvgCoaResult const * const *  SumStatAvgCoa::getAvgCoaResult() const{
     return divergenceResults;
 }
 
-string SumStatAvgCoa::printWithBootstraps(const   vector<SumStatAvgCoa *> * jackVec) const{ //all boostraps or jacknife
+string SumStatAvgCoa::printWithBootstraps(const   vector<SumStatAvgCoa *> * jackVec,  const string & dnaDistMode) const{ //all boostraps or jacknife
     // string toReturn;
     
     stringstream toReturn;

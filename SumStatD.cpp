@@ -115,7 +115,7 @@ DstatResult const * const * const * SumStatD::getDstatResult() const{
     return dstatResults;
 }
 
-string SumStatD::printWithBootstraps(const   vector<SumStatD *> * jackVec) const{ //all boostraps or jacknife
+string SumStatD::printWithBootstraps(const   vector<SumStatD *> * jackVec, const string & dnaDistMode) const{ //all boostraps or jacknife
     // string toReturn;
     
     stringstream toReturn;

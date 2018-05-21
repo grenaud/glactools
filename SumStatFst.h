@@ -94,7 +94,7 @@ class SumStatFst{
     void computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined);
 
     string print() const;
-    string printWithBootstraps(const   vector<SumStatFst *> * bootstr) const;
+    string printWithBootstraps(const   vector<SumStatFst *> * bootstr, const string & dnaDistMode) const;
 
     friend ostream& operator<<(ostream& os, const SumStatFst & ct){
 	os<<ct.print();

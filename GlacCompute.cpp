@@ -23,11 +23,10 @@ queue< datachunk  * >  * queueFilesToprocess;
 pthread_mutex_t  mutexTHREADID   = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t  mutexQueue      = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t  mutexCounter    = PTHREAD_MUTEX_INITIALIZER;
-bool doneReading;
-
+bool   doneReading;
 
 vector<string> * populationNames;
-bool allowUndefined;
+bool allowUndefined=false;
 
 
 GlacCompute::GlacCompute(){
@@ -217,7 +216,7 @@ template <class STAT> //type
 class parallelP{  
 
 public:
-    void launchThreads(string filename,int numberOfThreads,int sizeBins );
+    void launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode );
 };//end class parallelP
 
 //template <class STAT> //type 
@@ -226,7 +225,7 @@ public:
 // vector<STAT> results;
 
 template <class STAT> //type 
-void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int sizeBins ){
+void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode ){
     
     doneReading=false;
     //queueFilesToprocess = new queue< vector< string >  * >()  ;
@@ -256,7 +255,7 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
     // vector<string> populationNames;
     //unsigned int numberPopulations;
    
-    allowUndefined  = false;
+    //allowUndefined  = false;
     //populationNames = mp.getPopulationsNames();
 
     pthread_mutex_init(&mutexTHREADID,   NULL); 
@@ -465,11 +464,11 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 	    jacknife->push_back(test); 
 	    //cout<<"ji "<<i<<endl<<test->print()<<endl;
 	}	    
-	
-	//cout<<"done all1"<<endl;
+	cout<<"---------------ALL---------------"<<endl;
+	//cerr<<"done all1"<<endl;
 	//COMMENT allResults contains a matrix of AvgCoaResults
 	//add a method for jacknife in allResults
-	cout<<allResults->printWithBootstraps(jacknife);
+	cout<<allResults->printWithBootstraps(jacknife,dnaDistMode);
 	//cout<<allResults->print()<<endl;
 	//cout<<"done all2"<<endl;
 	
@@ -483,7 +482,7 @@ void parallelP<STAT>::launchThreads(string filename,int numberOfThreads,int size
 string GlacCompute::usage() const{
     string usage=string("glactools")+" compute [options]  <ACF file>"+
                                     "\nThis program computers summary stats on ACF files\n\n"+
-
+	
 	                            "Options:\n"+ 
 	"\t"+"-p [stats]"  +"\t\t" +"Statistics to use:\n"+
          			      "\t"+"    paircoacompute"+"\tTo compute pairwise average coalescence\n"+
@@ -494,14 +493,13 @@ string GlacCompute::usage() const{
 			    //   "\t"+"    "+"\t--model [model]\tUse this model for DNA distance\n"+
                             //   "\n"+
 	                    //   "\t"+"    "+"\tnone\t"+           "all mutations with equal footing (default)\n"+
-			    //   "\t"+"    "+"\ttransv\t"+	        "Just transversions\n"+
 			    //   "\t"+"    "+"\tJC69\t"+		"Jukes Cantor 1969\n"+
 			    //   "\t"+"    "+"\tK80\t"+		"Kimura 1980\n"+
                             // //"\t"+"    "+"\t\t\tHKY85\t"+		"Hasegawa, Kishino and Yano 1985\n"+
                               "\n"+
 
-
-                              "\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
+	"\t"+"-u"  +"\t\t" +"Allow undefined sites (0,0) for certain individuals/pops, can cause ascertainment bias (Default: "+stringify(allowUndefined)+")\n"+
+	"\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
                               "\t"+"-s [size bin]" +"\t\t" +"Size of bins (Default: "+stringify(sizeBins)+")\n"+
 	"\n";
 
@@ -526,6 +524,7 @@ int GlacCompute::run(int argc, char *argv[]){
     //cout<<populationNames<<" "<<vectorToString(*populationNames)<<endl;
 
     bool dnaDistModeSpecified=false;
+    dnaDistMode              ="none";
 
     for(int i=1;i<(argc-1);i++){ 
 	
@@ -535,8 +534,19 @@ int GlacCompute::run(int argc, char *argv[]){
             continue;
         }
 
+        if(string(argv[i]) == "-u" ){
+            allowUndefined=true;
+            continue;
+        }
+
         if(string(argv[i]) == "-s" ){
 	    sizeBins=destringify<int>(argv[i+1]);
+            i++;
+            continue;
+        }
+
+        if(string(argv[i]) == "-p" ){
+	    program=string(argv[i+1]);
             i++;
             continue;
         }
@@ -569,19 +579,19 @@ int GlacCompute::run(int argc, char *argv[]){
 
     if(program == "paircoacompute"){
 	parallelP<SumStatAvgCoa> pToRun;
-	pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);
+	pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);
     }else{
 	if(program == "dstat"){
 	    parallelP<SumStatD> pToRun;
-	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);	
+	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);
 	}else{
 	    if(program == "fst"){
 		parallelP<SumStatFst> pToRun;
-		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);	
+		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);
 	    }else{
 		if(program == "dist"){
 		    parallelP<SumStatDist> pToRun;
-		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins);		    
+		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);	    
 		}else{
 		    cerr<<"Wrong program "<<program<<endl;
 		    return 1;
