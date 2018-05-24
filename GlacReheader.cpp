@@ -21,7 +21,8 @@ string GlacReheader::usage() const{
     
     return string("") +"glactools reheader [options] <glac file> <text file>\n"+
 	"This program will remove the header from the <glac file> with <text file> and will print to STDOUT\n"+
-	"Make sure the header is valid, no error checking is done\n"+
+	"WARNING: Make sure the header is valid as no error checking is done\n"+
+	"         and downstream programs might not work\n"+	
 	"ex:  glactools reheader data.acf.gz header.txt"+"\n"+
 	"Options:"+"\n"+
 	"\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
