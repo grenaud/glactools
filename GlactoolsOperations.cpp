@@ -56,7 +56,7 @@ string initFiles(vector<GlacParser * > & vectorOfGP,
    hasData = vector<bool>(vectorOfGP.size(),false);
 
 
-    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
+   for(unsigned int i=0;i<vectorOfGP.size();i++){ 
 	hasData[i] = vectorOfGP[i]->hasData()  ;
 	if(!hasData[i]){
 	    cerr<<"File #"<<(i+1)<<" does not have any data, exiting"<<endl;
@@ -76,12 +76,16 @@ string initFiles(vector<GlacParser * > & vectorOfGP,
 	    pops.push_back( vectorOfGP[i]->getPopulationsNames()->at(j));
 	}
 	//cout<<vectorToString(pops,"\t");
+
 	deflineToReturn+=vectorToString(pops,"\t");
+
 	if(printOnlyFirstPop)
 	    break;
 
 	if( i!=(vectorOfGP.size() -1)){
-	    deflineToReturn+="\t";
+	    if(!pops.empty())//if the current record was just root/anc
+		deflineToReturn+="\t";
+	    
 	}       	
     }
 

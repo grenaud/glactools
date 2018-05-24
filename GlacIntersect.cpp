@@ -138,11 +138,13 @@ int GlacIntersect::run(int argc, char *argv[]){
 			     chr1,
 			     coordCurrent);
     header<<defline<<endl;
+
+    
     vector<bool>  hasCoordinate (vectorOfGP.size(),true);//dummy value
 
-   GlacWriter * gw=NULL;
+    GlacWriter * gw=NULL;
 
-   gw = new GlacWriter(numberOfPops,
+    gw = new GlacWriter(numberOfPops,
 		       isGL, //gp.isGLFormat(),
 		       isGL?1:2,//gp.isACFormat()?2:1,
 		       1,//compression threads
