@@ -420,6 +420,13 @@ if [ ! $? -eq 0 ] ;then
     RVAL=1
 fi
 
+echo "Testing beagle2glf"
+./beagle2glf/test.sh
+if [ ! $? -eq 0 ] ;then
+    echo -e "${RED}Problem with beagle2glf exit code: $?${NC}"    
+    RVAL=1
+fi
+
 echo "Testing bplink2acf"
 ./bplink2acf/test.sh
 if [ ! $? -eq 0 ] ;then
