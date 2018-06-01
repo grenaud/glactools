@@ -399,7 +399,7 @@ int T3andme2ACF::run(int argc, char *argv[]){
 
 	    if(!isResolvedDNA(allel_anc)){
 		//ancString="0,0:0"; 
-		root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
+		anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(false); 
 	    }
 	    //resolved ancestral allele
 	    else{

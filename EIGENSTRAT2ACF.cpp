@@ -529,7 +529,7 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 
 	    if(!isResolvedDNA(allel_anc)){
 		//ancString="0,0:0"; 
-		root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
+		anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(false); 
 	    }
 	    //resolved ancestral allele
 	    else{
@@ -621,7 +621,7 @@ int EIGENSTRAT2ACF::run(int argc, char *argv[]){
 	}//for each char in lineG
 	
 	if(!gw->writeAlleleRecord(&arToWrite)){
-	    cerr<<"eigen2acf: error writing header "<<endl;
+	    cerr<<"eigen2acf: error writing record "<<endl;
 	    exit(1);
 	}	    
 	

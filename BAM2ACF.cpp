@@ -257,7 +257,7 @@ class glacVisitor : public PileupVisitor {
 
 		    if(!isResolvedDNA(allel_anc)){
 			//ancString="0,0:0";					
-			anc.setRefCount(0); root.setAltCount(0);  root.setIsCpg(false); 							    
+			anc.setRefCount(0); anc.setAltCount(0);  anc.setIsCpg(false); 							    
 		    }
 		    //resolved ancestral allele
 		    else{

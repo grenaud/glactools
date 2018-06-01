@@ -487,7 +487,7 @@ int AXT2ACF::run(int argc, char *argv[]){
     // 		}
     // 	    }
 
-
+    
     // 	    if(!isResolvedDNA(allel_anc)){
     // 		//ancString="0,0:0"; 
     // 		root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
