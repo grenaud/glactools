@@ -37,8 +37,8 @@ int GLF2ACF::run(int argc, char *argv[]){
 
     int lastOpt=1;
 
-    for(int i=1;i<(argc-1);i++){ 
-        //cout<<i<<"\t"<<string(argv[i])<<endl;
+    for(int i=1;i<(argc);i++){ 
+        //cerr<<i<<"\t"<<string(argv[i])<<endl;
         if((string(argv[i]) == "-")  ){
             lastOpt=i;
             break;          
@@ -62,7 +62,8 @@ int GLF2ACF::run(int argc, char *argv[]){
         return 1;
 
     }
-
+    //cerr<<lastOpt<<"\t"<<(argc-1)<<" "<<minPLdiffind<<endl;
+    // exit(1);
     if(lastOpt != (argc-1)){
         cerr<<"The last argument is the  <glf file>  "<<endl;
         return 1;               
