@@ -49,10 +49,15 @@ string Vcf2ACF::usage() const{
     
     return string(string("") +"vcf2acf [options] <vcf file> <name sample> "+"\n"+
 		  "\nThis program converts a VCF file with a single sample into acf (prints to the stdout)\n"+                       
+		  "\nBy default, it uses the PL fields, and will produce empty records if the PL fields are empty\n"+
+		  "\nIf the PL fields are absent, please use the --onlyGT\n"+
+
+
 		  // "\nThe name of the samples has to be comma-separated\n"+                       
 		  // "\ne.g. vcf2acf myfile.vcf.gz Ind1,Ind2,Ind10\n"+                       
 		  
 		  //"\t"+"--bytes [#]" +"\t\t"+"Use either 2 or 3 bytes for storing allele count  (default: "+stringify(bytesForAC)+")\n"+
+		  
 		  "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+
 		  "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
 
@@ -84,7 +89,8 @@ int Vcf2ACF::run(int argc, char *argv[]){
 
     int lastOpt=1;
     bool specifiedPL  = false;
-    
+    unsigned int rejectedEmpty=0;
+
     for(int i=1;i<(argc-1);i++){ 
 	//cout<<i<<"\t"<<string(argv[i])<<endl;
 	if((string(argv[i]) == "-")  ){
@@ -588,6 +594,7 @@ int Vcf2ACF::run(int argc, char *argv[]){
 
 
 	    }else{
+	      rejectedEmpty++;
 		//the allele count is 0
 	    }
 	    //<<endl;
@@ -607,7 +614,8 @@ int Vcf2ACF::run(int argc, char *argv[]){
     // }
 
 
-    cerr<<rejectFiltersTally()<<endl;
+    cerr<<rejectFiltersTally()<<"rejectedEMPTY\t"<<rejectedEmpty<<endl<<"Warning: if several sites are rejected due to being empty, it could be due to the absence of the PL field, please rerun using the onlyGT flag."<<endl;
+    
     //cerr<<*filtersVCF<<endl;
     //epoFileFP.close();
     delete(filtersVCF);
