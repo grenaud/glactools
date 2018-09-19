@@ -162,6 +162,7 @@ void *mainComputationThread(void * argc){
 		cerr<<"Thread #"<<rankThread<<" is at "<<thousandSeparator(counterRecords)<<endl;
 	    }
 	}
+	counterRecords++;
     	statComputer->computeStatSingle(currentRecord,allowUndefined);
 
     	//cout<<test->print()<<endl;
