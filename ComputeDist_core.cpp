@@ -66,3 +66,30 @@ void computeDist(const char allel_anc,const char allel_1,const char allel_2,bool
     }
 			     
 }
+
+void addIdenticalSite(const char allel_anc,const char allel_1,bool isCpG,DistResult * divr,int allePairIndex){
+
+
+
+    divr->all.addAllelePair(allePairIndex);
+    if(isCpG)
+	divr->onlyCpg.addAllelePair(allePairIndex);
+    else
+	divr->noCpg.addAllelePair(allePairIndex);
+
+    // if(isTransition(allel_1,allel_2)){
+    // 	divr->transitions.addAllelePair(allePairIndex);
+    // }else{
+    divr->transversions.addAllelePair(allePairIndex);
+	//    }
+    
+    
+    if( (allel_anc != 'N')              && 
+	!isDamage( allel_anc,allel_1)//   &&
+	//!isDamage( allel_anc,allel_2)  
+	){
+	divr->noDamage.addAllelePair(allePairIndex);
+    }else{
+    }
+			     
+}

@@ -128,6 +128,8 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
 	exit(1);
     }
 
+    bool notASegSite=(recordToUse->alt == 'N');
+
     //first one is the ancestral
     //last one is the human reference
     char sampledAllele[ numberOfPopulations]; //array of sampled alleles
@@ -143,42 +145,57 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
 	cerr<<"SumStateDist:  pairwiseDist() Problem for line "<<recordToUse->chr<<" "<<recordToUse->coordinate<<" wrong number of columns"<<recordToUse->vectorAlleles->size()<<" "<<(numberOfPopulations)<<endl;
 	exit(1);
     }
-
+    
     // cout<<"state 2"<<endl;
     // cout<<"coord "<<recordToUse->coordinate<<endl;
 
     //start at 1 for ancestral
-    for(unsigned i=0;i<recordToUse->vectorAlleles->size();i++){
-	// if(i == 1 ){ //the root can be absent, need to check	      
-	//     //if the allele count is unknown for both, skip
-	//     if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
-	//        recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
-	// 	//goto SKIPTONEXTITERATION;
-	// 	return ;
-	//     }
-	// } 
-
-	if(allowUndefined){
-	    if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
-	       recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
-		sampledAllele[i] = 'N';
-		cpgForPop[i]     = false;
-		continue ;
+    if(notASegSite){
+	for(unsigned i=0;i<recordToUse->vectorAlleles->size();i++){
+	    if(allowUndefined){
+		if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+		   recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+		    sampledAllele[i] = 'N';
+		    cpgForPop[i]     = false;
+		    continue ;
+		}
 	    }
+	    cpgForPop[i] = recordToUse->vectorAlleles->at(i).getIsCpg();
 	}
+    
+    }else{//is seg site
+	for(unsigned i=0;i<recordToUse->vectorAlleles->size();i++){
+	    // if(i == 1 ){ //the root can be absent, need to check	      
+	    //     //if the allele count is unknown for both, skip
+	    //     if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+	    //        recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+	    // 	//goto SKIPTONEXTITERATION;
+	    // 	return ;
+	    //     }
+	    // } 
+	    
+	    if(allowUndefined){
+		if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+		   recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+		    sampledAllele[i] = 'N';
+		    cpgForPop[i]     = false;
+		continue ;
+		}
+	    }
 
-	//plus one for the human allele in sampledAllele and cpgForPop
-	sampledAllele[i] =  sampleRandomRefAltAllele(recordToUse->ref,recordToUse->alt,
-						     recordToUse->vectorAlleles->at(i).getRefCount(),
-						     recordToUse->vectorAlleles->at(i).getAltCount());
-	cpgForPop[i] = recordToUse->vectorAlleles->at(i).getIsCpg();
+	    //plus one for the human allele in sampledAllele and cpgForPop
+	    sampledAllele[i] =  sampleRandomRefAltAllele(recordToUse->ref,
+							 recordToUse->alt,
+							 recordToUse->vectorAlleles->at(i).getRefCount(),
+							 recordToUse->vectorAlleles->at(i).getAltCount());
+	    cpgForPop[i] = recordToUse->vectorAlleles->at(i).getIsCpg();
+	}
     }
-
     //storing the human refernce
     sampledAllele[numberOfPopulations-1] = recordToUse->ref;
-    cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
-
-
+    cpgForPop[    numberOfPopulations-1] = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
+    
+    
     //debug
     //    cout<<"state 2"<<endl;
     // cout<<recordToUse->coordinate<<" ";
@@ -188,8 +205,8 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
     // for(unsigned int ind=0;ind<numberOfPopulations;ind++)
     // 	cout<<"sampledAllele["<<ind<<"]\t"<<sampledAllele[ind]<<endl;
     // //exit(1);
-
-
+    
+    
     //the first is the ancestral, we should never reach that state given the check above
     // if(sampledAllele[1] == 'N'){//the ancestral has an unresolved allele, skip
     // 	//goto SKIPTONEXTITERATION;
@@ -198,41 +215,65 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
     // }
     // cout<<"record "<<alleleRecordsAsString(*currentRow)<<endl;
     //segregatingSites.push_back(*currentRow);//copy constructor
-
+    
 
 
 
     //for each population, including the root/ancestral at index 0,1
-    for(unsigned i=0;i<numberOfPopulations;i++){
-
-	//for each population, including the root/ancestral at index 0,1
-	for(unsigned j=0;j<numberOfPopulations;j++){	       
-	    //skip when the allele is identical
-	    if(i==j)
-		continue;
-	       	      
-
-	    //if(allowUndefined){//if one has undefined allele
-	    if(sampledAllele[i] == 'N')
-		continue;
-	    if(sampledAllele[j] == 'N')
-		continue;
-		//}
-
-
-	    //cout<<"1pop["<<i<<"]:"<<populationNames->at(i)<<"\tpop["<<j<<"]:"<<populationNames->at(j)<<"\t"<<distanceResults[i][j].printAll()<<endl;
-
-	    computeDist(sampledAllele[1], //0 is root, 1 is ancestral
-			sampledAllele[i],
-			sampledAllele[j],
-			(cpgForPop[i] || cpgForPop[j]),
-			&(distanceResults[i][j])  );	    
-
-	    //cout<<"2pop["<<i<<"]:"<<populationNames->at(i)<<"\tpop["<<j<<"]:"<<populationNames->at(j)<<"\t"<<distanceResults[i][j].printAll()<<endl;
+    if(notASegSite){
+	
+	int allePairIndex = baseResolved2int(recordToUse->ref);
+	
+	for(unsigned i=0;i<numberOfPopulations;i++){
 	    
+	    //for each population, including the root/ancestral at index 0,1
+	    for(unsigned j=0;j<numberOfPopulations;j++){	       
+		//skip when the allele is identical
+		if(i==j)
+		    continue;
+		
+		//defined in ComputeDist_core
+		addIdenticalSite(sampledAllele[1], //0 is root, 1 is ancestral
+				 recordToUse->ref,
+				 (cpgForPop[i] || cpgForPop[j]),
+				 &(distanceResults[i][j]) ,
+				 allePairIndex);
+		
+		
+	    }
+	}
+	
+    }else{
+	for(unsigned i=0;i<numberOfPopulations;i++){
+	    
+	    //for each population, including the root/ancestral at index 0,1
+	    for(unsigned j=0;j<numberOfPopulations;j++){	       
+		//skip when the allele is identical
+		if(i==j)
+		    continue;
+		
+		
+		//if(allowUndefined){//if one has undefined allele
+		if(sampledAllele[i] == 'N')
+		    continue;
+		if(sampledAllele[j] == 'N')
+		    continue;
+		//}
+		
+		//cout<<"1pop["<<i<<"]:"<<populationNames->at(i)<<"\tpop["<<j<<"]:"<<populationNames->at(j)<<"\t"<<distanceResults[i][j].printAll()<<endl;
+
+		//defined in ComputeDist_core
+		computeDist(sampledAllele[1], //0 is root, 1 is ancestral
+			    sampledAllele[i],
+			    sampledAllele[j],
+			    (cpgForPop[i] || cpgForPop[j]),
+			    &(distanceResults[i][j])  );
+
+		//cout<<"2pop["<<i<<"]:"<<populationNames->at(i)<<"\tpop["<<j<<"]:"<<populationNames->at(j)<<"\t"<<distanceResults[i][j].printAll()<<endl;
+	    
+	    }
 	}
     }
-
 
 
     // //for each population, except the root/ancestral at index 0,1

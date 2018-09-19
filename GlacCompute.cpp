@@ -150,12 +150,18 @@ void *mainComputationThread(void * argc){
 		    sizeBytesFormat);
 
     AlleleRecords  * currentRecord;
+    unsigned int counterRecords=0;
     //cout<<"Thread #"<<rankThread<<" calling hasData() "<<endl;
     while(gp.hasData()){
 	//cout<<"Thread #"<<rankThread<<" before hasData() "<<endl;
     	currentRecord = gp.getData() ;
 	//cout<<"Thread #"<<rankThread<<" "<<*currentRecord<<endl;
 	// cout<<"Thread #"<<rankThread<<" after hasData() "<<currentRecord->chri<<":"<<currentRecord->coordinate<<endl;
+	if((counterRecords%10000)==0){
+	    if(rankThread == 2){
+		cerr<<"Thread #"<<rankThread<<" is at "<<thousandSeparator(counterRecords)<<endl;
+	    }
+	}
     	statComputer->computeStatSingle(currentRecord,allowUndefined);
 
     	//cout<<test->print()<<endl;

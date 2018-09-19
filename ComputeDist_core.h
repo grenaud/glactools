@@ -17,7 +17,7 @@ using namespace std;
 inline bool isTransition(const char allel_1,const char allel_2);
 inline bool     isDamage(const char allel_1,const char allel_2);
 void computeDist(const char allel_anc,const char allel_1,const char allel_2,bool isCpg, DistResult * divr);
-
+void addIdenticalSite(const char allel_anc,const char allel_1,bool isCpG,DistResult * divr,int allePairIndex);
 /* class ComputeDist_core{ */
 /* private: */
 /* public: */
