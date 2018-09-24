@@ -33,5 +33,6 @@ public:
     GlacWriter & operator= (const GlacWriter & other);
     bool writeHeader(string const & header) const;
     bool writeAlleleRecord(const AlleleRecords * toWrite) const;
+    bool writeBuffer(const char * buffTemp , size_t sizeBuffer  ) const;
 };
 #endif

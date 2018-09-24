@@ -108,6 +108,15 @@ bool GlacWriter::writeHeader(string const & header) const{
     return true;
 }
 
+bool GlacWriter::writeBuffer(const char * buffTemp , size_t sizeBuffer  ) const{
+   if(uncompressed){
+       if(               write(1,      buffTemp,sizeBuffer) == -1 ){           cerr<<"Write error"<<endl;          return false;   } 
+    }else{
+       if( (size_t)bgzf_write(fpBGZF, buffTemp,sizeBuffer) != sizeBuffer ){   cerr<<"Write error"<<endl;   return false;   }  
+    }
+   return true;
+}
+
 bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
     
 
@@ -212,7 +221,7 @@ bool GlacWriter::writeAlleleRecord(const AlleleRecords * toWrite) const{
 	    if(uncompressed){
 	    	if(write(1,&buffTemp,sizeBuffer) == -1 ){   cerr<<"Write error"<<endl;          return false;   } 
 	    }else{
-	    	if( bgzf_write(fpBGZF, &buffTemp,sizeBuffer) != sizeBuffer ){   cerr<<"Write error"<<endl;            return false;   }  
+	    	if( (size_t)bgzf_write(fpBGZF, &buffTemp,sizeBuffer) != sizeBuffer ){   cerr<<"Write error"<<endl;            return false;   }  
 	    }
 
 	    

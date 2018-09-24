@@ -87,6 +87,7 @@ class GlacParser{
     ~GlacParser();
     bool hasData();
     AlleleRecords  * getData();
+    char * fillBuffer(size_t sizeBuffer);
 
     bool readBlockData(char * buffer,const int recordsToRead,unsigned int * recordsRead,uint16_t *chri, uint32_t *coordinate);
 

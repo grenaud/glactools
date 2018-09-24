@@ -982,6 +982,22 @@ bool GlacParser::readBlockData(char * buffer,const int recordsToRead,unsigned in
     return true;
 }
 
+char * GlacParser::fillBuffer(size_t sizeBuffer){
+    if(!binMode){
+	cerr<<"fillbuffer is only available in binMode"<<endl;
+	exit(1);
+    }
+    
+    char * buffer = new char[sizeBuffer];
+    ssize_t bytesread = bgzf_read(myFilezipped, buffer, sizeBuffer);
+    if(bytesread == 0){//end of file
+	return 0;
+    }    
+    
+    return buffer;
+}
+
+
 bool GlacParser::hasData(){
 
     //cout<<"hasData"<<endl;
