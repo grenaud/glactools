@@ -155,9 +155,9 @@ void *mainComputationThread(void * argc){
     while(gp.hasData()){
 	//cout<<"Thread #"<<rankThread<<" before hasData() "<<endl;
     	currentRecord = gp.getData() ;
-	//cout<<"Thread #"<<rankThread<<" "<<*currentRecord<<endl;
+	//cerr<<"Thread #"<<rankThread<<" "<<*currentRecord<<endl;
 	// cout<<"Thread #"<<rankThread<<" after hasData() "<<currentRecord->chri<<":"<<currentRecord->coordinate<<endl;
-	if((counterRecords%10000)==0){
+	if( ((counterRecords%10000)==0) && counterRecords!=0 ){
 	    if(rankThread == 2){
 		cerr<<"Thread #"<<rankThread<<" is at "<<thousandSeparator(counterRecords)<<endl;
 	    }
@@ -334,7 +334,7 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 
     while( rbdReturn ){
 	//cout<<*arr<<endl;
-	cerr<<"GlacCompute reading new bin, currently  "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<endl;
+	cerr<<"GlacCompute reading new bin, currently  "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<" size="<<chunkToAdd->sizeRecordsRead<<endl;
 	
 	int rc = pthread_mutex_lock(&mutexQueue);
 	checkResults("pthread_mutex_lock()\n", rc);
@@ -377,7 +377,7 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 	rbdReturn = gp.readBlockData(chunkToAdd->buffer,sizeBins,&chunkToAdd->sizeRecordsRead,&chri,&coordinate);
     }//done reading
 
-    cerr<<"done reading, adding final chunk at "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<endl;
+    cerr<<"done reading, adding final chunk at "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<" size="<<chunkToAdd->sizeRecordsRead<<endl;
     // cout<<"chunkToAdd "<<chunkToAdd<<endl;
     // cout<<"chri "<<chri<<endl;
     // cout<<"coordinate "<<coordinate<<endl;
@@ -405,8 +405,9 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 	rc = pthread_mutex_lock(&mutexQueue);
 	checkResults("pthread_mutex_lock()\n", rc);
     }
-		
-    queueFilesToprocess->push(chunkToAdd);
+    
+    if(chunkToAdd->sizeRecordsRead>0)
+	queueFilesToprocess->push(chunkToAdd);
 
     rc = pthread_mutex_unlock(&mutexQueue);
     checkResults("pthread_mutex_unlock()\n", rc);

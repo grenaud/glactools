@@ -51,10 +51,12 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
 
 	if( string(argv[i]) == "--withroot"){
 	    printRoot=true;
+	    continue;
 	}
 
 	if( string(argv[i]) == "--withanc"){
 	    printAnc =true;
+	    continue;
 	}
 
 

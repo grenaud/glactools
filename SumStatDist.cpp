@@ -121,7 +121,7 @@ string SumStatDist::printWithBootstraps(const   vector<SumStatDist *> * jackVec,
 void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined=true){
     //currentRow = dataToUse->at(i);
     //cout<<"coord1 "<<dataToUse->at(d).coordinate<<" "<<d<<" "<<dataToUse->at(d) <<endl;
-    ///cout<<"coord1 "<<recordToUse->coordinate <<" "<<allowUndefined<<endl;
+    //cerr<<"coord1 "<<recordToUse->coordinate <<" "<<allowUndefined<<endl;
     
     if(!isResolvedDNA(recordToUse->ref) ){
 	cerr<<"SumStateDist:  pairwiseDist() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
@@ -146,8 +146,8 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
 	exit(1);
     }
     
-    // cout<<"state 2"<<endl;
-    // cout<<"coord "<<recordToUse->coordinate<<endl;
+    // cerr<<"state 2"<<endl;
+    // cerr<<"coord "<<recordToUse->coordinate<<" "<<notASegSite<<endl;
 
     //start at 1 for ancestral
     if(notASegSite){
@@ -222,8 +222,8 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
     //for each population, including the root/ancestral at index 0,1
     if(notASegSite){
 	
-	int allePairIndex = baseResolved2int(recordToUse->ref);
-	
+	int allePairIndex = baseResolved2int(recordToUse->ref)*5;
+	//cerr<<recordToUse->ref<<" "<<allePairIndex<<endl;
 	for(unsigned i=0;i<numberOfPopulations;i++){
 	    
 	    //for each population, including the root/ancestral at index 0,1
@@ -331,7 +331,8 @@ void SumStatDist::computeStat( const   vector < AlleleRecords >  * dataToUse,con
    //while(mp.hasData()){
    //AlleleRecords * currentRow;
    for(unsigned int d=0;d<dataToUse->size();d++){
-       computeStatSingle(&(dataToUse->at(d)),allowUndefined);
+       // cerr<<"record#d "<<dataToUse->at(d)<<endl;
+       computeStatSingle( &(dataToUse->at(d)) , allowUndefined);
 	  
    }//while the parser has data
    //cout<<"done Sum"<<endl;

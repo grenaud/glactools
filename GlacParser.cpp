@@ -937,7 +937,9 @@ bool GlacParser::readBlockData(char * buffer,const int recordsToRead,unsigned in
     int numberOfBytesToTryToRead = recordsToRead*sizeRec;
 
     ssize_t     bytesread = bgzf_read(myFilezipped, buffer, numberOfBytesToTryToRead);
+
     if(bytesread == 0){//end of file
+	//cerr<<"NO MORE RECORDS "<<*recordsRead<<endl;
 	*recordsRead = 0;
 	return false;
     }
@@ -946,7 +948,7 @@ bool GlacParser::readBlockData(char * buffer,const int recordsToRead,unsigned in
 	if( (bytesread%sizeRec) == 0){//fine, end of file
 
 	    *recordsRead = (unsigned int)(bytesread/sizeRec);    
-
+	    //cerr<<"END OF RECORDS "<<*recordsRead<<endl;
 	    memcpy((char*)chri,       buffer+0,            sizeof(*chri));
 	    memcpy((char*)coordinate, buffer+sizeof(*chri), sizeof(*coordinate));
 	    return false;
@@ -958,7 +960,7 @@ bool GlacParser::readBlockData(char * buffer,const int recordsToRead,unsigned in
     }
 
     *recordsRead = (unsigned int)recordsToRead;
-
+    //cerr<<"NEW RECORDS "<<*recordsRead<<endl;
 
     memcpy((char*)chri,       buffer+0,              sizeof(*chri));
     memcpy((char*)coordinate, buffer+ sizeof(*chri), sizeof(*coordinate));
