@@ -406,6 +406,13 @@ if [ ! $? -eq 0 ] ;then
     RVAL=1
 fi
 
+echo "Testing acf2gross"
+./acf2gross/test.sh
+if [ ! $? -eq 0 ] ;then
+    echo -e "${RED}Problem with acf2gross exit code: $?${NC}"    
+    RVAL=1
+fi
+
 echo "Testing acf2eigenstrat"
 ./acf2eigenstrat/test.sh
 if [ ! $? -eq 0 ] ;then

@@ -185,7 +185,7 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
 	continue;
     }
 
-    cerr<<"Program "<<argv[0]<<" wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully";
+    cerr<<"Program "<<argv[0]<<" wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully"<<endl;
 
     return 0;
 }

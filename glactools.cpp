@@ -55,6 +55,7 @@
 #include "ACF2GPHOCS.h"
 #include "ACF2NEXUS.h"
 #include "ACF2TREEMIX.h" 
+#include "ACF2GROSS.h" 
 #include "ACF2EIGENSTRAT.h" 
 
 #include "GlacIndex.h"
@@ -127,6 +128,7 @@ int main (int argc, char *argv[]) {
 	"      acf2gphocs      Convert an ACF file to G-PhoCs"+"\n"+
 	"      acf2nexus       Convert an ACF file to Nexus"+"\n"+
 	"      acf2treemix     Convert an ACF file to treemix"+"\n"+
+	"      acf2gross       Convert an ACF file to GRoSS"+"\n"+
 	"      acf2eigenstrat  Convert an ACF file to EIGENSTRAT"+"\n"+
 	//"      vcfm2glf      Convert multi  sample VCF to glf "+"\n"+
 	"\n"+
@@ -387,6 +389,19 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return acf2treemix_.run(argc, argv);
+    }else{      if(string(argv[1]) == "acf2gross"){
+	ACF2GROSS  acf2gross_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<acf2gross_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return acf2gross_.run(argc, argv);
 
     }else{      if(string(argv[1]) == "acf2eigenstrat"){
 	ACF2EIGENSTRAT  acf2eigenstrat_;
@@ -761,7 +776,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																					    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																						}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }
