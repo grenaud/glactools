@@ -33,6 +33,7 @@
 #include "SumStatFst.h"
 #include "SumStatD.h"
 #include "SumStatDist.h"
+#include "SumStatF3.h"
 
 using namespace std;
 

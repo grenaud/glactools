@@ -1,18 +1,18 @@
 /*
- * SumStatD
+ * SumStatF3
  * Date: Oct-14-2016 
  * Author : Gabriel Renaud gabriel.reno [at sign here ] gmail.com
  *
  */
 
-#include "SumStatD.h"
+#include "SumStatF3.h"
 
 
-SumStatD::SumStatD(){
+SumStatF3::SumStatF3(){
     //cout<<"CONSTR1"<<endl;
 }
 
-SumStatD::SumStatD(const SumStatD & other){
+SumStatF3::SumStatF3(const SumStatF3 & other){
     // cout<<"copy"<<endl;
     numberOfPopulations = other.numberOfPopulations;
     // cout<<"copy "<<numberOfPopulations<<endl;
@@ -25,20 +25,20 @@ SumStatD::SumStatD(const SumStatD & other){
     }
 
 
-    dstatResults = new DstatResult**[numberOfPopulations];
+    f3Results = new F3Result**[numberOfPopulations];
     for(unsigned int i=0;i<numberOfPopulations;i++)
-     	dstatResults[i] = new DstatResult*[numberOfPopulations];
+     	f3Results[i] = new F3Result*[numberOfPopulations];
 
     for(unsigned i=0;i<numberOfPopulations;i++){
     	for(unsigned j=0;j<numberOfPopulations;j++){	       	    
-    	    dstatResults[i][j] = new DstatResult[numberOfPopulations];	    
+    	    f3Results[i][j] = new F3Result[numberOfPopulations];	    
     	}
     }
 
     for(unsigned i=0;i<numberOfPopulations;i++){
     	for(unsigned j=0;j<numberOfPopulations;j++){	       	    
 	    for(unsigned k=0;k<numberOfPopulations;k++){	       	    
-		dstatResults[i][j][k] = other.dstatResults[i][j][k];	    
+		f3Results[i][j][k] = other.f3Results[i][j][k];	    
 	    }
     	}
     }
@@ -59,7 +59,7 @@ SumStatD::SumStatD(const SumStatD & other){
 }
 
 
-SumStatD::SumStatD(const vector<string> * popNames){
+SumStatF3::SumStatF3(const vector<string> * popNames){
     
     numberOfPopulations=popNames->size()+1;//+1 for the human reference
     // divergenceResults = new AvgCoaResult*[numberOfPopulations];
@@ -68,13 +68,13 @@ SumStatD::SumStatD(const vector<string> * popNames){
     // //[numberOfPopulations][numberOfPopulations];
 
 
-    dstatResults = new DstatResult**[numberOfPopulations];
+    f3Results = new F3Result**[numberOfPopulations];
     for(unsigned int i=0;i<numberOfPopulations;i++)
-     	dstatResults[i] = new DstatResult*[numberOfPopulations];
+     	f3Results[i] = new F3Result*[numberOfPopulations];
 
     for(unsigned i=0;i<numberOfPopulations;i++){
     	for(unsigned j=0;j<numberOfPopulations;j++){	       	    
-    	    dstatResults[i][j] = new DstatResult[numberOfPopulations];	    
+    	    f3Results[i][j] = new F3Result[numberOfPopulations];	    
     	}
     }
 
@@ -87,11 +87,11 @@ SumStatD::SumStatD(const vector<string> * popNames){
     
 }
 
-// SumStatD::SumStatD(const SumStatD & other){
+// SumStatF3::SumStatF3(const SumStatF3 & other){
 
 // }
 
-SumStatD::~SumStatD(){
+SumStatF3::~SumStatF3(){
   // cout<<"destructor#1"<<endl;
     delete(populationNames);
     //cout<<"destructor#2"<<endl;
@@ -99,23 +99,23 @@ SumStatD::~SumStatD(){
 
     for(unsigned int i=0;i<numberOfPopulations;i++){
 	for(unsigned int j=0;j<numberOfPopulations;j++){
-	    delete [] dstatResults[i][j];
+	    delete [] f3Results[i][j];
 	}
     }
 
     for(unsigned int i=0;i<numberOfPopulations;i++){
-	delete [] dstatResults[i];
+	delete [] f3Results[i];
     }
 
-    delete [] dstatResults;
+    delete [] f3Results;
 }
 
 
-DstatResult const * const * const * SumStatD::getDstatResult() const{
-    return dstatResults;
+F3Result const * const * const * SumStatF3::getF3Result() const{
+    return f3Results;
 }
 
-string SumStatD::printWithBootstraps(const   vector<SumStatD *> * jackVec, const string & dnaDistMode) const{ //all boostraps or jacknife
+string SumStatF3::printWithBootstraps(const   vector<SumStatF3 *> * jackVec, const string & dnaDistMode) const{ //all boostraps or jacknife
     // string toReturn;
     
     stringstream toReturn;
@@ -134,9 +134,9 @@ string SumStatD::printWithBootstraps(const   vector<SumStatD *> * jackVec, const
 	       if(j==k)
 		   continue;	   
 
-	       vector< const DstatResult * > jacknivesToSend;
+	       vector< const F3Result * > jacknivesToSend;
 	       for(unsigned l=0;l<jackVec->size();l++){	       
-		   const DstatResult * const*  const* temsp = (jackVec->at(l)->getDstatResult());
+		   const F3Result * const*  const* temsp = (jackVec->at(l)->getF3Result());
 		   //constAvgCoaResult
 		   //cout<<temsp[i][j]<<endl;
 		   //const AvgCoaResult * test1  = &temsp[i][j];
@@ -144,7 +144,7 @@ string SumStatD::printWithBootstraps(const   vector<SumStatD *> * jackVec, const
 		   jacknivesToSend.push_back( &( temsp[i][j][k] ) );
 	       }
 	       //toReturn<<populationNames->at(i)<<"-"<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"\t"<<divergenceResults[i][j][k].printWithJacknife( &jacknivesToSend )<<endl;
-               toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<dstatResults[i][j][k].printWithJacknife( &jacknivesToSend )<<endl;
+               toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<f3Results[i][j][k].printWithJacknife( &jacknivesToSend )<<endl;
 
 	   }//k
 	}//j
@@ -155,29 +155,32 @@ string SumStatD::printWithBootstraps(const   vector<SumStatD *> * jackVec, const
 }
 
 
-void SumStatD::computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined){
+void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined){
     //currentRow = dataToUse->at(i);
     //cout<<"coord1 "<<dataToUse->at(d).coordinate<<" "<<d<<" "<<dataToUse->at(d) <<endl;
     //cout<<"coord1 "<<recordToUse->coordinate<<endl;
        
     if(!isResolvedDNA(recordToUse->ref) ){
-	cerr<<"SumStatD  computeStatSingle() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
+	cerr<<"SumStatF3  computeStatSingle() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
 	exit(1);
     }
-    //initialize the sampledAllele and cpgForPop
+
     if(!isResolvedDNA(recordToUse->alt)){ // if one of A,C,G,T
 	return ; //next iteration, we need a valid alternative allele otherwise there is no impact on divergence calculation, this speeds it up
     }
 
     //first one is the ancestral
-    //last one is the human reference
-    char sampledAllele[ numberOfPopulations]; //array of sampled alleles
-    bool cpgForPop    [ numberOfPopulations]; //array of flags to say if the current record is cpg
+    //todo remove
+    char sampledAllele[ numberOfPopulations-1]; //array of sampled alleles
+    double freqAllele [ numberOfPopulations-1]; //array of sampled alleles    
+    bool cpgForPop    [ numberOfPopulations-1]; //array of flags to say if the current record is cpg
+    bool undefined    [ numberOfPopulations-1]; //array of flags to say if the current record is cpg
 
+    //initialize the sampledAllele and cpgForPop
 
     //double check, already checked in GlacParser 
     if(recordToUse->vectorAlleles->size() != (numberOfPopulations-1)){
-	cerr<<"SumStatD.cpp  computeStatSingle() Problem for line "<<recordToUse->chr<<" "<<recordToUse->coordinate<<" wrong number of columns"<<endl;
+	cerr<<"SumStatF3.cpp  computeStatSingle() Problem for line "<<recordToUse->chr<<" "<<recordToUse->coordinate<<" wrong number of columns"<<endl;
 	exit(1);
     }
 
@@ -185,36 +188,52 @@ void SumStatD::computeStatSingle( const   AlleleRecords   * recordToUse,const bo
     // cout<<"coord "<<recordToUse->coordinate<<endl;
 
     //start at 1 for ancestral
+    unsigned int refAllele=0;
+    unsigned int altAllele=0;
+    
     for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
-	if(i == 1 ){ //the root can be absent, need to check	      
-	    //if the allele count is unknown for both, skip
-	    if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
-	       recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
-		//goto SKIPTONEXTITERATION;
-		return ;
-	    }
-	} 
+	// if(i == 1 ){ //the root can be absent, need to check	      
+	//     //if the allele count is unknown for both, skip
+	//     if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+	//        recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+	// 	//goto SKIPTONEXTITERATION;
+	// 	return ;
+	//     }
+	// } 
 
-	if(allowUndefined){
-	    if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
-	       recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
-		sampledAllele[i] = 'N';
-		cpgForPop[i]     = false;
-		continue ;
-	    }
-	}
+	// if(allowUndefined){
+	//     if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+	//        recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+	// 	//sampledAllele[i] = 'N';
+		
+	// 	cpgForPop[i]     = false;
+	// 	continue ;
+	//     }
+	// }
 
+
+	refAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
+	altAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
+	freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
+	
 	//plus one for the human allele in sampledAllele and cpgForPop
-	sampledAllele[i] =  sampleRandomRefAltAllele(recordToUse->ref,recordToUse->alt,
-						     recordToUse->vectorAlleles->at(i).getRefCount(),
-						     recordToUse->vectorAlleles->at(i).getAltCount());
+	// sampledAllele[i] =  sampleRandomRefAltAllele(recordToUse->ref,recordToUse->alt,
+	// 					     recordToUse->vectorAlleles->at(i).getRefCount(),
+	// 					     recordToUse->vectorAlleles->at(i).getAltCount());
 	cpgForPop[i] = recordToUse->vectorAlleles->at(i).getIsCpg();
+	undefined[i]   = (recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&        recordToUse->vectorAlleles->at(i).getAltCount() ==  0);
+	cerr<<i<<" "<<recordToUse->vectorAlleles->at(i).getRefCount()<<" "<< recordToUse->vectorAlleles->at(i).getAltCount() <<" "<<freqAllele[i]<<endl;
     }
 
     //storing the human refernce
-    sampledAllele[numberOfPopulations-1] = recordToUse->ref;
-    cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
-
+    // sampledAllele[numberOfPopulations-1] = recordToUse->ref;
+    cpgForPop[ numberOfPopulations-2]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
+    double m = double(refAllele)/double(refAllele+altAllele);
+    for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
+	cerr<<i<<" "<< freqAllele[i]<<" "<< m<<endl;
+	freqAllele[i] =   freqAllele[i] - m;
+	cerr<<i<<" "<< freqAllele[i]<<endl;
+    }
     //debug
     // cout<<"state 2"<<endl;
     // cout<<recordToUse.coordinate<<endl;
@@ -224,11 +243,11 @@ void SumStatD::computeStatSingle( const   AlleleRecords   * recordToUse,const bo
 
 
     //the first is the ancestral, we should never reach that state given the check above
-    if(sampledAllele[1] == 'N'){//the ancestral has an unresolved allele, skip
-	//goto SKIPTONEXTITERATION;
-	//continue;
-	return ;
-    }
+    // if(sampledAllele[1] == 'N'){//the ancestral has an unresolved allele, skip
+    // 	//goto SKIPTONEXTITERATION;
+    // 	//continue;
+    // 	return ;
+    // }
     // cout<<"record "<<alleleRecordsAsString(*currentRow)<<endl;
     //segregatingSites.push_back(*currentRow);//copy constructor
 
@@ -252,27 +271,21 @@ void SumStatD::computeStatSingle( const   AlleleRecords   * recordToUse,const bo
 	       	      
 
 		if(allowUndefined){//if one has undefined allele
-		    if(sampledAllele[i] == 'N')
+		    if(undefined[i] )
 			continue;
-		    if(sampledAllele[j] == 'N')
+		    if(undefined[j] )
 			continue;
-		    if(sampledAllele[k] == 'N')
+		    if(undefined[k] )
 			continue;
 		}
 		//cout<<"seg "<<recordToUse->coordinate<<"\t"<<i<<"\t"<<j<<"\t"<<k<<endl;
-		//bool dstval = computeDstat(sampledAllele[0], //root
-		computeDstat(sampledAllele[1], //root
-			     sampledAllele[i], //derived
-			     sampledAllele[j], //ind 1
-			     sampledAllele[k], //ind 2
-			     (cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
-			     &(dstatResults[i][j][k]) );
-		//cout<<dstatResults[i][j][k]<<endl;
-		// computeDiv(sampledAllele[1], //0 is root, 1 is ancestral
-		// 	   sampledAllele[i],
-		// 	   sampledAllele[j],
-		// 	   (cpgForPop[i] || cpgForPop[j]),
-		// 	   &(divergenceResults[i][j])  );
+		//bool dstval = computeF3(sampledAllele[0], //root
+		computeF3(//freqAllele[1], //root
+			  freqAllele[i], //derived
+			  freqAllele[j], //ind 1
+			  freqAllele[k], //ind 2
+			  (cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
+			  &(f3Results[i][j][k]) );
 	    }//k
 	}//j
     }//i
@@ -286,17 +299,17 @@ void SumStatD::computeStatSingle( const   AlleleRecords   * recordToUse,const bo
 
 
 
-void SumStatD::computeStat( const   vector < AlleleRecords >  * dataToUse,const vector<string> * popNames,const bool allowUndefined){
+void SumStatF3::computeStat( const   vector < AlleleRecords >  * dataToUse,const vector<string> * popNames,const bool allowUndefined){
     // cout<<"computeStat() "<<endl;
    numberOfPopulations=popNames->size()+1;//+1 for the human reference
-   dstatResults = new DstatResult**[numberOfPopulations];
+   f3Results = new F3Result**[numberOfPopulations];
 
     for(unsigned int i=0;i<numberOfPopulations;i++)
-	dstatResults[i] = new DstatResult*[numberOfPopulations];
+	f3Results[i] = new F3Result*[numberOfPopulations];
 
     for(unsigned int i=0;i<numberOfPopulations;i++)
 	for(unsigned int j=0;j<numberOfPopulations;j++)
-	    dstatResults[i][j] = new DstatResult[numberOfPopulations];
+	    f3Results[i][j] = new F3Result[numberOfPopulations];
 
     //[numberOfPopulations][numberOfPopulations];
 
@@ -323,8 +336,8 @@ void SumStatD::computeStat( const   vector < AlleleRecords >  * dataToUse,const 
 }
 
 
-string SumStatD::print() const {
-    // cout<<"SumStatD print() begin"<<endl;
+string SumStatF3::print() const {
+    // cout<<"SumStatF3 print() begin"<<endl;
     // exit(1);
     stringstream toReturn;
     for(unsigned i=2;i<numberOfPopulations;i++){
@@ -342,8 +355,8 @@ string SumStatD::print() const {
 		// cout<<"1#"<<populationNames->at(j)<<endl;
 		// cout<<"2#"<<populationNames->at(k)<<endl;
 		// cout<<"3#"<<populationNames->at(i)  <<endl;
-		// cout<<"4#"<<dstatResults[i][j][k]<<endl;
-		toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<dstatResults[i][j][k]<<endl;
+		// cout<<"4#"<<f3Results[i][j][k]<<endl;
+		toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<f3Results[i][j][k]<<endl;
 		//toReturn<<populationNames->at(i)<<"-"<<populationNames->at(j)<<"\t"<<divergenceResults[i][j]<<endl;
 	    }
        }

@@ -112,6 +112,9 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
 	cerr<<"SumStateAvgCoa:  pairwiseAvgCoa() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
 	exit(1);
     }
+    if(!isResolvedDNA(recordToUse->alt)){ // if one of A,C,G,T
+	return ; //next iteration, we need a valid alternative allele otherwise there is no impact on divergence calculation, this speeds it up
+    }
 
     //first one is the ancestral
     //last one is the human reference
@@ -119,9 +122,6 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
     bool cpgForPop    [ numberOfPopulations]; //array of flags to say if the current record is cpg
 
     //initialize the sampledAllele and cpgForPop
-    if(!isResolvedDNA(recordToUse->alt)){ // if one of A,C,G,T
-	return ; //next iteration, we need a valid alternative allele otherwise there is no impact on divergence calculation, this speeds it up
-    }
 
     //double check, already checked in GlacParser 
     if(recordToUse->vectorAlleles->size() != (numberOfPopulations-1)){

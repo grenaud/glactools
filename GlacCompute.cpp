@@ -496,7 +496,8 @@ string GlacCompute::usage() const{
          			      "\t"+"    paircoacompute"+"\tTo compute pairwise average coalescence\n"+
 	//			      "\t"+"    fst"+"\t\t\tTo compute pairwise Fst (Weir and Cockerham's 1984)\n"+
 			      "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n"+
-			    //   "\t"+"    dist"+"\t\tTo compute simple pairwise distance\n\n"+
+	                     "\t"+"    dist"+"\t\tTo compute simple pairwise distance\n\n"+
+	//"\t"+"    f3"+"\t\tF3 stats\n\n"+
 			    //   "\t"+"    For the \"dist\" mode, specify the model:\n"+
 			    //   "\t"+"    "+"\t--model [model]\tUse this model for DNA distance\n"+
                             //   "\n"+
@@ -601,13 +602,17 @@ int GlacCompute::run(int argc, char *argv[]){
 		    parallelP<SumStatDist> pToRun;
 		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);	    
 		}else{
-		    cerr<<"Wrong program "<<program<<endl;
-		    return 1;
+		    if(program == "f3"){
+			parallelP<SumStatF3> pToRun;
+			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);	    
+		    }else{
+			cerr<<"Wrong program "<<program<<endl;
+			return 1;
+		    }
 		}
 	    }
 	}
     }
-
 
 	
     return 0;
