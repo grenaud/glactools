@@ -234,26 +234,10 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	freqAllele[i] =   freqAllele[i] - m;
 	cerr<<i<<" "<< freqAllele[i]<<endl;
     }
-    //debug
-    // cout<<"state 2"<<endl;
-    // cout<<recordToUse.coordinate<<endl;
-    // for(unsigned int ind=0;ind<numberOfPopulations;ind++)
-    // 	cout<<"sampledAllele["<<ind<<"]\t"<<sampledAllele[ind]<<endl;
-    // //exit(1);
 
+    bool isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
+    bool isSitePotentialDamage     = isSitePotentialTransition;//since for f3 we do not care about the ancestral, we cannot tell anything. 
 
-    //the first is the ancestral, we should never reach that state given the check above
-    // if(sampledAllele[1] == 'N'){//the ancestral has an unresolved allele, skip
-    // 	//goto SKIPTONEXTITERATION;
-    // 	//continue;
-    // 	return ;
-    // }
-    // cout<<"record "<<alleleRecordsAsString(*currentRow)<<endl;
-    //segregatingSites.push_back(*currentRow);//copy constructor
-
-    //cout<<"coord1 "<<recordToUse->coordinate<<endl;
-
-    //for each population, except the root/ancestral at index 0,1
     for(unsigned i=2;i<numberOfPopulations;i++){
 
 	//for each population, except the root/ancestral at index 0,1
@@ -285,6 +269,8 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 			  freqAllele[j], //ind 1
 			  freqAllele[k], //ind 2
 			  (cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
+			  isSitePotentialTransition,
+			  isSitePotentialDamage,
 			  &(f3Results[i][j][k]) );
 	    }//k
 	}//j

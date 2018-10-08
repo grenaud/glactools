@@ -34,7 +34,7 @@ class DstatCounter{
 
 
     DstatCounter(); //constructor
-    vector<double>   performBoostraps() const;
+    //    vector<double>   performBoostraps() const;
     void reinitializedCounters();
     string headerForCount() const;
 

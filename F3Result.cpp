@@ -45,12 +45,12 @@ string F3Result::printWithBootstrap(list<vector< vector< vector<F3Result> >  > >
     //all
     for (list< vector< vector< vector<F3Result> >  >   >::iterator it=boostraps.begin(); 
 	 it != boostraps.end(); it++){
-	allBoot.push_back(              (*it)[i][j][k].all.computeDST()           );
-	nocpgBoot.push_back(            (*it)[i][j][k].noCpg.computeDST()         );
-	onlycpgBoot.push_back(          (*it)[i][j][k].onlyCpg.computeDST()       );
-	transitionsBoot.push_back(      (*it)[i][j][k].transitions.computeDST()   );
-	transversionsBoot.push_back(    (*it)[i][j][k].transversions.computeDST() );
-	noDamageBoot.push_back(         (*it)[i][j][k].noDamage.computeDST()      );
+	allBoot.push_back(              (*it)[i][j][k].all.computeF3()           );
+	nocpgBoot.push_back(            (*it)[i][j][k].noCpg.computeF3()         );
+	onlycpgBoot.push_back(          (*it)[i][j][k].onlyCpg.computeF3()       );
+	transitionsBoot.push_back(      (*it)[i][j][k].transitions.computeF3()   );
+	transversionsBoot.push_back(    (*it)[i][j][k].transversions.computeF3() );
+	noDamageBoot.push_back(         (*it)[i][j][k].noDamage.computeF3()      );
     }
 
     //cout<<vectorToString(allBoot)<<endl;
@@ -64,12 +64,12 @@ string F3Result::printWithBootstrap(list<vector< vector< vector<F3Result> >  > >
 
     //cout<<allBootDEV.first<<"\t"<<allBootDEV.second<<endl;
     toreturn<<":\t"       <<all.headerForCount()  <<"\n";
-    toreturn<<"all_sites:\t"      <<all           <<"\t"<<allDEV.first           <<"\t"<<allDEV.second           <<"\t"<<all.computeDST()           / allDEV.second <<"\n";
-    toreturn<<"nocpg_sites:\t"    <<noCpg         <<"\t"<<noCpgDEV.first         <<"\t"<<noCpgDEV.second         <<"\t"<<noCpg.computeDST()         / noCpgDEV.second <<"\n";
-    toreturn<<"onlycpg_sites:\t"  <<onlyCpg       <<"\t"<<onlyCpgDEV.first       <<"\t"<<onlyCpgDEV.second       <<"\t"<<onlyCpg.computeDST()       / onlyCpgDEV.second <<"\n";
-    toreturn<<"transitions:\t"    <<transitions   <<"\t"<<transitionsDEV.first   <<"\t"<<transitionsDEV.second   <<"\t"<<transitions.computeDST()   / transitionsDEV.second <<"\n";
-    toreturn<<"transversions:\t"  <<transversions <<"\t"<<transversionsDEV.first <<"\t"<<transversionsDEV.second <<"\t"<<transversions.computeDST() / transversionsDEV.second <<"\n";
-    toreturn<<"noDamage:\t"       <<noDamage      <<"\t"<<noDamageDEV.first      <<"\t"<<noDamageDEV.second      <<"\t"<<noDamage.computeDST()      / noDamageDEV.second <<"\n";
+    toreturn<<"all_sites:\t"      <<all           <<"\t"<<allDEV.first           <<"\t"<<allDEV.second           <<"\t"<<all.computeF3()           / allDEV.second <<"\n";
+    toreturn<<"nocpg_sites:\t"    <<noCpg         <<"\t"<<noCpgDEV.first         <<"\t"<<noCpgDEV.second         <<"\t"<<noCpg.computeF3()         / noCpgDEV.second <<"\n";
+    toreturn<<"onlycpg_sites:\t"  <<onlyCpg       <<"\t"<<onlyCpgDEV.first       <<"\t"<<onlyCpgDEV.second       <<"\t"<<onlyCpg.computeF3()       / onlyCpgDEV.second <<"\n";
+    toreturn<<"transitions:\t"    <<transitions   <<"\t"<<transitionsDEV.first   <<"\t"<<transitionsDEV.second   <<"\t"<<transitions.computeF3()   / transitionsDEV.second <<"\n";
+    toreturn<<"transversions:\t"  <<transversions <<"\t"<<transversionsDEV.first <<"\t"<<transversionsDEV.second <<"\t"<<transversions.computeF3() / transversionsDEV.second <<"\n";
+    toreturn<<"noDamage:\t"       <<noDamage      <<"\t"<<noDamageDEV.first      <<"\t"<<noDamageDEV.second      <<"\t"<<noDamage.computeF3()      / noDamageDEV.second <<"\n";
 
     return toreturn.str();
 }
@@ -98,23 +98,23 @@ string F3Result::printWithJacknife(const vector<const  F3Result * >  * jacknife)
     //for (vector< AvgCoaResult * > ::iterator it=jacknife->begin(); it != jacknife->end(); it++){
     for (unsigned int k=0;k<jacknife->size(); k++){
 	//cout<<"jack "<<jacknife->at(k)->all.avgCoaRefSam()<<endl;
-	addIfNotInfinity( &allBoot,             jacknife->at(k)->all.computeDST()              );
-	addIfNotInfinity( &nocpgBoot,           jacknife->at(k)->noCpg.computeDST()            );
-	addIfNotInfinity( &onlycpgBoot,         jacknife->at(k)->onlyCpg.computeDST()          );
-	addIfNotInfinity( &transitionsBoot,     jacknife->at(k)->transitions.computeDST()      );
-	addIfNotInfinity( &transversionsBoot,   jacknife->at(k)->transversions.computeDST()    );
-	addIfNotInfinity( &noDamageBoot,        jacknife->at(k)->noDamage.computeDST()         );
+	addIfNotInfinity( &allBoot,             jacknife->at(k)->all.computeF3()              );
+	addIfNotInfinity( &nocpgBoot,           jacknife->at(k)->noCpg.computeF3()            );
+	addIfNotInfinity( &onlycpgBoot,         jacknife->at(k)->onlyCpg.computeF3()          );
+	addIfNotInfinity( &transitionsBoot,     jacknife->at(k)->transitions.computeF3()      );
+	addIfNotInfinity( &transversionsBoot,   jacknife->at(k)->transversions.computeF3()    );
+	addIfNotInfinity( &noDamageBoot,        jacknife->at(k)->noDamage.computeF3()         );
 
 
     }
 
 
-    pair<double,double> allJK           =  computeJackknifeConfIntervals(all.computeDST(),          allBoot          );
-    pair<double,double> noCpgJK         =  computeJackknifeConfIntervals(noCpg.computeDST(),        nocpgBoot        );
-    pair<double,double> onlyCpgJK       =  computeJackknifeConfIntervals(onlyCpg.computeDST(),      onlycpgBoot      );
-    pair<double,double> transitionsJK   =  computeJackknifeConfIntervals(transitions.computeDST(),  transitionsBoot  );
-    pair<double,double> transversionsJK =  computeJackknifeConfIntervals(transversions.computeDST(),transversionsBoot);
-    pair<double,double> noDamageJK      =  computeJackknifeConfIntervals(noDamage.computeDST(),     transversionsBoot);
+    pair<double,double> allJK           =  computeJackknifeConfIntervals(all.computeF3(),          allBoot          );
+    pair<double,double> noCpgJK         =  computeJackknifeConfIntervals(noCpg.computeF3(),        nocpgBoot        );
+    pair<double,double> onlyCpgJK       =  computeJackknifeConfIntervals(onlyCpg.computeF3(),      onlycpgBoot      );
+    pair<double,double> transitionsJK   =  computeJackknifeConfIntervals(transitions.computeF3(),  transitionsBoot  );
+    pair<double,double> transversionsJK =  computeJackknifeConfIntervals(transversions.computeF3(),transversionsBoot);
+    pair<double,double> noDamageJK      =  computeJackknifeConfIntervals(noDamage.computeF3(),     transversionsBoot);
 
 
     

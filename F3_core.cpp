@@ -9,163 +9,41 @@
 #include "ComputeAvgCoa_core.h"
 
 
-bool computeF3(const double freq_condition,const double freq_ind1,const double freq_ind2,const bool isCpG,F3Result * dSres){
-    //must be different
-    // if(allel_chimpHumanAncestor == allel_condition){
-    // 	return false;
-    // }
+bool computeF3(const double freq_condition,const double freq_ind1,const double freq_ind2,
+	       const bool isCpG,//true if CpG
+	       const bool isSitePotentialTransition, //true if transition
+	       const bool isSitePotentialDamage, //true if damage
+	       F3Result * f3res){
 
-    // //require the reference allele to be either derived or ancestral
-    // if( ( allel_ind1 == allel_chimpHumanAncestor) ||
-    // 	( allel_ind1 == allel_condition)   ){
-    // 	//fine
-    // }else{
-    // 	return false;
-    // }
-
-    // //require the sample allele to be either derived or ancestral
-    // if( ( allel_ind2 == allel_chimpHumanAncestor) ||
-    // 	( allel_ind2 == allel_condition)   ){
-    // 	//fine
-    // }else{
-    // 	return false;
-    // }
-
-    //TODO
-
+    
     double f3=(freq_condition-freq_ind1)*(freq_condition-freq_ind2);
+
+    f3res->all.f3Sum                 += f3;
+    f3res->all.counterSites ++;
+
+    if(isCpG){
+	f3res->onlyCpg.f3Sum         += f3;
+	f3res->onlyCpg.counterSites  ++;
+
+    }else{
+	f3res->noCpg.f3Sum           +=f3;
+	f3res->noCpg.counterSites++;
+    }
+
+    if(  isSitePotentialTransition ){
+	f3res->transitions.f3Sum     +=f3;
+	f3res->transitions.counterSites++;
+
+    }else{
+	f3res->transversions.f3Sum   +=f3;
+	f3res->transversions.counterSites++;
+    }
+    if( !isSitePotentialDamage ){
+	f3res->noDamage.f3Sum        +=f3;
+	f3res->noDamage.counterSites++;
+    }//TODO check!
+
+
     return false;
-    
-    //AA
-    // if( ( allel_ind1    == allel_chimpHumanAncestor) &&
-    // 	( allel_ind2    == allel_chimpHumanAncestor) ){
-
-
-    // 	dSres->all.counterAncAnc++;
-    // 	if(isCpG)
-    // 	    dSres->onlyCpg.counterAncAnc++;
-    // 	else
-    // 	    dSres->noCpg.counterAncAnc++;
-
-    // 	if(isPotentialTransition(allel_condition,allel_chimpHumanAncestor))
-    // 	    dSres->transitions.counterAncAnc++;
-    // 	else
-    // 	    dSres->transversions.counterAncAnc++;
-	
-    // 	if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
-    // 	     toupper(allel_condition)           == 'T'  ) 
-    // 	    ||
-    // 	    (toupper(allel_chimpHumanAncestor)  == 'G' && 
-    // 	     toupper(allel_condition)           == 'A'  ) ){
-    // 	    dSres->noDamage.counterAncAnc++;
-    // 	}
-
-    // 	//cout<<"AA"<<endl;
-	
-    // 	return false;
-
-    // }else{
-    // 	//AD
-    // 	if( ( allel_ind1   ==  allel_chimpHumanAncestor) &&
-    // 	    ( allel_ind2   ==  allel_condition) ){
-
-
-    // 	    // cout<<"AD"<<endl;
-    // 	    dSres->all.counterAncDer++;
-    // 	    if(isCpG)
-    // 		dSres->onlyCpg.counterAncDer++;
-    // 	    else
-    // 		dSres->noCpg.counterAncDer++;
-
-    // 	    if(isPotentialTransition(allel_condition,allel_chimpHumanAncestor))
-    // 		dSres->transitions.counterAncDer++;
-    // 	    else
-    // 		dSres->transversions.counterAncDer++;
-
-    // 	    if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
-    // 		 toupper(allel_condition)           == 'T'  ) 
-    // 		||
-    // 		(toupper(allel_chimpHumanAncestor)  == 'G' && 
-    // 		 toupper(allel_condition)           == 'A'  ) ){
-    // 		dSres->noDamage.counterAncDer++;
-    // 	    }
-
-    // 	    //cout<<"AD"<<endl;
-	    
-    // 	    return true;
-
-    // 	}else{
-    // 	    //DA
-    // 	    if( ( allel_ind1  == allel_condition) &&
-    // 		( allel_ind2  == allel_chimpHumanAncestor) ){
-
-    // 		// cout<<"DA"<<endl;
-    // 		dSres->all.counterDerAnc++;
-    // 		if(isCpG)
-    // 		    dSres->onlyCpg.counterDerAnc++;
-    // 		else
-    // 		    dSres->noCpg.counterDerAnc++;
-
-    // 		if(isPotentialTransition(allel_condition,allel_chimpHumanAncestor))
-    // 		    dSres->transitions.counterDerAnc++;
-    // 		else
-    // 		    dSres->transversions.counterDerAnc++;
-
-    // 		if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
-    // 		     toupper(allel_condition)           == 'T'  ) 
-    // 		    ||
-    // 		    (toupper(allel_chimpHumanAncestor)  == 'G' && 
-    // 		     toupper(allel_condition)           == 'A'  ) ){
-    // 		    dSres->noDamage.counterDerAnc++;
-    // 		}
-
-    // 		//cout<<"DA"<<endl;
-
-    // 		return true;
-
-    // 	    }else{
-
-    // 		//DD
-    // 		if( ( allel_ind1 == allel_condition) &&
-    // 		    ( allel_ind2    == allel_condition) ){
-
-
-
-    // 		    dSres->all.counterDerDer++;
-    // 		    if(isCpG)
-    // 			dSres->onlyCpg.counterDerDer++;
-    // 		    else
-    // 			dSres->noCpg.counterDerDer++;
-
-    // 		    if(isPotentialTransition(allel_condition,allel_chimpHumanAncestor))
-    // 			dSres->transitions.counterDerDer++;
-    // 		    else
-    // 			dSres->transversions.counterDerDer++;
-
-
-    // 		    if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
-    // 			 toupper(allel_condition)           == 'T'  ) 
-    // 			||
-    // 			(toupper(allel_chimpHumanAncestor)  == 'G' && 
-    // 			 toupper(allel_condition)           == 'A'  ) ){
-    // 			dSres->noDamage.counterDerDer++;
-    // 		    }
-
-    // 		    //cout<<"DD"<<endl;
-		    
-    // 		    return false;
-
-    // 		}else{
-    // 		    cerr<<"F3_core: Invalid state"<<endl;	     
-    // 		    exit(1);
-    // 		}
-
-
-    // 	    }
-
-    // 	}
-
-
-    // }
-    
+        
 }

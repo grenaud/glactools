@@ -33,27 +33,17 @@ class F3Counter{
 
 
     F3Counter(); //constructor
-    vector<double>   performBoostraps() const;
+    //    vector<double>   performBoostraps() const;
     void reinitializedCounters();
     string headerForCount() const;
 
-    double computeDST() const;
+    double computeF3() const;
 
     F3Counter &  operator+=(const F3Counter & other);
     F3Counter &  operator-=(const F3Counter & other);
 
     friend ostream& operator<<(ostream& os, const F3Counter & ct){
-	/* vector<double> boostraps = ct.performBoostraps(); */
-	//TODO
-	/* double dst= (double(ct.counterAncDer)-double(ct.counterDerAnc))/(double(ct.counterAncDer)+double(ct.counterDerAnc));  */
-	/* os<<ct.counterAncAnc<<"\t" */
-	/*   <<ct.counterAncDer<<"\t" */
-	/*   <<ct.counterDerAnc<<"\t" */
-	/*   <<ct.counterDerDer<<"\t" */
-	/*     //(ADDA - DADA )/ (ADDA+DADA ) */
-	/*   <<dst<<"\t" ; */
-	/* pair<double,double> res = computeMeanSTDDEV(boostraps); */
-	/* os<< ((res.first-dst)/res.second); */
+	os<<ct.f3Sum<<"'t"<<ct.counterSites<<"'t"<<double(ct.f3Sum)/double(ct.counterSites)<<"\t";
 	return os;
     }
 

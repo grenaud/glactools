@@ -14,6 +14,7 @@
 using namespace std;
 
 //void computeF3(char allel_chimpHumanAncestor,char allel_reference,char allel_sample, bool isCpg, AvgCoaResult * divr);
-bool computeF3(const double freq_condition,const double freq_ind1,const double freq_ind2,const bool isCpG,F3Result * divr);
+//bool computeF3(const double freq_condition,const double freq_ind1,const double freq_ind2,const bool isCpG,F3Result * divr);
+bool computeF3(const double freq_condition,const double freq_ind1,const double freq_ind2,const bool isCpG,const bool isSitePotentialTransition, const bool isSitePotentialDamage, F3Result * f3res);
 
 #endif
