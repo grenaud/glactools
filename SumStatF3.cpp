@@ -191,6 +191,9 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     unsigned int refAllele=0;
     unsigned int altAllele=0;
     
+    bool isSitePotentialTransition ;
+    bool isSitePotentialDamage     ;
+    double m;
     for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
 	// if(i == 1 ){ //the root can be absent, need to check	      
 	//     //if the allele count is unknown for both, skip
@@ -231,7 +234,7 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
     undefined[ numberOfPopulations-1 ]   = false;//we always have the ref
 
-    double m = double(refAllele)/double(refAllele+altAllele);
+    m = double(refAllele)/double(refAllele+altAllele);
     //cerr<<"m "<<m<<" "<<numberOfPopulations<<endl;
     for(unsigned i=1;i<(recordToUse->vectorAlleles->size()+1);i++){//go over by one to compute the reference
 	//cerr<<i<<" f="<< freqAllele[i]<<" m="<< m<<endl;
@@ -239,8 +242,8 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	//cerr<<i<<" f="<< freqAllele[i]<<"\t"<<undefined[i]<<endl;
     }
 
-    bool isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
-    bool isSitePotentialDamage     = isSitePotentialTransition;//since for f3 we do not care about the ancestral, we cannot tell anything. 
+    isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
+    isSitePotentialDamage     = isSitePotentialTransition;//since for f3 we do not care about the ancestral, we cannot tell anything. 
 
     for(unsigned i=2;i<numberOfPopulations;i++){
 
