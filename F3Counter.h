@@ -43,7 +43,7 @@ class F3Counter{
     F3Counter &  operator-=(const F3Counter & other);
 
     friend ostream& operator<<(ostream& os, const F3Counter & ct){
-	os<<ct.f3Sum<<"'t"<<ct.counterSites<<"'t"<<double(ct.f3Sum)/double(ct.counterSites)<<"\t";
+	os<<ct.f3Sum<<"\t"<<ct.counterSites<<"\t"<<double(ct.f3Sum)/double(ct.counterSites)<<"\t";
 	return os;
     }
 

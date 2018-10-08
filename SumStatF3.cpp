@@ -158,7 +158,7 @@ string SumStatF3::printWithBootstraps(const   vector<SumStatF3 *> * jackVec, con
 void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined){
     //currentRow = dataToUse->at(i);
     //cout<<"coord1 "<<dataToUse->at(d).coordinate<<" "<<d<<" "<<dataToUse->at(d) <<endl;
-    //cout<<"coord1 "<<recordToUse->coordinate<<endl;
+    //cerr<<"coord1 "<<recordToUse->coordinate<<endl;
        
     if(!isResolvedDNA(recordToUse->ref) ){
 	cerr<<"SumStatF3  computeStatSingle() Problem for record #"<<"\t"<<recordToUse->chr<<" coordinate = "<<recordToUse->coordinate<<" reference = "<<recordToUse->ref<<" is not resolved"<<endl;
@@ -171,10 +171,10 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 
     //first one is the ancestral
     //todo remove
-    char sampledAllele[ numberOfPopulations-1]; //array of sampled alleles
-    double freqAllele [ numberOfPopulations-1]; //array of sampled alleles    
-    bool cpgForPop    [ numberOfPopulations-1]; //array of flags to say if the current record is cpg
-    bool undefined    [ numberOfPopulations-1]; //array of flags to say if the current record is cpg
+    char sampledAllele[ numberOfPopulations]; //array of sampled alleles
+    double freqAllele [ numberOfPopulations]; //array of sampled alleles    
+    bool cpgForPop    [ numberOfPopulations]; //array of flags to say if the current record is cpg
+    bool undefined    [ numberOfPopulations]; //array of flags to say if the current record is cpg
 
     //initialize the sampledAllele and cpgForPop
 
@@ -185,7 +185,7 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     }
 
     // cout<<"state 2"<<endl;
-    // cout<<"coord "<<recordToUse->coordinate<<endl;
+    //cerr<<"coord "<<recordToUse->coordinate<<endl;
 
     //start at 1 for ancestral
     unsigned int refAllele=0;
@@ -200,18 +200,17 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	// 	return ;
 	//     }
 	// } 
-
-	// if(allowUndefined){
-	//     if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
-	//        recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
-	// 	//sampledAllele[i] = 'N';
-		
-	// 	cpgForPop[i]     = false;
-	// 	continue ;
-	//     }
-	// }
-
-
+	
+	if(!allowUndefined){
+	    if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+	       recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+		// 	//sampledAllele[i] = 'N';		
+		// 	cpgForPop[i]     = false;
+		// 	continue ;
+		goto SKIPTONEXTITERATION;
+	    }
+	}
+		 
 	refAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
 	altAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
 	freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
@@ -222,17 +221,22 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	// 					     recordToUse->vectorAlleles->at(i).getAltCount());
 	cpgForPop[i] = recordToUse->vectorAlleles->at(i).getIsCpg();
 	undefined[i]   = (recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&        recordToUse->vectorAlleles->at(i).getAltCount() ==  0);
-	cerr<<i<<" "<<recordToUse->vectorAlleles->at(i).getRefCount()<<" "<< recordToUse->vectorAlleles->at(i).getAltCount() <<" "<<freqAllele[i]<<endl;
+	//cerr<<i<<" "<<recordToUse->vectorAlleles->at(i).getRefCount()<<" "<< recordToUse->vectorAlleles->at(i).getAltCount() <<" "<<freqAllele[i]<<endl;
     }
+    //we do not add the refAllele into the count
 
     //storing the human refernce
+    freqAllele[numberOfPopulations-1] = double( 1 ) / double( 1 + 0 );  //100% ref
     // sampledAllele[numberOfPopulations-1] = recordToUse->ref;
-    cpgForPop[ numberOfPopulations-2]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
+    cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
+    undefined[ numberOfPopulations-1 ]   = false;//we always have the ref
+
     double m = double(refAllele)/double(refAllele+altAllele);
-    for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
-	cerr<<i<<" "<< freqAllele[i]<<" "<< m<<endl;
+    //cerr<<"m "<<m<<" "<<numberOfPopulations<<endl;
+    for(unsigned i=1;i<(recordToUse->vectorAlleles->size()+1);i++){//go over by one to compute the reference
+	//cerr<<i<<" f="<< freqAllele[i]<<" m="<< m<<endl;
 	freqAllele[i] =   freqAllele[i] - m;
-	cerr<<i<<" "<< freqAllele[i]<<endl;
+	//cerr<<i<<" f="<< freqAllele[i]<<"\t"<<undefined[i]<<endl;
     }
 
     bool isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
@@ -254,7 +258,7 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 		    continue;
 	       	      
 
-		if(allowUndefined){//if one has undefined allele
+		if(!allowUndefined){//if one has undefined allele
 		    if(undefined[i] )
 			continue;
 		    if(undefined[j] )
@@ -262,23 +266,24 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 		    if(undefined[k] )
 			continue;
 		}
-		//cout<<"seg "<<recordToUse->coordinate<<"\t"<<i<<"\t"<<j<<"\t"<<k<<endl;
+		//cerr<<allowUndefined<<" seg "<<recordToUse->coordinate<<"\t"<<i<<"\t"<<j<<"\t"<<k<<endl;
 		//bool dstval = computeF3(sampledAllele[0], //root
 		computeF3(//freqAllele[1], //root
-			  freqAllele[i], //derived
-			  freqAllele[j], //ind 1
-			  freqAllele[k], //ind 2
-			  (cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
-			  isSitePotentialTransition,
-			  isSitePotentialDamage,
-			  &(f3Results[i][j][k]) );
+		    // (freq_condition-freq_ind1)*(freq_condition-freq_ind2);
+		    freqAllele[i], //condition
+		    freqAllele[j], //ind 1
+		    freqAllele[k], //ind 2
+		    (cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
+		    isSitePotentialTransition,
+		    isSitePotentialDamage,
+		    &(f3Results[i][j][k]) );
 	    }//k
 	}//j
     }//i
 
     
     
-    //SKIPTONEXTITERATION:
+    SKIPTONEXTITERATION:
     return;
 
 }
@@ -342,7 +347,8 @@ string SumStatF3::print() const {
 		// cout<<"2#"<<populationNames->at(k)<<endl;
 		// cout<<"3#"<<populationNames->at(i)  <<endl;
 		// cout<<"4#"<<f3Results[i][j][k]<<endl;
-		toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<f3Results[i][j][k]<<endl;
+		toReturn<<populationNames->at(i)<<" ; "<<
+		    populationNames->at(j)<<" , "<<populationNames->at(k)  <<"\t"<<f3Results[i][j][k]<<endl;
 		//toReturn<<populationNames->at(i)<<"-"<<populationNames->at(j)<<"\t"<<divergenceResults[i][j]<<endl;
 	    }
        }

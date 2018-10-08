@@ -9,7 +9,9 @@
 #include "ComputeAvgCoa_core.h"
 
 
-bool computeF3(const double freq_condition,const double freq_ind1,const double freq_ind2,
+bool computeF3(const double freq_condition,
+	       const double freq_ind1,
+	       const double freq_ind2,
 	       const bool isCpG,//true if CpG
 	       const bool isSitePotentialTransition, //true if transition
 	       const bool isSitePotentialDamage, //true if damage
@@ -17,8 +19,11 @@ bool computeF3(const double freq_condition,const double freq_ind1,const double f
 
     
     double f3=(freq_condition-freq_ind1)*(freq_condition-freq_ind2);
+    //cerr<<f3<<"\t"<<freq_condition<<"\t"<<freq_ind1<<"\t"<<freq_condition<<"\t"<<freq_ind2<<"\t"<<f3res->all.f3Sum<<endl;
 
     f3res->all.f3Sum                 += f3;
+    //cerr<<f3<<"\t"<<freq_condition<<"\t"<<freq_ind1<<"\t"<<freq_condition<<"\t"<<freq_ind2<<"\t"<<f3res->all.f3Sum<<endl;
+
     f3res->all.counterSites ++;
 
     if(isCpG){

@@ -223,7 +223,7 @@ template <class STAT> //type
 class parallelP{  
 
 public:
-    void launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode );
+    void launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode, const bool performBoot );
 };//end class parallelP
 
 //template <class STAT> //type 
@@ -232,7 +232,7 @@ public:
 // vector<STAT> results;
 
 template <class STAT> //type 
-void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode ){
+void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode, const bool performBoot ){
     
     doneReading=false;
     //queueFilesToprocess = new queue< vector< string >  * >()  ;
@@ -465,23 +465,30 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 	    cout<<results->at(i)->print()<<endl;
 	    //	cout<<i<<"\n#####\n"<<endl;
 	}
-
-	for (unsigned int i=0; i<results->size() ; ++i) {    
-	    STAT * test =new STAT (*allResults); //creating a copy
-	    *test-=(*results->at(i)); //removing ith block
-	    jacknife->push_back(test); 
-	    //cout<<"ji "<<i<<endl<<test->print()<<endl;
-	}	    
-	cout<<"---------------ALL---------------"<<endl;
-	//cerr<<"done all1"<<endl;
-	//COMMENT allResults contains a matrix of AvgCoaResults
-	//add a method for jacknife in allResults
-	cout<<allResults->printWithBootstraps(jacknife,dnaDistMode);
-	//cout<<allResults->print()<<endl;
-	//cout<<"done all2"<<endl;
 	
+	if( performBoot ){
+	    for (unsigned int i=0; i<results->size() ; ++i) {    
+		STAT * test =new STAT (*allResults); //creating a copy
+		*test-=(*results->at(i)); //removing ith block
+		jacknife->push_back(test); 
+		//cout<<"ji "<<i<<endl<<test->print()<<endl;
+	    }
+	    
+	    cout<<"---------------ALL---------------"<<endl;
+	    //cerr<<"done all1"<<endl;
+	    //COMMENT allResults contains a matrix of AvgCoaResults
+	    //add a method for jacknife in allResults
+	    cout<<allResults->printWithBootstraps(jacknife,dnaDistMode);
+	    //cout<<allResults->print()<<endl;
+	    //cout<<"done all2"<<endl;
+	}
     }else{
-	cout<<"GlacCompute: There is only a single bin, cannot perform a jacknife, please run with more data"<<endl;
+	if( !performBoot ){
+	    cout<<"---------------------------"<<endl;
+	    cout<<results->at(0)->print()<<endl;
+	}else{//need to perform boot
+	    cerr<<"GlacCompute: There is only a single bin, cannot perform a jacknife, please run with more data"<<endl;
+	}
     }
     pthread_exit(NULL); 
     //cout<<"ALL DONE3"<<endl;
@@ -507,9 +514,10 @@ string GlacCompute::usage() const{
                             // //"\t"+"    "+"\t\t\tHKY85\t"+		"Hasegawa, Kishino and Yano 1985\n"+
                               "\n"+
 
-	"\t"+"-u"  +"\t\t" +"Allow undefined sites (0,0) for certain individuals/pops, can cause ascertainment bias (Default: "+stringify(allowUndefined)+")\n"+
+	"\t"+"-u"  +"\t\t\t" +"Allow undefined sites (0,0) for certain individuals/pops, can cause ascertainment bias (Default: "+stringify(allowUndefined)+")\n"+
 	"\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
-                              "\t"+"-s [size bin]" +"\t\t" +"Size of bins (Default: "+stringify(sizeBins)+")\n"+
+        "\t"+"-s [size bin]" +"\t\t" +"Size of bins (Default: "+stringify(sizeBins)+")\n"+
+        "\t"+"--noboot"      +"\t\t" +"Skip the bootstrap, recommended for large datasets (Default: "+booleanAsString(!performBoot)+")\n"+
 	"\n";
 
 
@@ -545,6 +553,11 @@ int GlacCompute::run(int argc, char *argv[]){
 
         if(string(argv[i]) == "-u" ){
             allowUndefined=true;
+            continue;
+        }
+
+        if(string(argv[i]) == "--noboot" ){
+	    performBoot=false;
             continue;
         }
 
@@ -588,23 +601,23 @@ int GlacCompute::run(int argc, char *argv[]){
 
     if(program == "paircoacompute"){
 	parallelP<SumStatAvgCoa> pToRun;
-	pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);
+	pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
     }else{
 	if(program == "dstat"){
 	    parallelP<SumStatD> pToRun;
-	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);
+	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
 	}else{
 	    if(program == "fst"){
 		parallelP<SumStatFst> pToRun;
-		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);
+		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
 	    }else{
 		if(program == "dist"){
 		    parallelP<SumStatDist> pToRun;
-		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);	    
+		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
 		}else{
 		    if(program == "f3"){
 			parallelP<SumStatF3> pToRun;
-			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode);	    
+			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
 		    }else{
 			cerr<<"Wrong program "<<program<<endl;
 			return 1;

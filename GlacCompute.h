@@ -53,6 +53,7 @@ class GlacCompute{
 private:
     int numberOfThreads =       1;
     int sizeBins        = 1000000;
+    bool performBoot=true;
     string program;
     string dnaDistMode;
 public:
