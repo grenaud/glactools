@@ -186,10 +186,21 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 
     // cout<<"state 2"<<endl;
     //cerr<<"coord "<<recordToUse->coordinate<<endl;
+    if( recordToUse->vectorAlleles->at(1).getRefCount() == 0 &&
+	recordToUse->vectorAlleles->at(1).getAltCount() == 0){
+	return ;
+    }
 
+    char ancBase =sampleRandomRefAltAllele(recordToUse->ref,
+					   recordToUse->alt,
+					   recordToUse->vectorAlleles->at(1).getRefCount(),
+					   recordToUse->vectorAlleles->at(1).getAltCount());
+    
+    bool refIsAnc= (ancBase == recordToUse->ref);
+    
     //start at 1 for ancestral
-    unsigned int refAllele=0;
-    unsigned int altAllele=0;
+    unsigned int derAllele=0;
+    unsigned int ancAllele=0;
     
     bool isSitePotentialTransition ;
     bool isSitePotentialDamage     ;
@@ -213,11 +224,21 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 		goto SKIPTONEXTITERATION;
 	    }
 	}
-		 
-	refAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
-	altAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
-	freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
-	
+
+	if(refIsAnc){//alt is derived
+
+	    derAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
+	    ancAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
+	    freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getAltCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
+
+	}else{//the ref is derived, alt is ancestral
+	    
+	    derAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
+	    ancAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
+	    freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
+	    
+	}
+	//cerr<<i<<" f="<< freqAllele[i]<<endl;
 	//plus one for the human allele in sampledAllele and cpgForPop
 	// sampledAllele[i] =  sampleRandomRefAltAllele(recordToUse->ref,recordToUse->alt,
 	// 					     recordToUse->vectorAlleles->at(i).getRefCount(),
@@ -229,19 +250,33 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     //we do not add the refAllele into the count
 
     //storing the human refernce
-    freqAllele[numberOfPopulations-1] = double( 1 ) / double( 1 + 0 );  //100% ref
+    if(refIsAnc){//alt is derived
+	freqAllele[numberOfPopulations-1] = double( 0 ) / double( 1 + 0 );  //100% re
+    }else{//ref is der, alt is anc
+	freqAllele[numberOfPopulations-1] = double( 1 ) / double( 1 + 0 );  // 0% ref
+    }
+    
     // sampledAllele[numberOfPopulations-1] = recordToUse->ref;
     cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
     undefined[ numberOfPopulations-1 ]   = false;//we always have the ref
 
-    m = double(refAllele)/double(refAllele+altAllele);
+    //m = double(refAllele)/double(refAllele+altAllele);
+    
     //cerr<<"m "<<m<<" "<<numberOfPopulations<<endl;
+    // if(randomBool()){//flip the allele frequencies at each 0.5 site
+	
+    // 	for(unsigned i=2;i<numberOfPopulations;i++)
+    // 	    freqAllele [ i ] = 1.0 - freqAllele [ i ]; 
+    // }
+    
+    if(false)//TODO to re-enable??
     for(unsigned i=1;i<(recordToUse->vectorAlleles->size()+1);i++){//go over by one to compute the reference
 	//cerr<<i<<" f="<< freqAllele[i]<<" m="<< m<<endl;
 	freqAllele[i] =   freqAllele[i] - m;
 	//cerr<<i<<" f="<< freqAllele[i]<<"\t"<<undefined[i]<<endl;
     }
-
+    
+    
     isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
     isSitePotentialDamage     = isSitePotentialTransition;//since for f3 we do not care about the ancestral, we cannot tell anything. 
 
