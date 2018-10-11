@@ -9,7 +9,34 @@
 #include "ComputeAvgCoa_core.h"
 
 
-bool computeF3(const double freq_condition,
+
+
+bool addCountersInd(const int  refCount,
+		    const int  altCount,
+		    const bool isCpG,
+		    const bool isSitePotentialTransition, 
+		    const bool isSitePotentialDamage,
+		    F3Result * f3res){
+    //cerr<<"addCountersInd "<<refCount<<" "<<altCount<<endl;
+    f3res->all.addAlleleCounts(refCount,altCount);
+    if(isCpG){
+	f3res->onlyCpg.addAlleleCounts(refCount,altCount);
+    }else{
+	f3res->noCpg.addAlleleCounts(refCount,altCount);
+    }
+
+    if(  isSitePotentialTransition ){
+	f3res->transitions.addAlleleCounts(refCount,altCount);
+    }else{
+	f3res->transversions.addAlleleCounts(refCount,altCount);
+    }
+    if( !isSitePotentialDamage ){
+	f3res->noDamage.addAlleleCounts(refCount,altCount);
+    }//TODO check!
+        
+}
+
+bool computeF3triple(const double freq_condition,//target
 	       const double freq_ind1,
 	       const double freq_ind2,
 	       const bool isCpG,//true if CpG

@@ -26,6 +26,14 @@ class SumStatF3{
  private:
     F3Result *** f3Results;//[numberOfPopulations][numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
+    //TODO does not need to be initialized at each site
+    /* double average_nInds[ numberOfPopulations]; */
+    /* double average_hzy[   numberOfPopulations]; */
+    /* double id2nsnp[       numberOfPopulations]; */
+
+    /* vector<double> average_nInds; */
+    /* vector<double> average_hzy; */
+    /* vector<double> id2nsnp; */
 
  public:
     vector<string> * populationNames ;

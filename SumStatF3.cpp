@@ -68,6 +68,7 @@ SumStatF3::SumStatF3(const vector<string> * popNames){
     // //[numberOfPopulations][numberOfPopulations];
 
 
+
     f3Results = new F3Result**[numberOfPopulations];
     for(unsigned int i=0;i<numberOfPopulations;i++)
      	f3Results[i] = new F3Result*[numberOfPopulations];
@@ -171,10 +172,13 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 
     //first one is the ancestral
     //todo remove
-    char sampledAllele[ numberOfPopulations]; //array of sampled alleles
-    double freqAllele [ numberOfPopulations]; //array of sampled alleles    
-    bool cpgForPop    [ numberOfPopulations]; //array of flags to say if the current record is cpg
-    bool undefined    [ numberOfPopulations]; //array of flags to say if the current record is cpg
+    char sampledAllele[   numberOfPopulations]; //array of sampled alleles
+    double freqAllele [   numberOfPopulations]; //array of sampled alleles    
+    int  refCount [   numberOfPopulations]; 
+    int  altCount [   numberOfPopulations]; 
+
+    bool cpgForPop    [   numberOfPopulations]; //array of flags to say if the current record is cpg
+    bool undefined    [   numberOfPopulations]; //array of flags to say if the current record is cpg
 
     //initialize the sampledAllele and cpgForPop
 
@@ -199,12 +203,15 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     bool refIsAnc= (ancBase == recordToUse->ref);
     
     //start at 1 for ancestral
-    unsigned int derAllele=0;
-    unsigned int ancAllele=0;
+    // unsigned int derAllele=0;
+    // unsigned int ancAllele=0;
+    unsigned int refAllele=0;
+    unsigned int altAllele=0;
     
     bool isSitePotentialTransition ;
     bool isSitePotentialDamage     ;
     double m;
+
     for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
 	// if(i == 1 ){ //the root can be absent, need to check	      
 	//     //if the allele count is unknown for both, skip
@@ -225,19 +232,37 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	    }
 	}
 
-	if(refIsAnc){//alt is derived
+	refAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
+	altAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
+	//taken from CountData treemix
+	double sumAllBases = double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
+	double freqRef = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / sumAllBases;
+	freqAllele[i] =  freqRef;
+	// average_nInds[ j ] += sumAllBases/2.0;
+	
+	// double tmp2 = (double) recordToUse->vectorAlleles->at(i).getAltCount() / (sumAllBases - 1.0);
+	// double tmphzy = 2* freqRef * tmp2;
+	// if ( sumAllBases < 2){
+	//     tmphzy = 2*freqRef*(1-freqRef);
+	// }
+	// average_hzy[j] += tmphzy; //2*f*(1-f);
+	// id2nsnp++;
 
+
+#ifdef WEIRDF
+	if(refIsAnc){//alt is derived
 	    derAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
 	    ancAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
 	    freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getAltCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
-
-	}else{//the ref is derived, alt is ancestral
-	    
+	}else{//the ref is derived, alt is ancestral	    
 	    derAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
 	    ancAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
-	    freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
-	    
+	    freqAllele[i] = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );	    
 	}
+#endif
+
+	refCount [ i ] = recordToUse->vectorAlleles->at(i).getRefCount();
+	altCount [ i ] = recordToUse->vectorAlleles->at(i).getAltCount();
 	//cerr<<i<<" f="<< freqAllele[i]<<endl;
 	//plus one for the human allele in sampledAllele and cpgForPop
 	// sampledAllele[i] =  sampleRandomRefAltAllele(recordToUse->ref,recordToUse->alt,
@@ -249,13 +274,23 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     }
     //we do not add the refAllele into the count
 
+
     //storing the human refernce
+#ifdef WEIRDF
     if(refIsAnc){//alt is derived
-	freqAllele[numberOfPopulations-1] = double( 0 ) / double( 1 + 0 );  //100% re
+    	freqAllele[numberOfPopulations-1] = double( 0 ) / double( 1 + 0 );  //100% re
     }else{//ref is der, alt is anc
-	freqAllele[numberOfPopulations-1] = double( 1 ) / double( 1 + 0 );  // 0% ref
+    	freqAllele[numberOfPopulations-1] = double( 1 ) / double( 1 + 0 );  // 0% ref
     }
-    
+#endif
+
+
+
+    freqAllele[numberOfPopulations-1] = double( 1 ) / double( 1 + 0 );  // 0% ref    
+
+    refCount [ numberOfPopulations-1 ] = 1;
+    altCount [ numberOfPopulations-1 ] = 0;
+
     // sampledAllele[numberOfPopulations-1] = recordToUse->ref;
     cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
     undefined[ numberOfPopulations-1 ]   = false;//we always have the ref
@@ -269,16 +304,23 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     // 	    freqAllele [ i ] = 1.0 - freqAllele [ i ]; 
     // }
     
-    if(false)//TODO to re-enable??
+    //if(true)//TODO to re-enable??
     for(unsigned i=1;i<(recordToUse->vectorAlleles->size()+1);i++){//go over by one to compute the reference
 	//cerr<<i<<" f="<< freqAllele[i]<<" m="<< m<<endl;
 	freqAllele[i] =   freqAllele[i] - m;
 	//cerr<<i<<" f="<< freqAllele[i]<<"\t"<<undefined[i]<<endl;
+	// average_nInds[i] = average_nInds[i]/ id2nsnp[i];
+	// average_hzy[i]   = average_hzy[i]/ id2nsnp[i];
     }
     
     
     isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
     isSitePotentialDamage     = isSitePotentialTransition;//since for f3 we do not care about the ancestral, we cannot tell anything. 
+    
+
+    //update base counters
+    
+
 
     for(unsigned i=2;i<numberOfPopulations;i++){
 
@@ -306,15 +348,24 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 		}
 		//cerr<<allowUndefined<<" seg "<<recordToUse->coordinate<<"\t"<<i<<"\t"<<j<<"\t"<<k<<endl;
 		//bool dstval = computeF3(sampledAllele[0], //root
-		computeF3(//freqAllele[1], //root
-		    // (freq_condition-freq_ind1)*(freq_condition-freq_ind2);
-		    freqAllele[i], //condition
-		    freqAllele[j], //ind 1
-		    freqAllele[k], //ind 2
-		    (cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
-		    isSitePotentialTransition,
-		    isSitePotentialDamage,
-		    &(f3Results[i][j][k]) );
+		//cerr<<"precounter "<<i<<" "<<j<<" "<<k<<endl;
+		addCountersInd(     refCount [ i ] ,
+				    altCount [ i ] ,
+				    (cpgForPop[i] || cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
+				    isSitePotentialTransition,
+				    isSitePotentialDamage,
+				    &(f3Results[i][j][k]) );
+		//cerr<<"pstcounter "<<i<<" "<<j<<" "<<k<<endl;
+
+		computeF3triple(//freqAllele[1], //root
+			  // (freq_condition-freq_ind1)*(freq_condition-freq_ind2);
+			  freqAllele[i], //condition or target
+			  freqAllele[j], //ind 1
+			  freqAllele[k], //ind 2
+			  (cpgForPop[i] || cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
+			  isSitePotentialTransition,
+			  isSitePotentialDamage,
+			  &(f3Results[i][j][k]) );
 	    }//k
 	}//j
     }//i
@@ -346,7 +397,11 @@ void SumStatF3::computeStat( const   vector < AlleleRecords >  * dataToUse,const
     for(unsigned int i=0;i<popNames->size();i++){
 	populationNames->push_back(  popNames->at(i) );
    }
-   populationNames->push_back("href");
+   populationNames->push_back("ref");
+
+    // average_nInds = vector<double> (numberOfPopulations,0.0);
+    // average_hzy   = vector<double> (numberOfPopulations,0.0);
+    // id2nsnp       = vector<double> (numberOfPopulations,0.0);
 
    //vector<AlleleRecords> segregatingSites;
 
@@ -356,6 +411,11 @@ void SumStatF3::computeStat( const   vector < AlleleRecords >  * dataToUse,const
        computeStatSingle(&(dataToUse->at(d)),allowUndefined);
 	  
    }//while the parser has data
+   
+
+
+   
+   
    //cout<<"done Sum"<<endl;
    // for(unsigned int i=0;i<numberOfPopulations;i++)
    //     for(unsigned int j=0;j<numberOfPopulations;j++)

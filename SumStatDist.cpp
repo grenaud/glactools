@@ -62,7 +62,7 @@ SumStatDist::SumStatDist(const vector<string> * popNames){
     for(unsigned int i=0;i<popNames->size();i++){
 	populationNames->push_back(  popNames->at(i) );
     }
-    populationNames->push_back("href");
+    populationNames->push_back("ref");
 
     // for(unsigned int i=0;i<populationNames->size();i++){
     // 	cerr<<"popNames["<<i<<"] = "<<populationNames->at(i) <<endl;
@@ -323,7 +323,7 @@ void SumStatDist::computeStat( const   vector < AlleleRecords >  * dataToUse,con
 	populationNames->push_back(  popNames->at(i) );
 	//cerr<<"popNames["<<i<<"] = "<<populationNames->at(i)<<endl;
     }
-    populationNames->push_back("href");
+    populationNames->push_back("ref");
     // cerr<<"popNames["<<popNames->size()<<"] = "<<populationNames->at(popNames->size())<<endl;
     // exit(1);
     //vector<AlleleRecords> segregatingSites;

@@ -83,7 +83,7 @@ SumStatD::SumStatD(const vector<string> * popNames){
     for(unsigned int i=0;i<popNames->size();i++){
 	populationNames->push_back(  popNames->at(i) );
     }
-    populationNames->push_back("href");
+    populationNames->push_back("ref");
     
 }
 
@@ -304,7 +304,7 @@ void SumStatD::computeStat( const   vector < AlleleRecords >  * dataToUse,const 
     for(unsigned int i=0;i<popNames->size();i++){
 	populationNames->push_back(  popNames->at(i) );
    }
-   populationNames->push_back("href");
+   populationNames->push_back("ref");
 
    //vector<AlleleRecords> segregatingSites;
 

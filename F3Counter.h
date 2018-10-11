@@ -30,6 +30,9 @@ class F3Counter{
 
     double   f3Sum;
     unsigned int counterSites;
+    double nInds; 
+    double hzy; 
+    double nsnp; 
 
 
     F3Counter(); //constructor
@@ -38,12 +41,18 @@ class F3Counter{
     string headerForCount() const;
 
     double computeF3() const;
+    void addAlleleCounts(int c1,int c2);
 
     F3Counter &  operator+=(const F3Counter & other);
     F3Counter &  operator-=(const F3Counter & other);
 
     friend ostream& operator<<(ostream& os, const F3Counter & ct){
-	os<<ct.f3Sum<<"\t"<<ct.counterSites<<"\t"<<double(ct.f3Sum)/double(ct.counterSites)<<"\t";
+	double f3unscaled = double(ct.f3Sum)/double(ct.counterSites);
+	double meannInds = ct.nInds/ct.nsnp;
+	double meanhzy   = ct.hzy/ct.nsnp; 
+
+	double t=  	meanhzy / (4.0* meannInds);
+	os<<ct.f3Sum<<"\t"<<ct.counterSites<<"\t"<<f3unscaled<<"\t"<<ct.nInds<<"\t"<<ct.hzy<<"\t"<<ct.nsnp<<"\t"<<t<<"\t"<<(f3unscaled-t)<<"\t";
 	return os;
     }
 

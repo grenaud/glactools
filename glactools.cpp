@@ -60,6 +60,7 @@
 
 #include "GlacIndex.h"
 #include "GlacIDXSTATS.h"
+#include "GlacWindows.h"
 #include "GlacStats.h"
 #include "GlacViewer.h"
 
@@ -141,6 +142,8 @@ int main (int argc, char *argv[]) {
 	"\n"+
 	"   --Viewing:\n"+                       
 	"      view            View all or a region of a ACF/GLF file "+"\n"+
+	"      windows         Print windows along the genome "+"\n"+
+
 	"";
 
                               
@@ -758,6 +761,20 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacIdxstats_.run(argc, argv);		   	    
 
+    }else{      if(string(argv[1]) == "windows"){
+	GlacWindows  glacWindows_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacWindows_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacWindows_.run(argc, argv);		   	    
+
     }else{      if(string(argv[1]) == "view"){
 	GlacViewer  glviewer_;
 
@@ -776,7 +793,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																						}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																						    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

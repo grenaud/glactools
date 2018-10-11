@@ -51,10 +51,11 @@ class F3Result{
 	this->noDamage        = other.noDamage;
 	return *this;
     }
+
     void addIfNotInfinity( vector<double> * target , double val );
     string printWithBootstrap(list<vector< vector< vector<F3Result> >  > >  & boostraps,unsigned int i,unsigned int j,unsigned int k,unsigned int numberOfBootstraps);
     string printWithJacknife(const vector< const F3Result * >  * jacknife);
-
+    void addAlleleCounts(int c1,int c2);
 
     F3Result &  operator+=(const F3Result & other);
     F3Result &  operator-=(const F3Result & other);
