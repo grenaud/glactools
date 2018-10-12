@@ -502,9 +502,13 @@ string GlacCompute::usage() const{
 	"\t"+"-p [stats]"  +"\t\t" +"Statistics to use:\n"+
          			      "\t"+"    paircoacompute"+"\tTo compute pairwise average coalescence\n"+
 	//			      "\t"+"    fst"+"\t\t\tTo compute pairwise Fst (Weir and Cockerham's 1984)\n"+
-			      "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n"+
-	                     "\t"+"    dist"+"\t\tTo compute simple pairwise distance\n\n"+
-	//"\t"+"    f3"+"\t\tF3 stats\n\n"+
+			    "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n"+
+        	            "\t"+"    dist"+"\t\tTo compute simple pairwise distance\n"+
+	                    "\t"+"    f3  "+"\t\tF3 stats (Pickrell implementation)\n"+
+	                    "\t"+"    f2  "+"\t\tF2 stats (Pickrell implementation)\n"+
+
+	"\n"+
+                       	//"\t"+"    f2"+"\t\tF2 stats (Pickrell implementation)\n\n"+
 			    //   "\t"+"    For the \"dist\" mode, specify the model:\n"+
 			    //   "\t"+"    "+"\t--model [model]\tUse this model for DNA distance\n"+
                             //   "\n"+
@@ -619,14 +623,18 @@ int GlacCompute::run(int argc, char *argv[]){
 			parallelP<SumStatF3> pToRun;
 			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
 		    }else{
-			cerr<<"Wrong program "<<program<<endl;
-			return 1;
+			if(program == "f2"){
+			    parallelP<SumStatF2> pToRun;
+			    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
+			}else{
+			    cerr<<"Wrong program "<<program<<endl;
+			    return 1;
+			}
 		    }
 		}
 	    }
 	}
     }
-
 	
     return 0;
 }

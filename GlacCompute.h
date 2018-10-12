@@ -34,6 +34,7 @@
 #include "SumStatD.h"
 #include "SumStatDist.h"
 #include "SumStatF3.h"
+#include "SumStatF2.h"
 
 using namespace std;
 

@@ -211,7 +211,7 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     bool isSitePotentialTransition ;
     bool isSitePotentialDamage     ;
     double m;
-
+    double sumF=0.0;
     for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
 	// if(i == 1 ){ //the root can be absent, need to check	      
 	//     //if the allele count is unknown for both, skip
@@ -232,12 +232,13 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	    }
 	}
 
-	refAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
-	altAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
+	refAllele+=recordToUse->vectorAlleles->at(i).getRefCount();
+	altAllele+=recordToUse->vectorAlleles->at(i).getAltCount();
 	//taken from CountData treemix
 	double sumAllBases = double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
 	double freqRef = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / sumAllBases;
 	freqAllele[i] =  freqRef;
+	sumF+=freqRef;
 	// average_nInds[ j ] += sumAllBases/2.0;
 	
 	// double tmp2 = (double) recordToUse->vectorAlleles->at(i).getAltCount() / (sumAllBases - 1.0);
@@ -296,7 +297,8 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     undefined[ numberOfPopulations-1 ]   = false;//we always have the ref
 
     //m = double(refAllele)/double(refAllele+altAllele);
-    
+    m = double(sumF)/double(numberOfPopulations-2);//we do not count the ref+(either root or anc)
+
     //cerr<<"m "<<m<<" "<<numberOfPopulations<<endl;
     // if(randomBool()){//flip the allele frequencies at each 0.5 site
 	
