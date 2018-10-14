@@ -30,6 +30,7 @@ private:
 
     bool printRoot=false;
     bool printAnc =false;
+    bool limitToTransversions =false;
 
 public:
     ACF2EIGENSTRAT();

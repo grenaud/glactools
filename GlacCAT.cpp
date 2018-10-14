@@ -24,7 +24,8 @@ string GlacCAT::usage() const{
 		  "uses the first file as header and prints to STDOUT\n"
 		  "\n"+
 		  "Options:\n"+
-		  "\t"+"-u" + "\t\t\t"+"Unsafe mode, will not check if the acf/glf files are compatible, much faster (default: "+booleanAsString(false)+")\n"
+		  "\t"+"-u" + "\t\t\t"+"Unsafe mode, will not check if the acf/glf files are compatible\n"+
+		  "\t"+"  " + "\t\t\t"+"use this if you are sure the acf come from the same reference genome, it is much faster (default: "+booleanAsString(false)+")\n"
 		  );
 }
 

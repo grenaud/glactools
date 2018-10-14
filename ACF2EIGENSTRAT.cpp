@@ -17,8 +17,9 @@ string ACF2EIGENSTRAT::usage() const{
     string usage=string("glactools")+" acf2eigenstrat  [options] <ACF file> [out prefix]"+
 	"\nThis program takes a ACF file and prints the output as EIGENSTRAT\n\n"+
 	"\tOptions\n"+			
-        "\t\t"+"--withanc"+"\t"+"Print the anc  (Default: "+boolStringify(printAnc)+" )\n"+
-        "\t\t"+"--withroot"+"\t"+"Print the root (Default: "+boolStringify(printRoot)+" )\n"+
+        "\t\t"+"--withanc"   +"\t"+"Print the anc  (Default: "+boolStringify(printAnc)+" )\n"+
+        "\t\t"+"--withroot"  +"\t"+"Print the root (Default: "+boolStringify(printRoot)+" )\n"+
+        "\t\t"+"--justtransv"+"\t"+"Print the root (Default: "+boolStringify(limitToTransversions)+" )\n"+
 	"";
 
     return usage;
@@ -50,12 +51,17 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
         }
 
 	if( string(argv[i]) == "--withroot"){
-	    printRoot=true;
+	    printRoot = true;
 	    continue;
 	}
 
 	if( string(argv[i]) == "--withanc"){
-	    printAnc =true;
+	    printAnc = true;
+	    continue;
+	}
+
+	if( string(argv[i]) == "--justtransv"){
+	    limitToTransversions = true;
 	    continue;
 	}
 
@@ -116,6 +122,13 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
 	
 	if(!isResolvedDNA(record->alt))
 	    continue;
+
+
+	if(limitToTransversions){
+	    //skip potential transitions
+	    if(isPotentialTransition(record->ref,record->alt))
+		continue;
+	}
 
 	snpFileS<<"snp#"<<(counter++)<<"\t"<<record->chr<<"\t"<<stringify(double(record->coordinate)/double(1000000))<<"\t"<<stringify(record->coordinate)<<"\t"<<record->ref<<"\t"<<record->alt<<endl;
 	
