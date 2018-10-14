@@ -57,6 +57,7 @@
 #include "ACF2TREEMIX.h" 
 #include "ACF2GROSS.h" 
 #include "ACF2EIGENSTRAT.h" 
+#include "ACF2BETASCAN.h" 
 
 #include "GlacIndex.h"
 #include "GlacIDXSTATS.h"
@@ -131,6 +132,7 @@ int main (int argc, char *argv[]) {
 	"      acf2treemix     Convert an ACF file to treemix"+"\n"+
 	"      acf2gross       Convert an ACF file to GRoSS"+"\n"+
 	"      acf2eigenstrat  Convert an ACF file to EIGENSTRAT"+"\n"+
+	"      acf2betascan    Convert an ACF file to betascan"+"\n"+
 	//"      vcfm2glf      Convert multi  sample VCF to glf "+"\n"+
 	"\n"+
 	"   --GLF/ACF conversion:\n"+                       
@@ -392,6 +394,21 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return acf2treemix_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "acf2betascan"){
+	ACF2BETASCAN  acf2betascan_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<acf2betascan_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return acf2betascan_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "acf2gross"){
 	ACF2GROSS  acf2gross_;
 
@@ -793,7 +810,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																						    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																							}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }
