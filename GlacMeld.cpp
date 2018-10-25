@@ -26,7 +26,7 @@ string GlacMeld::usage() const{
     return string("") +"glactools meld [options] <glac file> \"popToMerge1_to_1,popToMerge2_to_1,....\" \"newid1\" \"popToMerge1_to_2,popToMerge2_to_2,....\" \"newid2\"\n"+
 	"This program will merge different specified populations into a single one and will print to STDOUT\n"+
 	"\n"+
-	"ex:  glactools glacmeld data.acf.gz \"Papuan,Austalian\" \"Oceanians\"  \"Yoruba,Mende\" \"WestAfricans\"   "+"\n"+
+	"ex:  glactools meld data.acf.gz \"Papuan,Austalian\" \"Oceanians\"  \"Yoruba,Mende\" \"WestAfricans\"   "+"\n"+
 	"\n"+
 	"Options:"+"\n"+
 	"\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+

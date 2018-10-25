@@ -55,6 +55,7 @@ private:
     int numberOfThreads =       1;
     int sizeBins        = 1000000;
     bool performBoot=true;
+    bool justBoot=false;
     string program;
     string dnaDistMode;
 public:
@@ -66,5 +67,7 @@ public:
     string usage() const;
     int run(int argc, char *argv[]);
 
+    template <class STAT> //type 
+    void bootFromResults( vector<string> * arguments,STAT * stattouse );
 };
 #endif

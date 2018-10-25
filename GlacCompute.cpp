@@ -522,10 +522,20 @@ string GlacCompute::usage() const{
 	"\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
         "\t"+"-s [size bin]" +"\t\t" +"Size of bins (Default: "+stringify(sizeBins)+")\n"+
         "\t"+"--noboot"      +"\t\t" +"Skip the bootstrap, recommended for large datasets (Default: "+booleanAsString(!performBoot)+")\n"+
+        "\t"+"--boot"        +"\t\t" +"If you have multiple chunks computed using --noboot, use this option to combine them\n"+
+        "\t"+"     "        +"\t\t"  +"and just perform the bootstaps, you need to specify the option files as arguments\n"+
+        "\t"+"     "        +"\t\t"  +"(Default: "+booleanAsString(justBoot)+")\n"+
 	"\n";
 
 
     return usage;
+}
+
+
+
+template <class STAT> //type 
+void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
+    //cerr<<"bootFromResults"<<endl;
 }
 
 int GlacCompute::run(int argc, char *argv[]){
@@ -546,8 +556,20 @@ int GlacCompute::run(int argc, char *argv[]){
 
     bool dnaDistModeSpecified=false;
     dnaDistMode              ="none";
+    int lastOpt=1;
 
     for(int i=1;i<(argc-1);i++){ 
+	cerr<<i<<" "<<string(argv[i])<<endl;
+	if((string(argv[i]) == "-")  ){
+            lastOpt=i;
+            break;          
+        }
+	
+	if(string(argv[i])[0] != '-' ){
+            lastOpt=i;
+            break;
+        }
+
 	
         if(string(argv[i]) == "-t" ){
             numberOfThreads=destringify<int>(argv[i+1]);
@@ -562,6 +584,11 @@ int GlacCompute::run(int argc, char *argv[]){
 
         if(string(argv[i]) == "--noboot" ){
 	    performBoot=false;
+            continue;
+        }
+
+        if(string(argv[i]) == "--boot" ){
+	    justBoot=true;
             continue;
         }
 
@@ -602,40 +629,64 @@ int GlacCompute::run(int argc, char *argv[]){
 	}
     }
 
-
-    if(program == "paircoacompute"){
-	parallelP<SumStatAvgCoa> pToRun;
-	pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
-    }else{
+    if(justBoot){//just perform bootstaps
 	if(program == "dstat"){
-	    parallelP<SumStatD> pToRun;
+	    //parallelP<SumStatD> pToRun;
+	    //pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
+	    cerr<<"1 "<<lastOpt<<" "<<argc<<endl;
+	    vector<string> * arguments;
+	    for(int i=lastOpt;i<argc;i++){
+		arguments->push_back( string(argv[i]) );
+	    }
+	    SumStatD * st=new SumStatD();
+	    cerr<<"1 "<<lastOpt<<" "<<argc<<endl;
+	    bootFromResults(arguments,st);
+	    delete(arguments);
+	    // for(int i=1;i<(argc-1);i++){ 
+	    // 	if((string(argv[i]) == "-")  ){
+	    // 	    lastOpt=i;
+	    // 	    break;          
+	    // 	}
+		
+	}else{
+	    cerr<<"GlacCompute: to implement "<<endl;
+	    return 1;	    
+
+	}
+    }else{
+	if(program == "paircoacompute"){
+	    parallelP<SumStatAvgCoa> pToRun;
 	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
 	}else{
-	    if(program == "fst"){
-		parallelP<SumStatFst> pToRun;
+	    if(program == "dstat"){
+		parallelP<SumStatD> pToRun;
 		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
 	    }else{
-		if(program == "dist"){
-		    parallelP<SumStatDist> pToRun;
-		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
+		if(program == "fst"){
+		    parallelP<SumStatFst> pToRun;
+		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
 		}else{
-		    if(program == "f3"){
-			parallelP<SumStatF3> pToRun;
+		    if(program == "dist"){
+			parallelP<SumStatDist> pToRun;
 			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
 		    }else{
-			if(program == "f2"){
-			    parallelP<SumStatF2> pToRun;
+			if(program == "f3"){
+			    parallelP<SumStatF3> pToRun;
 			    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
 			}else{
-			    cerr<<"Wrong program "<<program<<endl;
-			    return 1;
+			    if(program == "f2"){
+				parallelP<SumStatF2> pToRun;
+				pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
+			    }else{
+				cerr<<"Wrong program "<<program<<endl;
+				return 1;
+			    }
 			}
 		    }
 		}
 	    }
 	}
-    }
-	
+    }	
     return 0;
 }
 
