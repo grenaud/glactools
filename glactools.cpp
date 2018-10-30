@@ -39,6 +39,8 @@
 
 
 #include "GlacUndef.h"
+#include "GlacMindef.h"
+
 #include "GlacBedfilter.h"
 #include "GlacSegsite.h"
 #include "GlacRename.h"
@@ -93,6 +95,7 @@ int main (int argc, char *argv[]) {
 	"\n"+
 	"   --Filtering:\n"+                       
 	"      noundef         No undefined sites for populations"+"\n"+
+	"      mindef          Require all ind/pop to carry a min. # of defined alleles"+"\n"+
 	"      bedfilter       Filter ACF/GLF file using sorted bedfile"+"\n"+
 	"      segsite         Just retain segregating sites (or trans./transi)"+"\n"+
 	"      sharing         Retain sites that share alleles between populations"+"\n"+
@@ -452,6 +455,20 @@ int main (int argc, char *argv[]) {
 	argc--;
 	return glacundef_.run(argc, argv);
 
+    }else{      if(string(argv[1]) == "mindef"){
+	GlacMindef  glacmindef_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glacmindef_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glacmindef_.run(argc, argv);
+
     }else{      if(string(argv[1]) == "bedfilter"){
 	GlacBedfilter  glacbedfilter_;
 
@@ -810,7 +827,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																							}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																							    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }
