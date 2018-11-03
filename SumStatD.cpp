@@ -338,7 +338,7 @@ void SumStatD::read(const string & res){
     map<string,int> ind2index;
     unsigned int indIndices=2;//indIndices =0 (root)  indIndices =1 (anc) 
     ind2index["root"]=0;  populationNames->push_back( "root" );
-    ind2index["anc"]=0;   populationNames->push_back( "anc" );
+    ind2index["anc"]=1;   populationNames->push_back( "anc" );
 
     string firstSource;
     for(unsigned int i=0;i<lines.size();i++){

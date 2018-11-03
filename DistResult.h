@@ -78,5 +78,19 @@ class DistResult{
 	  <<ct.noDamage;
 	return os;
     }
+
+    friend istream &operator>>(istream &is , DistResult &dr){
+	//cerr<<" op TEST"<<endl;
+	is
+	    >>dr.all
+	    >>dr.onlyCpg
+	    >>dr.noCpg
+	    >>dr.transitions
+	    >>dr.transversions
+	    >>dr.noDamage;
+	return is;
+	//return dsr.read(s);
+    }
+
 };
 #endif

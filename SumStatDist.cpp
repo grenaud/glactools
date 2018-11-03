@@ -9,7 +9,8 @@
 
 
 SumStatDist::SumStatDist(){
-
+    populationNames=NULL;
+    distanceResults=NULL;
 }
 
 SumStatDist::SumStatDist(const SumStatDist & other){
@@ -76,13 +77,16 @@ SumStatDist::SumStatDist(const vector<string> * popNames){
 
 SumStatDist::~SumStatDist(){
     // cout<<"destructor#1"<<endl;
-    delete(populationNames);
+    if(populationNames!=NULL)
+	delete(populationNames);
     //cout<<"destructor#2"<<endl;
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	//cout<<"destructor #"<<i<<endl;
-	delete [] distanceResults[i];
+    if(distanceResults!=NULL){
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    //cout<<"destructor #"<<i<<endl;
+	    delete [] distanceResults[i];
+	}
+	delete [] distanceResults;
     }
-    delete [] distanceResults;
 }
 
 DistResult const * const *  SumStatDist::getDistResult() const{
@@ -363,6 +367,128 @@ string SumStatDist::print() const {
 
 
 
+void SumStatDist::read(const string & res){
+    //cout<<"READ()"<<endl;
+    //return s;
+    vector<string> lines = allTokens(res,'\n');
+
+    //DETECTING # OF POP/IND
+    populationNames = new vector<string>();
+    map<string,int> ind2index;
+    unsigned int indIndices=2;//indIndices =0 (root)  indIndices =1 (anc) 
+    ind2index["root"]=0;  populationNames->push_back( "root" );
+    ind2index["anc"]=1;   populationNames->push_back( "anc" );
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() ) continue; //separator
+	//cerr<<lines[i]<<endl;
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+
+	string ind1;
+	string ind2;
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t') break;
+	    ind2+=indsIds[k++];	   
+	}
+
+	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
+
+	if(ind2index.find(ind1) == ind2index.end()){
+	    ind2index[ind1]=indIndices;
+	    populationNames->push_back(  ind1 );
+	    indIndices++;
+	}
+
+	if(ind2index.find(ind2) == ind2index.end()){
+	    ind2index[ind2]=indIndices;
+	    populationNames->push_back(  ind2 );
+	    indIndices++;
+	}
+	
+
+	//cout<<fields.size()<<endl;
+    }
+    // cerr<<"indIndices "<<indIndices<<endl;
+    // for( map<string,int>::const_iterator it=ind2index.begin();it!=ind2index.end();it++){
+    // 	cerr<<it->first<<"\t"<<it->second<<endl;
+    // }
+    numberOfPopulations=indIndices;
+
+    distanceResults = new DistResult*[numberOfPopulations];
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	distanceResults[i] = new DistResult[numberOfPopulations];
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() )            continue; //separator
+
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+	
+	string ind1;
+	string ind2;
+	
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t') break;
+	    ind2+=indsIds[k++];	   
+	}
+	k++;
+	//cout<<ind1<<" "<<ind2<<" "<<str<<endl;
+	//fields.pop();//remove first element
+	//cout<<(lines[i]+indsIds.size() )<<endl;
+	//cout<<"#"<<lines[i].substr(indsIds.size()+1,lines[i].size())<<"#"<<endl;
+	istringstream in ( lines[i].substr(indsIds.size()+1,lines[i].size()) );
+	// cerr<<endl<<"line  "<<lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+	// cerr<<"index "<<ind1<<" "<<ind2<<" " <<endl;
+	// cerr<<"index "<<ind2index[ind1]<<" "<<ind2index[ind2]<<endl;
+	//lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+
+	//                    @[src]              [ind1]       -     [ind2]
+	//in>>dstatResults[ ind2index[src] ] [ ind2index[ind1] ][ ind2index[ind2] ];
+	in>>distanceResults[ ind2index[ind1] ][ ind2index[ind2] ];
+
+	//cout<<fields.size()<<endl;
+    }
+
+    // istringstream in (strResults);
+    //     dstatResults[i][j][k].
+    //[numberOfPopulations][numberOfPopulations];
+    //storing results
+    
+   //for(unsigned int i=0;i<popNames->size();i++){
+   //	populationNames->push_back(  popNames->at(i) );
+   //}
+   //populationNames->push_back("ref");
+    
+   //vector<AlleleRecords> segregatingSites;
+
+   //while(mp.hasData()){
+
+}
 
 // istream & SumStatDist::read (istream & s){
     

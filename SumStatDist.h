@@ -95,7 +95,7 @@ class SumStatDist{
 
     string print() const;
     string printWithBootstraps(const   vector<SumStatDist *> * bootstr,const string & dnaDistMode) const;
-
+    void read(const string & res);
     friend ostream& operator<<(ostream& os, const SumStatDist & ct){
 	os<<ct.print();
 	return os;

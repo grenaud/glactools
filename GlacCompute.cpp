@@ -560,7 +560,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	    //istringstream in (strResults);
 	    statComputer->read(strResults);
 	    results->push_back(statComputer);
-	    //cout<<*statComputer<<endl;
+	    cout<<*statComputer<<endl;
 	}else{
 	    cerr<<"Cannot open file "<<arguments->at(i)<<endl;
 	    exit(1);
@@ -597,7 +597,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	
 	if( performBoot ){
 	    for (unsigned int i=0; i<results->size() ; ++i) {    
-		cerr<<"jackknife #"<<i<<" of "<<results->size()<<endl;
+		cerr<<"jackknife #"<<(i+1)<<" of "<<results->size()<<endl;
 		STAT * test =new STAT (*allResults); //creating a copy
 		*test-=(*results->at(i)); //removing ith block
 		jacknife->push_back(test); 
@@ -624,6 +624,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	}
     }
     cerr<<"jacknifing done"<<endl;
+
     delete(results);
 }
 
@@ -719,34 +720,28 @@ int GlacCompute::run(int argc, char *argv[]){
     }
 
     if(justBoot){//just perform bootstaps
-	if(program == "dstat"){
-	    //parallelP<SumStatD> pToRun;
-	    //pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
-	    
 	    vector<string> * arguments=new vector<string>();
-	    for(int i=lastOpt;i<argc;i++){
-		//cerr<<string(argv[i])<<endl;
+	    for(int i=lastOpt;i<argc;i++){		
 		arguments->push_back( string(argv[i]) );
 	    }
-	    
+
+	if(program == "dstat"){	    	    
 	    SumStatD * st=new SumStatD();
-
 	    bootFromResults(arguments,st);
-
-	    delete(st);
-	    delete(arguments);
-	    
-	    // for(int i=1;i<(argc-1);i++){ 
-	    // 	if((string(argv[i]) == "-")  ){
-	    // 	    lastOpt=i;
-	    // 	    break;          
-	    // 	}
-		
+	    delete(st);	    
 	}else{
-	    cerr<<"GlacCompute: to implement (coming soon) "<<endl;
-	    return 1;	    
-
+	    if(program == "dist"){				
+		SumStatDist * st=new SumStatDist();
+		bootFromResults(arguments,st);	       
+		delete(st);
+		
+	    }else{
+		cerr<<"GlacCompute: to implement (coming soon) "<<endl;
+		return 1;	    
+	    }
 	}
+	delete(arguments);
+
     }else{
 	if(program == "paircoacompute"){
 	    parallelP<SumStatAvgCoa> pToRun;
