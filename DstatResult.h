@@ -59,6 +59,7 @@ class DstatResult{
     DstatResult &  operator+=(const DstatResult & other);
     DstatResult &  operator-=(const DstatResult & other);
 
+
     friend ostream& operator<<(ostream& os, const DstatResult & dr){
 	/* cout<<"DstatResult print() begin"<<endl; */
 	/* exit(1); */
@@ -87,5 +88,25 @@ class DstatResult{
 	return os;
     }
 
-};
+    friend istream &operator>>(istream &is , DstatResult &dr){
+	//cerr<<" op TEST"<<endl;
+	is
+	    >>dr.all
+	    >>dr.onlyCpg
+	    >>dr.noCpg
+	    >>dr.transitions
+	    >>dr.transversions
+	    >>dr.noDamage;
+	return is;
+	//return dsr.read(s);
+    }
+
+    /* istream read(istream &s){ */
+    /* 	cout<< */
+};//class DstatResult;
+
+
+///}//class DstatResult;
+
+
 #endif

@@ -360,3 +360,10 @@ string SumStatDist::print() const {
     return toReturn.str();
 }
 
+
+
+
+
+// istream & SumStatDist::read (istream & s){
+    
+// }

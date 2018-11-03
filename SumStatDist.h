@@ -101,5 +101,11 @@ class SumStatDist{
 	return os;
     }
 
+    //istream& operator>>(istream& s,  SumStatDist& c){
+    /* istream& operator>>(istream& s){ */
+    /* 	cout<<"istream"<<endl; */
+    /* 	//return c.read(s); */
+    /* } */
+
 };
 #endif

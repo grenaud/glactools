@@ -80,6 +80,10 @@ void DstatResult::addIfNotInfinity( vector<double> * target , double val ){
     }
 }
 
+//void DstatResult::read(istream &s){
+//   cout<<"read () "<<s<<endl;
+//}
+
 string DstatResult::printWithJacknife(const vector<const  DstatResult * >  * jacknife){
     stringstream toreturn;
 

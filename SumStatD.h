@@ -98,12 +98,21 @@ class SumStatD{
     void computeStatSingle( const   AlleleRecords   * recordToUse                                         ,const bool allowUndefined);
 
     string print() const;
+    //istream & read(istream & s);
+    void read(const string & res);
     string printWithBootstraps(const   vector<SumStatD *> * bootstr,const string & dnaDistMode) const;
 
     friend ostream& operator<<(ostream& os, const SumStatD & ct){
-	os<<ct.print();
-	return os;
+    	os<<ct.print();
+    	return os;
     }
+
+    //TODO fix
+    //istream& operator>>(istream& s,  SumStatDist& c){
+    /* istream& operator>>(istream& s){ */
+    /* 	cout<<"istream"<<endl; */
+    /*    return read(s); */
+    /* } */
 
 };
 #endif

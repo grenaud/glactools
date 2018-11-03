@@ -10,6 +10,8 @@
 
 SumStatD::SumStatD(){
     //cout<<"CONSTR1"<<endl;
+    populationNames=NULL;
+    dstatResults=NULL;
 }
 
 SumStatD::SumStatD(const SumStatD & other){
@@ -93,21 +95,23 @@ SumStatD::SumStatD(const vector<string> * popNames){
 
 SumStatD::~SumStatD(){
   // cout<<"destructor#1"<<endl;
-    delete(populationNames);
+    if(populationNames!=NULL)
+	delete(populationNames);
     //cout<<"destructor#2"<<endl;
     //cout<<"destructor #"<<i<<endl;
-
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	for(unsigned int j=0;j<numberOfPopulations;j++){
-	    delete [] dstatResults[i][j];
+    if(dstatResults!=NULL){
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    for(unsigned int j=0;j<numberOfPopulations;j++){
+		delete [] dstatResults[i][j];
+	    }
 	}
-    }
 
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	delete [] dstatResults[i];
-    }
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    delete [] dstatResults[i];
+	}
 
-    delete [] dstatResults;
+	delete [] dstatResults;
+    }
 }
 
 
@@ -323,6 +327,153 @@ void SumStatD::computeStat( const   vector < AlleleRecords >  * dataToUse,const 
 }
 
 
+//istream & SumStatD::read(istream & s){
+void SumStatD::read(const string & res){
+    //cout<<"READ()"<<endl;
+    //return s;
+    vector<string> lines = allTokens(res,'\n');
+    //cout<<"size "<<lines.size()<<endl;
+    //DETECTING # OF POP/IND
+    populationNames = new vector<string>();
+    map<string,int> ind2index;
+    unsigned int indIndices=2;//indIndices =0 (root)  indIndices =1 (anc) 
+    ind2index["root"]=0;  populationNames->push_back( "root" );
+    ind2index["anc"]=0;   populationNames->push_back( "anc" );
+
+    string firstSource;
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() ) continue; //separator
+	//cerr<<lines[i]<<endl;
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+
+	string ind1;
+	string ind2;
+	string src;
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '@') break;
+	    ind2+=indsIds[k++];	   
+	}
+	k++;
+	while(k<indsIds.size()){
+	    src+=indsIds[k++];	   
+	}
+	if(firstSource.empty()){
+	    firstSource=src;
+	}else{
+	    if(firstSource != src){
+		break; //should have seen everything
+	    }
+	}
+	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
+
+	if(ind2index.find(src) == ind2index.end()){
+	    ind2index[src]=indIndices;
+	    populationNames->push_back(  src );
+	    indIndices++;
+	}
+
+	if(ind2index.find(ind1) == ind2index.end()){
+	    ind2index[ind1]=indIndices;
+	    populationNames->push_back(  ind1 );
+	    indIndices++;
+	}
+
+	if(ind2index.find(ind2) == ind2index.end()){
+	    ind2index[ind2]=indIndices;
+	    populationNames->push_back(  ind2 );
+	    indIndices++;
+	}
+	
+
+	//cout<<fields.size()<<endl;
+    }
+    // cerr<<"indIndices "<<indIndices<<endl;
+    // for( map<string,int>::const_iterator it=ind2index.begin();it!=ind2index.end();it++){
+    // 	cerr<<it->first<<"\t"<<it->second<<endl;
+    // }
+    numberOfPopulations=indIndices;
+    dstatResults = new DstatResult**[numberOfPopulations];
+    
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	dstatResults[i] = new DstatResult*[numberOfPopulations];
+    
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	for(unsigned int j=0;j<numberOfPopulations;j++)
+	   dstatResults[i][j] = new DstatResult[numberOfPopulations];
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() )            continue; //separator
+
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+	
+	string ind1;
+	string ind2;
+	string src;
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '@') break;
+	    ind2+=indsIds[k++];	   
+	}
+	k++;
+	while(k<indsIds.size()){
+	    src+=indsIds[k++];	   
+	}
+	//cout<<ind1<<" "<<ind2<<" "<<str<<endl;
+	//fields.pop();//remove first element
+	//cout<<(lines[i]+indsIds.size() )<<endl;
+	//cout<<"#"<<lines[i].substr(indsIds.size()+1,lines[i].size())<<"#"<<endl;
+	istringstream in ( lines[i].substr(indsIds.size()+1,lines[i].size()) );
+	// cerr<<"line  "<<lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+	// cerr<<"index "<<ind1<<" "<<ind2<<" "<< src <<endl;
+	// cerr<<"index "<<ind2index[ind1]<<" "<<ind2index[ind2]<<" "<< ind2index[src] <<endl;
+	//lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+
+	//                    @[src]              [ind1]       -     [ind2]
+	in>>dstatResults[ ind2index[src] ] [ ind2index[ind1] ][ ind2index[ind2] ];
+
+	//cout<<fields.size()<<endl;
+    }
+
+    // istringstream in (strResults);
+    //     dstatResults[i][j][k].
+    //[numberOfPopulations][numberOfPopulations];
+    //storing results
+    
+   //for(unsigned int i=0;i<popNames->size();i++){
+   //	populationNames->push_back(  popNames->at(i) );
+   //}
+   //populationNames->push_back("ref");
+    
+   //vector<AlleleRecords> segregatingSites;
+
+   //while(mp.hasData()){
+
+}
+
 string SumStatD::print() const {
     // cout<<"SumStatD print() begin"<<endl;
     // exit(1);
@@ -343,6 +494,9 @@ string SumStatD::print() const {
 		// cout<<"2#"<<populationNames->at(k)<<endl;
 		// cout<<"3#"<<populationNames->at(i)  <<endl;
 		// cout<<"4#"<<dstatResults[i][j][k]<<endl;
+		//                                                                                                        [src][ind1]-[ind2]
+		// cerr<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)<<"\t"<<dstatResults[i][j][k]<<endl;
+	        // cerr<<j<<"-"<<k<<"@"<<i<<"\t"<<dstatResults[i][j][k]<<endl;
 		toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<dstatResults[i][j][k]<<endl;
 		//toReturn<<populationNames->at(i)<<"-"<<populationNames->at(j)<<"\t"<<divergenceResults[i][j]<<endl;
 	    }

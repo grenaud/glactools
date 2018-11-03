@@ -535,7 +535,96 @@ string GlacCompute::usage() const{
 
 template <class STAT> //type 
 void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
+    ////////////////////////////////
+    //READING PREVIOUS RESULTS   ///
+    ////////////////////////////////
+    vector<STAT * > * results=new vector<STAT *>();
     //cerr<<"bootFromResults"<<endl;
+    for(unsigned int i=0;i<arguments->size();i++){
+	igzstream myfileResults;
+	STAT * statComputer = new STAT();
+	myfileResults.open(arguments->at(i).c_str(), ios::in);
+	if (myfileResults.good()){
+	    //fix the operators
+	    // while (!myfileResults.eof()){
+	    // 	myfileResults >> statComputer ;
+
+	    // }
+
+	    cerr<<"Reading file "<<arguments->at(i)<<endl;
+	    string strResults;
+	    string lineResults;
+	    while( getline(myfileResults,lineResults)){
+	    	strResults+=lineResults+"\n";
+	    }
+	    //istringstream in (strResults);
+	    statComputer->read(strResults);
+	    results->push_back(statComputer);
+	    //cout<<*statComputer<<endl;
+	}else{
+	    cerr<<"Cannot open file "<<arguments->at(i)<<endl;
+	    exit(1);
+	}
+    }
+    //    exit(1);
+
+    cerr<<"reading done, starting jacknifing"<<endl;
+    //DO jacknifing
+    if(results->size()>1){
+	//cout << "VEC "<<vectorToString( *((*results->at(0)).populationNames) )<<endl;
+	STAT * allResults=new STAT((*results->at(0)));
+	// cout << "VEC "<<vectorToString( *((*results->at(0)).populationNames) )<<endl;
+	// cout<<"done all1"<<endl;
+	// cout<<allResults->print()<<endl;
+	// cout<<"done all2"<<endl;
+	vector<STAT * > * jacknife=new vector<STAT *>();
+
+	for (unsigned int i=1; i<results->size() ; ++i) {    
+	    //cout<<"add\t"<<i<<endl;	
+	    (*allResults)+=(*results->at(i));
+	    // //cout<<"done dd1"<<endl;
+	    // cout<<allResults->print()<<endl;
+	    // cout<<"done dd2"<<endl;
+	}
+
+	// for (unsigned int i=0; i<results->size() ; ++i) {    
+	//     // cout<<i<<"\n#####\n"<<endl;
+	//     //	cout<<results->at(i)<<endl;
+	//     cout<<"---------------------------"<<endl;
+	//     cout<<results->at(i)->print()<<endl;
+	//     //	cout<<i<<"\n#####\n"<<endl;
+	// }
+	
+	if( performBoot ){
+	    for (unsigned int i=0; i<results->size() ; ++i) {    
+		cerr<<"jackknife #"<<i<<" of "<<results->size()<<endl;
+		STAT * test =new STAT (*allResults); //creating a copy
+		*test-=(*results->at(i)); //removing ith block
+		jacknife->push_back(test); 
+		//cout<<"ji "<<i<<endl<<test->print()<<endl;
+	    }
+	    
+	    cout<<"---------------ALL---------------"<<endl;
+	    //cerr<<"done all1"<<endl;
+	    //COMMENT allResults contains a matrix of AvgCoaResults
+	    //add a method for jacknife in allResults
+	    cout<<allResults->printWithBootstraps(jacknife,dnaDistMode);
+	    //cout<<allResults->print()<<endl;
+	    //cerr<<"done all2"<<endl;
+	}
+
+	delete(jacknife);
+	delete(allResults);
+    }else{
+	if( !performBoot ){
+	    cout<<"---------------------------"<<endl;
+	    cout<<results->at(0)->print()<<endl;
+	}else{//need to perform boot
+	    cerr<<"GlacCompute: There is only a single bin, cannot perform a jacknife, please run with more data"<<endl;
+	}
+    }
+    cerr<<"jacknifing done"<<endl;
+    delete(results);
 }
 
 int GlacCompute::run(int argc, char *argv[]){
@@ -559,7 +648,7 @@ int GlacCompute::run(int argc, char *argv[]){
     int lastOpt=1;
 
     for(int i=1;i<(argc-1);i++){ 
-	cerr<<i<<" "<<string(argv[i])<<endl;
+	//cerr<<i<<" "<<string(argv[i])<<endl;
 	if((string(argv[i]) == "-")  ){
             lastOpt=i;
             break;          
@@ -633,15 +722,20 @@ int GlacCompute::run(int argc, char *argv[]){
 	if(program == "dstat"){
 	    //parallelP<SumStatD> pToRun;
 	    //pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
-	    cerr<<"1 "<<lastOpt<<" "<<argc<<endl;
-	    vector<string> * arguments;
+	    
+	    vector<string> * arguments=new vector<string>();
 	    for(int i=lastOpt;i<argc;i++){
+		//cerr<<string(argv[i])<<endl;
 		arguments->push_back( string(argv[i]) );
 	    }
+	    
 	    SumStatD * st=new SumStatD();
-	    cerr<<"1 "<<lastOpt<<" "<<argc<<endl;
+
 	    bootFromResults(arguments,st);
+
+	    delete(st);
 	    delete(arguments);
+	    
 	    // for(int i=1;i<(argc-1);i++){ 
 	    // 	if((string(argv[i]) == "-")  ){
 	    // 	    lastOpt=i;
@@ -649,7 +743,7 @@ int GlacCompute::run(int argc, char *argv[]){
 	    // 	}
 		
 	}else{
-	    cerr<<"GlacCompute: to implement "<<endl;
+	    cerr<<"GlacCompute: to implement (coming soon) "<<endl;
 	    return 1;	    
 
 	}

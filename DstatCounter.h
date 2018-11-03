@@ -57,6 +57,40 @@ class DstatCounter{
 	return os;
     }
 
+    friend istream &operator>>(istream &is , DstatCounter &ct){
+	//cerr<<"DstatCounter in"<<endl;
+	double dst;
+
+	//istringstream dst;
+
+	is>>
+	    ct.counterAncAnc>>
+	    ct.counterAncDer>>
+	    ct.counterDerAnc>>
+	    ct.counterDerDer;
+	//get dst but will be discarded
+
+	string dstStr;
+	char c;
+	is.get(c);
+	if(c != '\t'){
+	    cerr<<"A single dstat should have 5 fields AA\tAD\tDA\tDD\tdst"<<endl;
+	}
+
+	while (is.get(c)){          // loop getting single characters
+	    if(c == '\t') break;
+	    dstStr+=c;
+	    //cerr<<"#"<<c<<"#"<<endl;
+	}
+	if(dstStr == "-nan"){
+	    dst = -1.0*numeric_limits<double>::quiet_NaN();
+	}else{
+	    dst =  destringify<double>(dstStr);
+	}
+	
+	//cerr<<ct.counterAncAnc<<"\t"<<ct.counterAncDer<<"\t"<<ct.counterDerAnc<<"\t"<<ct.counterDerDer<<"\t"<<dst<<endl;;
+	return is;
+    }
 
 };
 
