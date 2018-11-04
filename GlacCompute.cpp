@@ -535,6 +535,7 @@ string GlacCompute::usage() const{
 
 template <class STAT> //type 
 void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
+    
     ////////////////////////////////
     //READING PREVIOUS RESULTS   ///
     ////////////////////////////////
@@ -560,7 +561,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	    //istringstream in (strResults);
 	    statComputer->read(strResults);
 	    results->push_back(statComputer);
-	    cout<<*statComputer<<endl;
+	    //cerr<<*statComputer<<endl;
 	}else{
 	    cerr<<"Cannot open file "<<arguments->at(i)<<endl;
 	    exit(1);
@@ -725,21 +726,26 @@ int GlacCompute::run(int argc, char *argv[]){
 		arguments->push_back( string(argv[i]) );
 	    }
 
-	if(program == "dstat"){	    	    
-	    SumStatD * st=new SumStatD();
-	    bootFromResults(arguments,st);
-	    delete(st);	    
-	}else{
-	    if(program == "dist"){				
-		SumStatDist * st=new SumStatDist();
-		bootFromResults(arguments,st);	       
-		delete(st);
-		
+	    if(program == "dstat"){	    	    
+		SumStatD * st=new SumStatD();
+		bootFromResults(arguments,st);
+		delete(st);	    
 	    }else{
-		cerr<<"GlacCompute: to implement (coming soon) "<<endl;
-		return 1;	    
+		if(program == "dist"){				
+		    SumStatDist * st=new SumStatDist();
+		    bootFromResults(arguments,st);	       
+		    delete(st);
+		}else{
+		    if(program == "f2"){				
+			SumStatF2 * st=new SumStatF2();
+			bootFromResults(arguments,st);	       
+			delete(st);	    
+		    }else{
+			cerr<<"GlacCompute: to implement (coming soon) "<<endl;
+			return 1;	    
+		    }
+		}
 	    }
-	}
 	delete(arguments);
 
     }else{

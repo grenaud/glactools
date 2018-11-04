@@ -60,6 +60,19 @@ class F2Result{
     F2Result &  operator+=(const F2Result & other);
     F2Result &  operator-=(const F2Result & other);
 
+    friend istream &operator>>(istream &is , F2Result &dr){
+	//cerr<<" op TEST"<<endl;
+	is
+	    >>dr.all
+	    >>dr.onlyCpg
+	    >>dr.noCpg
+	    >>dr.transitions
+	    >>dr.transversions
+	    >>dr.noDamage;
+	return is;
+	//return dsr.read(s);
+    }
+
     friend ostream& operator<<(ostream& os, const F2Result & dr){
 	/* cout<<"F2Result print() begin"<<endl; */
 	/* exit(1); */

@@ -10,6 +10,8 @@
 
 SumStatF2::SumStatF2(){
     //cout<<"CONSTR1"<<endl;
+    f2Results=NULL;//[numberOfPopulations][numberOfPopulations]
+    populationNames=NULL;
 }
 
 SumStatF2::SumStatF2(const SumStatF2 & other){
@@ -87,7 +89,10 @@ SumStatF2::SumStatF2(const vector<string> * popNames){
 
 SumStatF2::~SumStatF2(){
   // cout<<"destructor#1"<<endl;
-    delete(populationNames);
+
+    if(populationNames!=NULL)
+	delete(populationNames);
+    
     //cout<<"destructor#2"<<endl;
     //cout<<"destructor #"<<i<<endl;
 
@@ -96,17 +101,149 @@ SumStatF2::~SumStatF2(){
     // 	    delete [] f2Results[i][j];
     // 	}
     // }
-
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	delete [] f2Results[i];
+ 
+   if(f2Results!=NULL){
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    delete [] f2Results[i];
+	}
+	delete [] f2Results;
     }
-
-    delete [] f2Results;
 }
 
 
 F2Result const *  const * SumStatF2::getF2Result() const{
     return f2Results;
+}
+
+
+
+void SumStatF2::read(const string & res){
+    //cout<<"READ()"<<endl;
+    //return s;
+    vector<string> lines = allTokens(res,'\n');
+
+    //DETECTING # OF POP/IND
+    populationNames = new vector<string>();
+    map<string,int> ind2index;
+    unsigned int indIndices=2;//indIndices =0 (root)  indIndices =1 (anc) 
+    ind2index["root"]=0;  populationNames->push_back( "root" );
+    ind2index["anc"]=1;   populationNames->push_back( "anc" );
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() ) continue; //separator
+	//cerr<<lines[i]<<endl;
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+
+	string ind1;
+	string ind2;
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t') break;
+	    ind2+=indsIds[k++];	   
+	}
+
+	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
+	trimWhiteSpacesBothEnds(&ind1);
+	trimWhiteSpacesBothEnds(&ind2);
+
+	if(ind2index.find(ind1) == ind2index.end()){
+	    ind2index[ind1]=indIndices;
+	    populationNames->push_back(  ind1 );
+	    indIndices++;
+	}
+
+	if(ind2index.find(ind2) == ind2index.end()){
+	    ind2index[ind2]=indIndices;
+	    populationNames->push_back(  ind2 );
+	    indIndices++;
+	}
+	
+
+	//cout<<fields.size()<<endl;
+    }
+    // cerr<<"indIndices "<<indIndices<<endl;
+    // for( map<string,int>::const_iterator it=ind2index.begin();it!=ind2index.end();it++){
+    // 	cerr<<it->first<<"\t"<<it->second<<endl;
+    // }
+    numberOfPopulations=indIndices;
+
+    f2Results = new F2Result*[numberOfPopulations];
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	f2Results[i] = new F2Result[numberOfPopulations];
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() )            continue; //separator
+
+	//vector<string> fields = allTokens(lines[i],'\t');
+	//cout<<"line read "<<lines[i]<<endl;
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+	
+	string ind1;
+	string ind2;
+	
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-')		break;	   	    
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	//cerr<<"#l "<<ind1<<"# #"<<ind2<<"# "<<endl;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t')		break;	    
+	    ind2+=indsIds[k++];	   
+	}
+	k++;
+	trimWhiteSpacesBothEnds(&ind1);
+	trimWhiteSpacesBothEnds(&ind2);
+	//cerr<<"#m "<<ind1<<"# #"<<ind2<<"# "<<endl;
+	//fields.pop();//remove first element
+	//cout<<(lines[i]+indsIds.size() )<<endl;
+	//cout<<"#"<<lines[i].substr(indsIds.size()+1,lines[i].size())<<"#"<<endl;
+	istringstream in ( lines[i].substr(indsIds.size()+1,lines[i].size()) );
+	// cerr<<endl<<"line  "<<lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+	// cerr<<"index "<<ind1<<" "<<ind2<<" " <<endl;
+	// cerr<<"index "<<ind2index[ind1]<<" "<<ind2index[ind2]<<endl;
+	//lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+
+	//                    @[src]              [ind1]       -     [ind2]
+	//in>>dstatResults[ ind2index[src] ] [ ind2index[ind1] ][ ind2index[ind2] ];
+	in>>f2Results[ ind2index[ind1] ][ ind2index[ind2] ];
+	//cerr<<"#stat "<<f2Results[ ind2index[ind1] ][ ind2index[ind2] ]<<endl;
+	//cout<<fields.size()<<endl;
+    }
+
+    // istringstream in (strResults);
+    //     dstatResults[i][j][k].
+    //[numberOfPopulations][numberOfPopulations];
+    //storing results
+    
+   //for(unsigned int i=0;i<popNames->size();i++){
+   //	populationNames->push_back(  popNames->at(i) );
+   //}
+   //populationNames->push_back("ref");
+    
+   //vector<AlleleRecords> segregatingSites;
+
+   //while(mp.hasData()){
+
 }
 
 string SumStatF2::printWithBootstraps(const   vector<SumStatF2 *> * jackVec, const string & dnaDistMode) const{ //all boostraps or jacknife
@@ -441,11 +578,11 @@ string SumStatF2::print() const {
 	   // 	    continue;
 	   // 	if(j==k)
 	   // 	    continue;
-		// cout<<"print() "<<i<<" "<<j<<" "<<k<<endl;
-		// cout<<"1#"<<populationNames->at(j)<<endl;
-		// cout<<"2#"<<populationNames->at(k)<<endl;
-		// cout<<"3#"<<populationNames->at(i)  <<endl;
-		// cout<<"4#"<<f2Results[i][j][k]<<endl;
+	   // cout<<"print() "<<i<<" "<<j<<" "<<k<<endl;
+	   // cout<<"1#"<<populationNames->at(j)<<endl;
+	   // cout<<"2#"<<populationNames->at(k)<<endl;
+	   // cout<<"3#"<<populationNames->at(i)  <<endl;
+	   // cout<<"4#"<<f2Results[i][j][k]<<endl;
 	   toReturn<<populationNames->at(i)<<" - "<<
 	       populationNames->at(j)  <<"\t"<<f2Results[i][j]<<endl;
 	   //toReturn<<populationNames->at(i)<<"-"<<populationNames->at(j)<<"\t"<<divergenceResults[i][j]<<endl;
