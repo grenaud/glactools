@@ -12,6 +12,8 @@
 #include <ostream> 
 #include <math.h>
 #include <limits>
+
+#include "utils.h"
 //#include <iostream>
 //#include <fstream>
 using namespace std;
@@ -71,6 +73,48 @@ class AvgCoaAlleleCounter{
 	
 	return os;
     }
+
+    friend istream &operator>>(istream &is , AvgCoaAlleleCounter &ct){
+	//cerr<<"DstatCounter in"<<endl;
+	//double dst;
+
+	is>>ct.counterSame>>ct.counterCommon>>ct.counterReference>>ct.counterSample;
+	    
+	double d; 
+	string dStr;
+	char c;
+	is.get(c);
+	//cerr<<"#"<<c<<"#"<<dStr<<"#"<<endl;
+	for(int i=0;i<6;i++){
+	    if(c != '\t'){
+		cerr<<"A single avg. coal. should have 10 fields"<<endl;
+	    }
+
+	    while (is.get(c)){          // loop getting single characters
+		//cerr<<"#"<<c<<"#"<<endl;
+		if(c == '\t')
+		    break;
+		//cerr<<"TAB"<<endl;
+		dStr+=c;
+
+		//cerr<<"#"<<c<<"#"<<dStr<<"#"<<endl;
+	    }
+	    if(dStr == "nan"){
+		d =  numeric_limits<double>::quiet_NaN();
+	    }else{
+		d =  destringify<double>(dStr);
+	    }
+	    dStr="";
+	}
+
+	/* //cerr<<"#"; */
+	/* for(int i=0;i<=15;i++){ */
+	/*     cerr<<ct.count[i]<<" "; */
+	/* } */
+	/* cerr<<"i:"<<ident<<" m:"<<mutations<<" d:"<<dist<<"# "; */
+	return is;
+    }
+
 
 };
 

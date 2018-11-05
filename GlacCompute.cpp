@@ -500,7 +500,7 @@ string GlacCompute::usage() const{
 	
 	                            "Options:\n"+ 
 	"\t"+"-p [stats]"  +"\t\t" +"Statistics to use:\n"+
-         			      "\t"+"    paircoacompute"+"\tTo compute pairwise average coalescence\n"+
+         			      "\t"+"    paircoa"+"\tTo compute pairwise average coalescence\n"+
 	//			      "\t"+"    fst"+"\t\t\tTo compute pairwise Fst (Weir and Cockerham's 1984)\n"+
 			    "\t"+"    dstat"+"\t\tTo compute triple-wise D-statistics\n"+
         	            "\t"+"    dist"+"\t\tTo compute simple pairwise distance\n"+
@@ -721,23 +721,28 @@ int GlacCompute::run(int argc, char *argv[]){
     }
 
     if(justBoot){//just perform bootstaps
-	    vector<string> * arguments=new vector<string>();
-	    for(int i=lastOpt;i<argc;i++){		
-		arguments->push_back( string(argv[i]) );
-	    }
-
-	    if(program == "dstat"){	    	    
-		SumStatD * st=new SumStatD();
-		bootFromResults(arguments,st);
-		delete(st);	    
+	vector<string> * arguments=new vector<string>();
+	for(int i=lastOpt;i<argc;i++){		
+	    arguments->push_back( string(argv[i]) );
+	}
+	
+	if(program == "dstat"){	    	    
+	    SumStatD * st=new SumStatD();
+	    bootFromResults(arguments,st);
+	    delete(st);	    
+	}else{
+	    if(program == "dist"){				
+		SumStatDist * st=new SumStatDist();
+		bootFromResults(arguments,st);	       
+		delete(st);
 	    }else{
-		if(program == "dist"){				
-		    SumStatDist * st=new SumStatDist();
+		if(program == "f2"){				
+		    SumStatF2 * st=new SumStatF2();
 		    bootFromResults(arguments,st);	       
-		    delete(st);
+		    delete(st);	    
 		}else{
-		    if(program == "f2"){				
-			SumStatF2 * st=new SumStatF2();
+		    if(program == "paircoa"){				
+			SumStatAvgCoa * st=new SumStatAvgCoa();
 			bootFromResults(arguments,st);	       
 			delete(st);	    
 		    }else{
@@ -746,10 +751,11 @@ int GlacCompute::run(int argc, char *argv[]){
 		    }
 		}
 	    }
+	}
 	delete(arguments);
-
+    
     }else{
-	if(program == "paircoacompute"){
+	if(program == "paircoa"){
 	    parallelP<SumStatAvgCoa> pToRun;
 	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
 	}else{

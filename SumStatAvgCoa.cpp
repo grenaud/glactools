@@ -9,7 +9,8 @@
 
 
 SumStatAvgCoa::SumStatAvgCoa(){
-
+    divergenceResults=NULL;
+    populationNames =NULL;
 }
 
 SumStatAvgCoa::SumStatAvgCoa(const SumStatAvgCoa & other){
@@ -61,13 +62,16 @@ SumStatAvgCoa::SumStatAvgCoa(const vector<string> * popNames){
 
 SumStatAvgCoa::~SumStatAvgCoa(){
     // cout<<"destructor#1"<<endl;
-    delete(populationNames);
+    if(populationNames!=NULL)
+	delete(populationNames);
     //cout<<"destructor#2"<<endl;
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	//cout<<"destructor #"<<i<<endl;
-	delete [] divergenceResults[i];
+    if(divergenceResults!=NULL){
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    //cout<<"destructor #"<<i<<endl;
+	    delete [] divergenceResults[i];
+	}
+	delete [] divergenceResults;
     }
-    delete [] divergenceResults;
 }
 
 AvgCoaResult const * const *  SumStatAvgCoa::getAvgCoaResult() const{
@@ -275,6 +279,135 @@ void SumStatAvgCoa::computeStat( const   vector < AlleleRecords >  * dataToUse,c
 
 }
 
+void SumStatAvgCoa::read(const string & res){
+    //cout<<"READ() SSC"<<endl;
+    //return s;
+    vector<string> lines = allTokens(res,'\n');
+
+    //DETECTING # OF POP/IND
+    populationNames = new vector<string>();
+    map<string,int> ind2index;
+    unsigned int indIndices=2;//indIndices =0 (root)  indIndices =1 (anc) 
+    ind2index["root"]=0;  populationNames->push_back( "root" );
+    ind2index["anc"]=1;   populationNames->push_back( "anc" );
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() ) continue; //separator
+	//cerr<<lines[i]<<endl;
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+
+	string ind1;
+	string ind2;
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t') break;
+	    ind2+=indsIds[k++];	   
+	}
+
+	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
+	trimWhiteSpacesBothEnds(&ind1);
+	trimWhiteSpacesBothEnds(&ind2);
+
+	if(ind2index.find(ind1) == ind2index.end()){
+	    ind2index[ind1]=indIndices;
+	    populationNames->push_back(  ind1 );
+	    indIndices++;
+	}
+
+	if(ind2index.find(ind2) == ind2index.end()){
+	    ind2index[ind2]=indIndices;
+	    populationNames->push_back(  ind2 );
+	    indIndices++;
+	}
+	
+
+	//cout<<fields.size()<<endl;
+    }
+    // cerr<<"indIndices "<<indIndices<<endl;
+    // for( map<string,int>::const_iterator it=ind2index.begin();it!=ind2index.end();it++){
+    // 	cerr<<it->first<<"\t"<<it->second<<endl;
+    // }
+    numberOfPopulations=indIndices;
+
+    divergenceResults = new AvgCoaResult*[numberOfPopulations];
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	divergenceResults[i] = new AvgCoaResult[numberOfPopulations];
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() )            continue; //separator
+
+	//vector<string> fields = allTokens(lines[i],'\t');
+	//cout<<"line read "<<lines[i]<<endl;
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+	
+	string ind1;
+	string ind2;
+	
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-')		break;	   	    
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	//cerr<<"#l "<<ind1<<"# #"<<ind2<<"# "<<endl;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t')		break;	    
+	    ind2+=indsIds[k++];	   
+	}
+	k++;
+	trimWhiteSpacesBothEnds(&ind1);
+	trimWhiteSpacesBothEnds(&ind2);
+	//cerr<<"#m "<<ind1<<"# #"<<ind2<<"# "<<endl;
+	//fields.pop();//remove first element
+	//cout<<(lines[i]+indsIds.size() )<<endl;
+	//cout<<"#"<<lines[i].substr(indsIds.size()+1,lines[i].size())<<"#"<<endl;
+	istringstream in ( lines[i].substr(indsIds.size()+1,lines[i].size()) );
+	// cerr<<endl<<"line  "<<lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+	// cerr<<"index "<<ind1<<" "<<ind2<<" " <<endl;
+	// cerr<<"index "<<ind2index[ind1]<<" "<<ind2index[ind2]<<endl;
+	//lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+
+	//                    @[src]              [ind1]       -     [ind2]
+	//in>>dstatResults[ ind2index[src] ] [ ind2index[ind1] ][ ind2index[ind2] ];
+	in>>divergenceResults[ ind2index[ind1] ][ ind2index[ind2] ];
+	//cerr<<"#stat "<<f2Results[ ind2index[ind1] ][ ind2index[ind2] ]<<endl;
+	//cout<<fields.size()<<endl;
+    }
+
+    // istringstream in (strResults);
+    //     dstatResults[i][j][k].
+    //[numberOfPopulations][numberOfPopulations];
+    //storing results
+    
+   //for(unsigned int i=0;i<popNames->size();i++){
+   //	populationNames->push_back(  popNames->at(i) );
+   //}
+   //populationNames->push_back("ref");
+    
+   //vector<AlleleRecords> segregatingSites;
+
+   //while(mp.hasData()){
+
+
+}
 
 string SumStatAvgCoa::print() const {
     // cout<<"print() begin"<<endl;

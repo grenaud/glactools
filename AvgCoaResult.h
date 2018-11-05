@@ -68,6 +68,18 @@ class AvgCoaResult{
 	return *this;
     }
 
+    friend istream &operator>>(istream &is , AvgCoaResult &dr){
+	is
+	    >>dr.all
+	    >>dr.onlyCpg
+	    >>dr.noCpg
+	    >>dr.transitions
+	    >>dr.transversions
+	    >>dr.noDamage;
+	return is;
+	//return dsr.read(s);
+    }
+
     friend ostream& operator<<(ostream& os, const AvgCoaResult & ct){
 	os<<ct.all<<"\t"
 	  <<ct.onlyCpg<<"\t"
