@@ -17,7 +17,9 @@ string ACF2BPLINK::usage() const{
     string usage=string("glactools")+" acf2bplink  [options] <ACF file> [out prefix]"+
 	"\nThis program takes a ACF file and prints the genotype and SNP file as binary PLINK files\n\n"+
 	"\tOptions\n"+			
-       "\t\t"+"--noanc"+"\t"+"Do not print the root/anc (Default: "+boolStringify(printRoot)+" )\n\n\n";
+	"\t\t"+"--unkn"+"\t"+"Print single alleles as unknown (Default: "+boolStringify(singleAlUnknown)+" )\n"+
+	"\t\t"+"--haproot"   +"\t"+"Root/Anc are haploid and will be single alleles (Default: "+boolStringify(haploidRoot)+" )\n"+
+	"\t\t"+"--noanc"+"\t"+"Do not print the root/anc (Default: "+boolStringify(printRoot)+" )\n\n\n";
     return usage;
 }
 
@@ -36,6 +38,17 @@ int ACF2BPLINK::run(int argc, char *argv[]){
     //all but last 2
     for(int i=1;i<(argc-2);i++){ 
 	
+	if( string(argv[i]) == "--unkn"){
+	    singleAlUnknown=true;
+	    continue;
+	}
+
+
+	if( string(argv[i]) == "--haproot"){
+	    haploidRoot=true;
+	    continue;
+	}
+
 	if( string(argv[i]) == "--noanc"){
 	    printRoot=false;
 	    continue;
@@ -118,7 +131,14 @@ int ACF2BPLINK::run(int argc, char *argv[]){
 	int dataToWrite=0;
 	for(unsigned int i_=firstIndex;i_<record->vectorAlleles->size();i_++){	    
 	    unsigned int i=i_-firstIndex;
-	    char   toStore = record->vectorAlleles->at(i_).printPLINK();	   
+	    char   toStore;
+	    if(firstIndex<2)
+		if(haploidRoot)
+		    toStore = record->vectorAlleles->at(i_).printPLINK(false);
+		else
+		    toStore = record->vectorAlleles->at(i_).printPLINK(singleAlUnknown);	    
+	    else
+		toStore = record->vectorAlleles->at(i_).printPLINK(singleAlUnknown);	   
 	    // cout<<"i "<<i<<" "<<(i%4)<<" "<<record->vectorAlleles->at(i_)<<endl;
 	    // cout<<"1: "<<var2binary(toStore)<<endl;
 	    if( (i%4) == 3){//to write

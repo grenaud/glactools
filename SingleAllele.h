@@ -41,8 +41,8 @@ public:
     char generateRandomAllele(const char ref,const char alt);
     void downsample(const int c);
     
-    int    printEIGENSTRAT();
-    char  printPLINK();
+    int    printEIGENSTRAT(bool one2undef=false);
+    char  printPLINK(bool one2undef=false);
 
     void setRefCount(int refCount);
     void setAltCount(int altCount);

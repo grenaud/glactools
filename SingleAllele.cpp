@@ -115,7 +115,7 @@ SingleAllele & SingleAllele::operator+=(const SingleAllele & other){
     return *this;
 }
 
-int  SingleAllele::printEIGENSTRAT(){
+int  SingleAllele::printEIGENSTRAT(bool one2undef){
     if(refCount == 2 && altCount == 0) //homo ref
 	return 2;
 
@@ -125,14 +125,23 @@ int  SingleAllele::printEIGENSTRAT(){
     if(refCount == 0 && altCount == 2) //homo alt
 	return 0;
     
-    if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
-	return 0;	
-    }
+    if(one2undef){//print 1,0 and 0,1 as undef
+	if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
+	    return 9;	
+	}
 
-    if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
-	return 2;
+	if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
+	    return 9;
+	}
+    }else{
+	if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
+	    return 0;	
+	}
+
+	if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
+	    return 2;
+	}
     }
-    
     if( (refCount == 0 && altCount == 0) ) //unknown
 	return 9;
 
@@ -166,7 +175,7 @@ bool SingleAllele::isHeterozygous(){
     return true;
 }
 
-char  SingleAllele::printPLINK(){
+char  SingleAllele::printPLINK(bool one2undef){
     if(refCount == 2 && altCount == 0) //homo ref
 	return 0; //00
 
@@ -176,14 +185,24 @@ char  SingleAllele::printPLINK(){
     if(refCount == 0 && altCount == 2) //homo alt
 	return 3; //11
     
-    if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
-	return 3; //11
+    if(one2undef){//print 1,0 and 0,1 as undef
+	if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
+	    return 1; //01
+	}
+
+	if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
+	    return 1; //01
+	}
+    }else{
+	if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
+	    return 3; //11
+	}
+
+	if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
+	    return 0; //00
+	}
     }
 
-    if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
-	return 0; //00
-    }
-    
     if( (refCount == 0 && altCount == 0) ) //unknown
 	return 1; //01
 

@@ -17,6 +17,8 @@ string ACF2EIGENSTRAT::usage() const{
     string usage=string("glactools")+" acf2eigenstrat  [options] <ACF file> [out prefix]"+
 	"\nThis program takes a ACF file and prints the output as EIGENSTRAT\n\n"+
 	"\tOptions\n"+			
+	"\t\t"+"--unkn"      +"\t"+"Print single alleles (1,0 or 0,1) as unknown (Default: "+boolStringify(singleAlUnknown)+" )\n"+
+	"\t\t"+"--haproot"   +"\t"+"Root/Anc are haploid and will be single alleles (Default: "+boolStringify(haploidRoot)+" )\n"+
         "\t\t"+"--withanc"   +"\t"+"Print the anc  (Default: "+boolStringify(printAnc)+" )\n"+
         "\t\t"+"--withroot"  +"\t"+"Print the root (Default: "+boolStringify(printRoot)+" )\n"+
         "\t\t"+"--justtransv"+"\t"+"Print the root (Default: "+boolStringify(limitToTransversions)+" )\n"+
@@ -49,6 +51,16 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
             lastOpt=i;
             break;
         }
+
+	if( string(argv[i]) == "--unkn"){
+	    singleAlUnknown=true;
+	    continue;
+	}
+
+	if( string(argv[i]) == "--haproot"){
+	    haploidRoot=true;
+	    continue;
+	}
 
 	if( string(argv[i]) == "--withroot"){
 	    printRoot = true;
@@ -133,13 +145,20 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
 	snpFileS<<"snp#"<<(counter++)<<"\t"<<record->chr<<"\t"<<stringify(double(record->coordinate)/double(1000000))<<"\t"<<stringify(record->coordinate)<<"\t"<<record->ref<<"\t"<<record->alt<<endl;
 	
 	unsigned int firstIndex=2;
+
 	if(printRoot)
-	    genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT();	   
+	    if(haploidRoot)
+		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT( false );	   
+	    else
+		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT(singleAlUnknown );	   
 	if(printAnc)
-	    genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT();	   
+	    if(haploidRoot)
+		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT(false);	   
+	    else
+		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT(singleAlUnknown);
 
 	for(unsigned int i=firstIndex;i<record->vectorAlleles->size();i++){
-	    genoFileS<<record->vectorAlleles->at(i).printEIGENSTRAT();	   
+	    genoFileS<<record->vectorAlleles->at(i).printEIGENSTRAT(singleAlUnknown);	   
 	} 
 	genoFileS<<endl;
 

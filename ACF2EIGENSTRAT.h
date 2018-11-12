@@ -31,6 +31,8 @@ private:
     bool printRoot=false;
     bool printAnc =false;
     bool limitToTransversions =false;
+    bool singleAlUnknown=false;
+    bool haploidRoot=false;
 
 public:
     ACF2EIGENSTRAT();
