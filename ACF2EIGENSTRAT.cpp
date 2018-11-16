@@ -17,7 +17,7 @@ string ACF2EIGENSTRAT::usage() const{
     string usage=string("glactools")+" acf2eigenstrat  [options] <ACF file> [out prefix]"+
 	"\nThis program takes a ACF file and prints the output as EIGENSTRAT\n\n"+
 	"\tOptions\n"+			
-	"\t\t"+"--unkn"      +"\t"+"Print single alleles (1,0 or 0,1) as unknown (Default: "+boolStringify(singleAlUnknown)+" )\n"+
+	"\t\t"+"--homo"      +"\t"+"Print single alleles (1,0 or 0,1) as homozygous (Default: "+boolStringify(singleAlHomo)+" )\n"+
 	"\t\t"+"--haproot"   +"\t"+"Root/Anc are haploid and will be single alleles (Default: "+boolStringify(haploidRoot)+" )\n"+
         "\t\t"+"--withanc"   +"\t"+"Print the anc  (Default: "+boolStringify(printAnc)+" )\n"+
         "\t\t"+"--withroot"  +"\t"+"Print the root (Default: "+boolStringify(printRoot)+" )\n"+
@@ -52,8 +52,8 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
             break;
         }
 
-	if( string(argv[i]) == "--unkn"){
-	    singleAlUnknown=true;
+	if( string(argv[i]) == "--homo"){
+	    singleAlHomo=true;
 	    continue;
 	}
 
@@ -150,15 +150,15 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
 	    if(haploidRoot)
 		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT( false );	   
 	    else
-		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT(singleAlUnknown );	   
+		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT( !singleAlHomo );	   
 	if(printAnc)
 	    if(haploidRoot)
 		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT(false);	   
 	    else
-		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT(singleAlUnknown);
+		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT( !singleAlHomo );
 
 	for(unsigned int i=firstIndex;i<record->vectorAlleles->size();i++){
-	    genoFileS<<record->vectorAlleles->at(i).printEIGENSTRAT(singleAlUnknown);	   
+	    genoFileS<<record->vectorAlleles->at(i).printEIGENSTRAT( !singleAlHomo );	   
 	} 
 	genoFileS<<endl;
 

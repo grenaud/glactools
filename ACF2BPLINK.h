@@ -28,9 +28,9 @@ using namespace std;
 class ACF2BPLINK{
 private:
 
-    bool printRoot      =true;
-    bool singleAlUnknown=false;
-    bool haploidRoot=false;
+    bool printRoot    = true;
+    bool singleAlHomo = false;
+    bool haploidRoot  = false;
 
 public:
     ACF2BPLINK();

@@ -31,14 +31,14 @@ class SumStatDist{
 
     SumStatDist & operator+= (const SumStatDist & other){
 	if(other.numberOfPopulations != numberOfPopulations){
-	    cerr<<"SumStatDist.cpp  problem in =+ operator, adding different objects"<<endl;
+	    cerr<<"SumStatDist.cpp  problem in =+ operator, adding different objects, we have "<<numberOfPopulations<<" the other has "<<other.numberOfPopulations<<" ind"<<endl;
 	    exit(1);
 	}
 
 	for(unsigned int i=0;i<populationNames->size();i++){ 
 
 	    if(other.populationNames->at(i) != populationNames->at(i)){
-		cerr<<"SumStatDist.cpp  problem in =+ operator, adding different objects"<<endl;
+		cerr<<"SumStatDist.cpp  problem in =+ operator, adding different objects, we have "<<numberOfPopulations<<" the other has "<<other.numberOfPopulations<<" ind"<<endl;
 		exit(1);		
 	    }
 
@@ -64,14 +64,14 @@ class SumStatDist{
 
     SumStatDist & operator-= (const SumStatDist & other){
 	if(other.numberOfPopulations != numberOfPopulations){
-	    cerr<<"SumStatDist.cpp  problem in =+ operator, adding different objects"<<endl;
+	    cerr<<"SumStatDist.cpp  problem in -= operator, adding different objects, we have "<<numberOfPopulations<<" the other has "<<other.numberOfPopulations<<" ind"<<endl;
 	    exit(1);
 	}
 
 	for(unsigned int i=0;i<populationNames->size();i++){ 
 
 	    if(other.populationNames->at(i) != populationNames->at(i)){
-		cerr<<"SumStatDist.cpp  problem in =+ operator, adding different objects"<<endl;
+		cerr<<"SumStatDist.cpp  problem in -= operator, adding different objects, we have "<<numberOfPopulations<<" the other has "<<other.numberOfPopulations<<" ind"<<endl;
 		exit(1);		
 	    }
 
