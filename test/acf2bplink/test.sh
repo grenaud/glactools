@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 MD5=md5sum
 
 echo -n "Testing acf2bplink for ACF files:"
-../glactools acf2bplink 2arch3modern_inter.acf.gz plink 2> /dev/null
+../glactools acf2bplink --homo 2arch3modern_inter.acf.gz plink 2> /dev/null
 echo -e " ${GREEN}ok${NC}"
 
 echo -ne "testing md5sum:"
