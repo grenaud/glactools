@@ -17,7 +17,7 @@ string ACF2BPLINK::usage() const{
     string usage=string("glactools")+" acf2bplink  [options] <ACF file> [out prefix]"+
 	"\nThis program takes a ACF file and prints the genotype and SNP file as binary PLINK files\n\n"+
 	"\tOptions\n"+			
-	"\t\t"+"--homo"+"\t"+"Print single alleles as unknown (Default: "+boolStringify(singleAlHomo)+" )\n"+
+	"\t\t"+"--homo"+"\t"+"Print single alleles as homozygous (Default: "+boolStringify(singleAlHomo)+" )\n"+
 	"\t\t"+"--haproot"   +"\t"+"Root/Anc are haploid and will be single alleles (Default: "+boolStringify(haploidRoot)+" )\n"+
 	"\t\t"+"--noanc"+"\t"+"Do not print the root/anc (Default: "+boolStringify(printRoot)+" )\n\n\n";
     return usage;
