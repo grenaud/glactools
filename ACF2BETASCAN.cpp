@@ -23,6 +23,7 @@ string ACF2BETASCAN::usage() const{
 	// "\t\t"+"--splitpop\t\t\tSplit pop.\n"+
 	// "\t\t"+"--freq\t\t\t\tOutput frequencies\n"+
 	// "\t\t"+"--onlysegsite\t\t\tUse only segregating sites\n"+
+	"\t\t"+"--fold\t\t\tIgnore the ancestral/root allele to report the frequency, use minor[tab]total\n"+
 	"\t\t"+"--useanc\t\t\tUse the ancestral allele to report the frequency\n"+
 	"\t\t"+"--useroot\t\t\tUse the root allele to report the frequency\n"+
 	"\n";
@@ -69,6 +70,11 @@ int ACF2BETASCAN::run(int argc, char *argv[]){
 	//     continue;
 	// }
 
+	if(string(argv[i]) == "--fold" ) {
+	    fold  = true;
+	    continue;
+	}
+
 	if(string(argv[i]) == "--useanc" ) {
 	    useAnc  = true;
 	    continue;
@@ -89,11 +95,19 @@ int ACF2BETASCAN::run(int argc, char *argv[]){
     	cerr<<"ACF2BETASCAN: Cannot use both the ancestor and the root"<<endl;
         return 1;           
     }
-
-    if(!useRoot && !useAnc){
-    	cerr<<"ACF2BETASCAN: Specify the ancestor or the root to polarize the variants"<<endl;
-        return 1;           
+    
+    if(!fold){
+	if(!useRoot && !useAnc){
+	    cerr<<"ACF2BETASCAN: Specify the ancestor or the root to polarize the variants"<<endl;
+	    return 1;           
+	}
+    }else{
+	if(useRoot || useAnc){
+	    cerr<<"ACF2BETASCAN: Cannot specify the ancestor or the root to polarize the variants when folding"<<endl;
+	    return 1;           
+	}
     }
+    
     string glacfile  = string(argv[lastOpt]);
     
     GlacParser gp (glacfile);
@@ -191,6 +205,13 @@ int ACF2BETASCAN::run(int argc, char *argv[]){
 		cout<<refCounter<<"\t"<<total<<endl;
 	}
 
+	if(fold){
+	    if(refCounter<altCounter){
+		cout<<refCounter<<"\t"<<total<<endl;
+	    }else{
+		cout<<altCounter<<"\t"<<total<<endl;
+	    }
+	}
 	
     }//gp has data
 

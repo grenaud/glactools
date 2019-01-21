@@ -31,6 +31,8 @@ private:
     /* bool onlysegsite = false; */
     /* bool usefreq     = false; */
     /* bool splitpop    = false; */
+
+    bool fold        = false;
     bool useAnc      = false;
     bool useRoot     = false;
 
