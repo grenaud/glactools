@@ -64,7 +64,7 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
 		 bool force=false);
 
 
-map< string, vector<GenomicRange> * > * readBEDSortedfile(string filetoread);
+map< string, vector<GenomicRange> * > * readBEDSortedfile(string filetoread,bool verbose=false);
 
 inline int compare2ChrsU(const uint32_t & chr1,const uint32_t & chr2){
     // -1 if chr1<chr2

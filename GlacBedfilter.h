@@ -27,6 +27,7 @@ using namespace std;
 
 class GlacBedfilter{
 private:
+    bool verbose=false;
     bool uncompressed=false;
 
 public:

@@ -368,7 +368,7 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
   \sa  readBEDSortedfile()
 */
 
-map< string, vector<GenomicRange> * > * readBEDSortedfile(string filetoread){
+map< string, vector<GenomicRange> * > * readBEDSortedfile(string filetoread,bool verbose){
     //vector<GenomicRange> toReturn;
     map< string, vector<GenomicRange> * > * toReturn= new map< string, vector<GenomicRange> *>();
     igzstream myFile;
@@ -376,7 +376,7 @@ map< string, vector<GenomicRange> * > * readBEDSortedfile(string filetoread){
     string line;
     unsigned int     lastEndCoord = 0;
     string           lastChrname  = "###";
-
+    
     if (myFile.good()){
 	while ( getline (myFile,line)){	    
 	    //cout<<line<<endl;
@@ -396,6 +396,9 @@ map< string, vector<GenomicRange> * > * readBEDSortedfile(string filetoread){
 	    endCoord    = destringify<unsigned int>(temp[2]);
 
 	    if(lastChrname != chrName){//new chr found
+		if(verbose){
+		    cerr<<"readBEDSortedfile @chr: "<<chrName<<endl;
+		}
 		//check for previously found		
 		lastChrname  = chrName;
 		lastEndCoord = endCoord;

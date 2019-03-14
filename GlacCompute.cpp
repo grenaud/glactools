@@ -444,6 +444,7 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 
     //DO jacknifing
     if(results->size()>1){
+	cerr<<"GlacCompute, done main computations, performing jackknifing"<<endl;
 	//cout << "VEC "<<vectorToString( *((*results->at(0)).populationNames) )<<endl;
 	STAT * allResults=new STAT((*results->at(0)));
 	// cout << "VEC "<<vectorToString( *((*results->at(0)).populationNames) )<<endl;
@@ -470,7 +471,16 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 	
 	if( performBoot ){
 	    for (unsigned int i=0; i<results->size() ; ++i) {    
-		STAT * test =new STAT (*allResults); //creating a copy
+		STAT * test;
+
+		try{
+		    test=new STAT (*allResults); //creating a copy
+		}catch(std::bad_alloc&) {
+		    cerr<<"jackknife #"<<(i+1)<<", allocation failed, use a machine with more memory "<<endl;
+		  exit(1);
+		}
+
+
 		*test-=(*results->at(i)); //removing ith block
 		jacknife->push_back(test); 
 		//cout<<"ji "<<i<<endl<<test->print()<<endl;
@@ -686,7 +696,7 @@ int GlacCompute::run(int argc, char *argv[]){
             continue;
         }
 
-        if(string(argv[i]) == "--paircoaRef" ){
+        if(string(argv[i]) == "--ref" ){
 	    paircoaRef=true;
             continue;
         }

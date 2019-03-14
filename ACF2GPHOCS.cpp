@@ -52,7 +52,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 
     string bedFileRegions = string(argv[argc-1]);
     map< string, vector<GenomicRange> * > * bedRegionsToFilter;
-    bedRegionsToFilter = readBEDSortedfile(bedFileRegions);
+    bedRegionsToFilter = readBEDSortedfile(bedFileRegions,false);
 
     map< string, unsigned int > * coordinateOfVec=new map< string, unsigned int >();
     for(map<string,vector<GenomicRange> * >::iterator it = bedRegionsToFilter->begin(); 

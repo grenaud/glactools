@@ -190,12 +190,14 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
 
 
     unsigned int iInit=2;
+    // cout<<"onlyOnRef "<<onlyOnRef<<endl;
+    // exit(1);
     if(onlyOnRef ){//we limit to stats with the ref
 	iInit = (numberOfPopulations-1);
     }
     
     //for each population, except the root/ancestral at index 0,1
-    for(unsigned int i = 2;i<numberOfPopulations;i++){
+    for(unsigned int i = iInit;i<numberOfPopulations;i++){
 
 	//for each population, except the root/ancestral at index 0,1
 	for(unsigned int j=2;j<numberOfPopulations;j++){	       

@@ -10,11 +10,18 @@ args=(commandArgs(TRUE))
 
 
 
-cmd1<-paste("grep -n  \"^$\" ",args[1]," |tail -1 |sed \"s/://g\" ",sep="");
+cmdcat<-"cat";
+if(endsWith(args[1],"gz")){
+cmdcat<-"zcat";
+}
+
+cmd1<-paste("grep -n  \"^$\" <(",cmdcat," ",args[1]," ) |tail -1 |sed \"s/://g\" ",sep="");
+print(cmd1);
 linenumber <- system(cmd1, intern = TRUE)
 tmpf<-tempfile();
-cmd2<-paste("awk '{if(NR>",linenumber,"){print $0}}' ",args[1]," > ",tmpf);
+cmd2<-paste("awk '{if(NR>",linenumber,"){print $0}}'  <(",cmdcat," ",args[1]," ) >  ",tmpf);
 system(cmd2);
+print(cmd2);
 data <- read.table(tmpf,header=FALSE);
 
 #data <- read.table(args[1],header=FALSE);

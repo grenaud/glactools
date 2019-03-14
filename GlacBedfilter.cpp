@@ -18,6 +18,7 @@ string GlacBedfilter::usage() const{
 	"\nThis will keep only the positions in the bed file\n"+
 "\n"+
 	"Options:\n"+
+    "\t"+"-v" +    "\t\t\t"+"Print what the program is doing (default: "+booleanAsString(verbose)+")\n"+
     "\t"+"-u" +    "\t\t\t"+"Produce binary but uncompressed output (default: "+booleanAsString(uncompressed)+")\n";
 
     return usage;
@@ -55,6 +56,11 @@ int GlacBedfilter::run(int argc, char *argv[]){
             continue;
         }
 
+        if(string(argv[i]) == "-v"){
+            verbose=true;
+            continue;
+        }
+
 	cerr<<"Error unknown option "<<argv[i]<<endl;
         return 1;
     }
@@ -70,7 +76,15 @@ int GlacBedfilter::run(int argc, char *argv[]){
     string bedFileRegions = string(argv[lastOpt+1]);
     map< string, vector<GenomicRange> * > * bedRegionsToFilter;
 
-    bedRegionsToFilter = readBEDSortedfile(bedFileRegions);
+    if(verbose){
+	cerr<<"bedfilter: begin reading bed file "<<bedFileRegions<<endl;
+    }
+    
+    bedRegionsToFilter = readBEDSortedfile(bedFileRegions,verbose);
+    if(verbose){
+	cerr<<"bedfilter: done reading bed file "<<bedFileRegions<<endl;
+    }
+
     map< string, uint32_t > * coordinateOfVec=new map< string, uint32_t >();
     for(map<string,vector<GenomicRange> * >::iterator it = bedRegionsToFilter->begin(); 
 	it != bedRegionsToFilter->end(); 
@@ -127,8 +141,13 @@ int GlacBedfilter::run(int argc, char *argv[]){
 	arr = gp.getData();
 	totalRecords++;
 
+	if(verbose){
+	    if( (totalRecords%10000) == 0){
+		cerr<<"bedfilter: processed "<<thousandSeparator(totalRecords)<<" records"<<endl;
+	    }
+	}
 
-	if(arr->chri != chrNameIdx){//new chr
+	if(arr->chri != chrNameIdx){//new chr	    
 	    if(bedRegionsToFilter->find(gp.getChromosomeName(arr->chri)) == bedRegionsToFilter->end() ){
 		chrFoundInBed=false;
 		currentGr    = 0;		       
