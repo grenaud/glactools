@@ -18,13 +18,14 @@ class SumStatAvgCoa{
  private:
     AvgCoaResult  ** divergenceResults;//[numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
-
+    bool onlyOnRef;
+    
  public:
     vector<string> * populationNames ;
     AvgCoaResult const * const * getAvgCoaResult() const;
     
     SumStatAvgCoa();
-    SumStatAvgCoa(const vector<string> * popNames);
+    SumStatAvgCoa(const vector<string> * popNames,const bool onlyOnRef_);
     SumStatAvgCoa(const SumStatAvgCoa & other);
     ~SumStatAvgCoa();
     SumStatAvgCoa & operator=  (const SumStatAvgCoa & other);

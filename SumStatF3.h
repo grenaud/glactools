@@ -26,6 +26,7 @@ class SumStatF3{
  private:
     F3Result *** f3Results;//[numberOfPopulations][numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
+    bool onlyOnRef;
     //TODO does not need to be initialized at each site
     /* double average_nInds[ numberOfPopulations]; */
     /* double average_hzy[   numberOfPopulations]; */
@@ -40,7 +41,7 @@ class SumStatF3{
     F3Result const * const * const * getF3Result() const;
 
     SumStatF3();
-    SumStatF3(const vector<string> * popNames);
+    SumStatF3(const vector<string> * popNames,const bool onlyOnRef_);
     SumStatF3(const SumStatF3 & other);
     ~SumStatF3();
     SumStatF3 & operator=  (const SumStatF3 & other);

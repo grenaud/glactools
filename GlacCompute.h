@@ -56,6 +56,7 @@ private:
     int sizeBins        = 1000000;
     bool performBoot=true;
     bool justBoot=false;
+    
     string program;
     string dnaDistMode;
 public:

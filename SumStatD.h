@@ -26,13 +26,13 @@ class SumStatD{
  private:
     DstatResult *** dstatResults;//[numberOfPopulations][numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
-
+    bool onlyOnRef;
  public:
     vector<string> * populationNames ;
     DstatResult const * const * const * getDstatResult() const;
 
     SumStatD();
-    SumStatD(const vector<string> * popNames);
+    SumStatD(const vector<string> * popNames,const bool onlyOnRef_);
     SumStatD(const SumStatD & other);
     ~SumStatD();
     SumStatD & operator=  (const SumStatD & other);

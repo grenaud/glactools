@@ -18,13 +18,13 @@ class SumStatDist{
  private:
     DistResult  ** distanceResults;//[numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
-
+    bool onlyOnRef;
  public:
     vector<string> * populationNames ;
     DistResult const * const * getDistResult() const;
     
     SumStatDist();
-    SumStatDist(const vector<string> * popNames);
+    SumStatDist(const vector<string> * popNames,const bool onlyOnRef_);
     SumStatDist(const SumStatDist & other);
     ~SumStatDist();
     SumStatDist & operator=  (const SumStatDist & other);

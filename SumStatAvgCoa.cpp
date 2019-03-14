@@ -16,6 +16,7 @@ SumStatAvgCoa::SumStatAvgCoa(){
 SumStatAvgCoa::SumStatAvgCoa(const SumStatAvgCoa & other){
     // cout<<"copy"<<endl;
     numberOfPopulations = other.numberOfPopulations;
+    onlyOnRef           = other.onlyOnRef;
     // cout<<"copy "<<numberOfPopulations<<endl;
 
     populationNames = new vector<string>();
@@ -39,9 +40,11 @@ SumStatAvgCoa::SumStatAvgCoa(const SumStatAvgCoa & other){
 }
 
 
-SumStatAvgCoa::SumStatAvgCoa(const vector<string> * popNames){
+SumStatAvgCoa::SumStatAvgCoa(const vector<string> * popNames,const bool onlyOnRef_){
 
     numberOfPopulations=popNames->size()+1;//+1 for the human reference
+    onlyOnRef = onlyOnRef_;
+    
     divergenceResults = new AvgCoaResult*[numberOfPopulations];
     for(unsigned int i=0;i<numberOfPopulations;i++)
 	divergenceResults[i] = new AvgCoaResult[numberOfPopulations];
@@ -186,12 +189,16 @@ void SumStatAvgCoa::computeStatSingle( const   AlleleRecords   * recordToUse,con
 
 
 
-
+    unsigned int iInit=2;
+    if(onlyOnRef ){//we limit to stats with the ref
+	iInit = (numberOfPopulations-1);
+    }
+    
     //for each population, except the root/ancestral at index 0,1
-    for(unsigned i=2;i<numberOfPopulations;i++){
+    for(unsigned int i = 2;i<numberOfPopulations;i++){
 
 	//for each population, except the root/ancestral at index 0,1
-	for(unsigned j=2;j<numberOfPopulations;j++){	       
+	for(unsigned int j=2;j<numberOfPopulations;j++){	       
 	    //skip when the allele is identical
 	    if(i==j)
 		continue;

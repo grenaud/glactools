@@ -27,6 +27,7 @@ bool   doneReading;
 
 vector<string> * populationNames;
 bool allowUndefined=false;
+bool paircoaRef=false;
 
 
 GlacCompute::GlacCompute(){
@@ -130,7 +131,7 @@ void *mainComputationThread(void * argc){
     // }
 
     //cout<<populationNames<<endl;
-    STAT * statComputer = new STAT(populationNames);
+    STAT * statComputer = new STAT(populationNames,paircoaRef);
     // cout<<"Thread #"<<rankThread <<" addrt stat "<<statComputer<<endl;
 
     // for(unsigned i=0;i<dataToUse->size();i++){
@@ -164,6 +165,7 @@ void *mainComputationThread(void * argc){
 	}
 	counterRecords++;
     	statComputer->computeStatSingle(currentRecord,allowUndefined);
+
 
     	//cout<<test->print()<<endl;
     }
@@ -223,7 +225,7 @@ template <class STAT> //type
 class parallelP{  
 
 public:
-    void launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode, const bool performBoot );
+    void launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode, const bool performBoot, const bool paircoaRef );
 };//end class parallelP
 
 //template <class STAT> //type 
@@ -232,7 +234,7 @@ public:
 // vector<STAT> results;
 
 template <class STAT> //type 
-void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode, const bool performBoot ){
+void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,int sizeBins,const string & dnaDistMode, const bool performBoot , const bool paircoaRef ){
     
     doneReading=false;
     //queueFilesToprocess = new queue< vector< string >  * >()  ;
@@ -517,6 +519,7 @@ string GlacCompute::usage() const{
 			    //   "\t"+"    "+"\tK80\t"+		"Kimura 1980\n"+
                             // //"\t"+"    "+"\t\t\tHKY85\t"+		"Hasegawa, Kishino and Yano 1985\n"+
                               "\n"+
+	"\t"+"--ref"  +"\t\t\t" +"Force one pop to be the reference for paircoa, useful for QC control  (Default: "+stringify(paircoaRef)+")\n"+
 
 	"\t"+"-u"  +"\t\t\t" +"Allow undefined sites (0,0) for certain individuals/pops, can cause ascertainment bias (Default: "+stringify(allowUndefined)+")\n"+
 	"\t"+"-t [threads]"  +"\t\t" +"Threads to use (Default: "+stringify(numberOfThreads)+")\n"+
@@ -683,6 +686,11 @@ int GlacCompute::run(int argc, char *argv[]){
             continue;
         }
 
+        if(string(argv[i]) == "--paircoaRef" ){
+	    paircoaRef=true;
+            continue;
+        }
+
         if(string(argv[i]) == "-s" ){
 	    sizeBins=destringify<int>(argv[i+1]);
             i++;
@@ -757,27 +765,27 @@ int GlacCompute::run(int argc, char *argv[]){
     }else{
 	if(program == "paircoa"){
 	    parallelP<SumStatAvgCoa> pToRun;
-	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
+	    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot,paircoaRef);
 	}else{
 	    if(program == "dstat"){
 		parallelP<SumStatD> pToRun;
-		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
+		pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot,paircoaRef);
 	    }else{
 		if(program == "fst"){
 		    parallelP<SumStatFst> pToRun;
-		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);
+		    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot,paircoaRef);
 		}else{
 		    if(program == "dist"){
 			parallelP<SumStatDist> pToRun;
-			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
+			pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot,paircoaRef);	    
 		    }else{
 			if(program == "f3"){
 			    parallelP<SumStatF3> pToRun;
-			    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
+			    pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot,paircoaRef);	    
 			}else{
 			    if(program == "f2"){
 				parallelP<SumStatF2> pToRun;
-				pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot);	    
+				pToRun.launchThreads(string(argv[argc-1]),numberOfThreads,sizeBins,dnaDistMode,performBoot,paircoaRef);	    
 			    }else{
 				cerr<<"Wrong program "<<program<<endl;
 				return 1;

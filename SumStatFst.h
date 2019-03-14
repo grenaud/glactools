@@ -18,13 +18,14 @@ class SumStatFst{
  private:
     FstResult  ** fstResults;//[numberOfPopulations][numberOfPopulations];
     unsigned int numberOfPopulations;
-
+    bool onlyOnRef;
+    
  public:
     vector<string> * populationNames ;
     FstResult const * const * getFstResult() const;
     
     SumStatFst();
-    SumStatFst(const vector<string> * popNames);
+    SumStatFst(const vector<string> * popNames,const bool onlyOnRef_);
     SumStatFst(const SumStatFst & other);
     ~SumStatFst();
     SumStatFst & operator=  (const SumStatFst & other);

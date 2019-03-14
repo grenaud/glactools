@@ -15,6 +15,7 @@ SumStatFst::SumStatFst(){
 SumStatFst::SumStatFst(const SumStatFst & other){
     // cout<<"copy"<<endl;
     numberOfPopulations = other.numberOfPopulations;
+    onlyOnRef           = other.onlyOnRef;
     // cout<<"copy "<<numberOfPopulations<<endl;
 
     populationNames = new vector<string>();
@@ -38,9 +39,10 @@ SumStatFst::SumStatFst(const SumStatFst & other){
 }
 
 
-SumStatFst::SumStatFst(const vector<string> * popNames){
+SumStatFst::SumStatFst(const vector<string> * popNames,const bool onlyOnRef_){
 
     numberOfPopulations=popNames->size()+1;//+1 for the human reference
+    onlyOnRef =    onlyOnRef_;
     fstResults = new FstResult*[numberOfPopulations];
     for(unsigned int i=0;i<numberOfPopulations;i++)
 	fstResults[i] = new FstResult[numberOfPopulations];

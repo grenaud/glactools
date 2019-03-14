@@ -16,6 +16,7 @@ SumStatDist::SumStatDist(){
 SumStatDist::SumStatDist(const SumStatDist & other){
     // cout<<"copy"<<endl;
     numberOfPopulations = other.numberOfPopulations;
+    onlyOnRef           = other.onlyOnRef;
     // cout<<"copy "<<numberOfPopulations<<endl;
 
     populationNames = new vector<string>();
@@ -39,10 +40,10 @@ SumStatDist::SumStatDist(const SumStatDist & other){
 }
 
 
-SumStatDist::SumStatDist(const vector<string> * popNames){
+SumStatDist::SumStatDist(const vector<string> * popNames,const bool onlyOnRef_){
     //cerr<<"const "<<"SumStatDist"<<endl;
     numberOfPopulations=popNames->size()+1;//+1 for the reference +2 for root anc
-
+    onlyOnRef = onlyOnRef_;
     // cerr<<"numberOfPopulations1 "<<numberOfPopulations<<endl;
     // for(unsigned int i=0;i<popNames->size();i++){
     // 	cerr<<i<<" "<<popNames->at(i)<<endl;

@@ -34,13 +34,13 @@ class SumStatF2{
     /* vector<double> average_nInds; */
     /* vector<double> average_hzy; */
     /* vector<double> id2nsnp; */
-
+    bool onlyOnRef;
  public:
     vector<string> * populationNames ;
     F2Result const * const * getF2Result() const;
 
     SumStatF2();
-    SumStatF2(const vector<string> * popNames);
+    SumStatF2(const vector<string> * popNames,const bool onlyOnRef_);
     SumStatF2(const SumStatF2 & other);
     ~SumStatF2();
     SumStatF2 & operator=  (const SumStatF2 & other);

@@ -17,6 +17,7 @@ SumStatF2::SumStatF2(){
 SumStatF2::SumStatF2(const SumStatF2 & other){
     // cout<<"copy"<<endl;
     numberOfPopulations = other.numberOfPopulations;
+    onlyOnRef           = other.onlyOnRef;
     // cout<<"copy "<<numberOfPopulations<<endl;
 
     populationNames = new vector<string>();
@@ -54,9 +55,10 @@ SumStatF2::SumStatF2(const SumStatF2 & other){
 }
 
 
-SumStatF2::SumStatF2(const vector<string> * popNames){
+SumStatF2::SumStatF2(const vector<string> * popNames,const bool onlyOnRef_){
     
     numberOfPopulations=popNames->size()+1;//+1 for the human reference
+    onlyOnRef =  onlyOnRef_;
     // divergenceResults = new AvgCoaResult*[numberOfPopulations];
     // for(unsigned int i=0;i<numberOfPopulations;i++)
     // 	divergenceResults[i] = new AvgCoaResult[numberOfPopulations];
