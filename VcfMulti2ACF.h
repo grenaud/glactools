@@ -29,12 +29,15 @@ using namespace std;
 class VcfMulti2ACF{
 private:
     bool onlyGT =false;
-
+    bool misanc =false;
+    bool misroot=false;
+    int numberOfPopulations=-1;
     int minPLdiffind=33;
     string epoFile   = "none";
     bool   epoFileB  = false;
     const kstring_t * kstringPtrEPO;
     ks_tokaux_t aux;
+    uint32_t lastWrittenCoordinate;
 
     bool uncompressed=false;
     string fastaIndex;
@@ -55,7 +58,7 @@ private:
 /* double     minMapabilitycutoff =0; */
 /* string     fastaIndex   =""  ; */
 /* bool uncompressed=0;     */
-    void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_chimp,char & allel_anc,bool & lineLeftEPO);//,string & lineFromEPO);
+    void setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_hum,char & allel_chimp,char & allel_anc,bool & lineLeftEPO);//,string & lineFromEPO);
 public:
     VcfMulti2ACF();
     VcfMulti2ACF(const VcfMulti2ACF & other);

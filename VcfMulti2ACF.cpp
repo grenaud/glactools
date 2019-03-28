@@ -28,7 +28,7 @@ VcfMulti2ACF::~VcfMulti2ACF(){
 
 }
 
-void VcfMulti2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_chimp,char & allel_anc,bool & lineLeftEPO){//,
+void VcfMulti2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_hum,char & allel_chimp,char & allel_anc,bool & lineLeftEPO){//,
 
 			      //string & lineFromEPO){
 
@@ -55,6 +55,7 @@ void VcfMulti2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & e
 	    continue;
 	}
 	if(i==2){//human ref
+	    allel_hum     = p[0];
 	    continue;
 	}
 	if(i==3){//ancestor
@@ -105,12 +106,17 @@ string VcfMulti2ACF::usage() const{
 			      "\t"+"--fai [file]" + "\t\t"+"Fasta index for genome (produced by \"samtools faidx\") (default: none)\n"+
 			      "\t"+"-u" + "\t\t\t"+"Produce uncopressed output (default: "+booleanAsString(uncompressed)+")\n"+
 	
-			      "\t"+"--epo [EPO file]"       +"\t" +"Use file as EPO alignment to set the (default: none)\n"+   
-			      "\t"+"                "       +"\t" +"ancestral/root alleles for hominin samples\n"+   
-
+			      
+			      "\n"+
 			      "\t"+"--onlyGT"        +"\t\t" +"Do not use PL values for alleles, simply use genotypes (GT)      (default: "+booleanAsString(onlyGT)+")\n"+ 
 			      //"\t"+"--epo [EPO alignment file]"       +"\t\t" +"Use file as EPO alignment   (default: none)\n"+ 			      
 			      "\t"+"--minPL [pl]"       +"\t\t" +"Use this as the minimum difference of PL values for alleles      (default: "+stringify(minPLdiffind)+")\n"+ 
+
+			      "\t"+"--epo [EPO file]"       +"\t" +"Use file as EPO alignment to set the (default: none)\n"+   
+			      "\t"+"                "       +"\t" +"ancestral/root alleles for hominin samples\n"+   
+			      "\t\t"+"--misanc        "     +"" +"Treat missing sites in the VCF as monomorphic reference if the ancestor is defined\n"+   
+			      "\t\t"+"--misroot       "     +"" +"Treat missing sites in the VCF as monomorphic reference if the root     is defined\n"+   
+
 			      // // "\t"+"--useanc"           +"\t\t" +"Use inferred ancestor instead of chimp      (default: "+stringify(ancAllele)+")\n"+ 
 
 			      // "\t"+"--allowindel"       +"\t\t" +"Allow sites considered within 5bp of an indel (default: "+booleanAsString(allowCloseIndelProx)+")\n"+
@@ -185,6 +191,18 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
             continue;
 	}
 
+	if(strcmp(argv[i],"--misanc") == 0 ){
+	    misanc=true;
+            continue;
+	}
+
+	if(strcmp(argv[i],"--misroot") == 0 ){
+	    misroot=true;
+            continue;
+	}
+
+
+
 
 	cerr<<"Wrong option "<<argv[i]<<endl;
 	return 1;
@@ -195,6 +213,18 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
        ){
 	cerr<<"Usage "<<usage()<<endl;
 	return 1;       
+    }
+
+    if(misanc && misroot){
+	cerr<<"Cannot specify both --misroot and --misanc"<<endl;
+	return 1;	
+    }
+
+    if(misanc || misroot){
+	if(!epoFileB){
+	    cerr<<"Cannot specify either --misroot and --misanc and not the EPO file"<<endl;
+	    return 1;
+	}
     }
     
     if(specifiedPL  && onlyGT){
@@ -209,7 +239,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
     string filenameMultiVCF = string(argv[argc-1]);
     MultiVCFreader vcfr   (filenameMultiVCF,5);
-
+    numberOfPopulations = int(vcfr.getPopulationNames().size());
 
 
     string epoFileidx = epoFile+".tbi";
@@ -253,6 +283,8 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
     bool lineLeftEPO;
     bool cpgEPO=false;
     bool firstLine=true;
+
+    char allel_hum;
     char allel_chimp;
     char allel_anc;
 
@@ -325,7 +357,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 				       int(toprint->at(0)->getPosition()),INT_MAX ); //the destructor should be called automatically
 		kstringPtrEPO = rtEPO->getKstringPtr();
 		memset(&aux, 0, sizeof(ks_tokaux_t));
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO);
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_hum,allel_chimp,allel_anc,lineLeftEPO);
 	    }
 	}
 
@@ -340,7 +372,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 		// cerr<<"Error, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->at(0)->getChr()<<endl;
 		// return 1;
 		rtEPO->repositionIterator(toprint->at(0)->getChr() , int(toprint->at(0)->getPosition()),INT_MAX);
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO);	
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_hum,allel_chimp,allel_anc,lineLeftEPO);	
 
 		if( epoChr != toprint->at(0)->getChr() ){
 		    cerr<<"Error, the repositioning did not work, the chromosome does not match the one in the EPO file = "<<epoChr <<" and not "<<toprint->at(0)->getChr()<<endl;
@@ -349,19 +381,114 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 	    }
 
 
-
+	    //so far we have the same chromosome, need to check coordinate
 	    while(epoCoord != toprint->at(0)->getPosition()){
-		if(epoCoord > toprint->at(0)->getPosition()){
+		if(epoCoord > toprint->at(0)->getPosition()){//the EPO coordinate is ahead
 		    cerr<<"Error1, are all the sites in EPO there? Difference between coords VCF="<<(*toprint->at(0))<<"\tEPO="<<kstringPtrEPO->s<<endl;
 		    return 1;
 		}
+		//here the EPO coordinate is behind
+		if(!misanc && !misroot){// if we have not defined misroot or misanc, it is safe for use to jump in the file
+		    if( (toprint->at(0)->getPosition() - epoCoord ) >= limitToReOpenFP){ //seeking in the file
+			rtEPO->repositionIterator(toprint->at(0)->getChr() , int(toprint->at(0)->getPosition()),INT_MAX);
+			//cout<<"repo "<<int(toprint->at(0)->getPosition())<<endl;
+		    }
+		}else{
+		    bool produceMissingRecord=false;
+		    if(misanc   && allel_anc   != 'N')
+			produceMissingRecord=true;
+		    if(misroot  && allel_chimp != 'N')
+			produceMissingRecord=true;
+		    
+		    
+		    if(produceMissingRecord && allel_hum != 'N'  && epoCoord!=lastWrittenCoordinate){
+			char ref=allel_hum; //use the 
+			char alt='N';//no clue about the presence of alt
+			//string chimpString;
+			//string ancString;
+			SingleAllele root;
+			SingleAllele anc;
+			//cerr<<"1 "<<ref<<" "<<alt<<" "<< allel_hum  << " "<<allel_anc<<" "<<allel_chimp<<endl;
 
-		if( (toprint->at(0)->getPosition() - epoCoord ) >= limitToReOpenFP){ //seeking in the file
-		    rtEPO->repositionIterator(toprint->at(0)->getChr() , int(toprint->at(0)->getPosition()),INT_MAX);
-		    //cout<<"repo "<<int(toprint->at(0)->getPosition())<<endl;
+			if(!isResolvedDNA(allel_chimp)){
+			    //chimpString="0,0:0";					
+			    root.setRefCount(0); root.setAltCount(0);  root.setIsCpg(false); 
+			}
+			//resolved ancestral allele
+			else{
+			    if(allel_chimp == allel_hum){//no diff between chimp and reference
+				//chimpString="1,0:"+string(cpgEPO?"1":"0");
+				root.setRefCount(1); root.setAltCount(0);  root.setIsCpg(cpgEPO); 
+			    }else{
+				if(alt == 'N'){//no alt defined, the chimp becomes the alt			    
+				    alt = allel_chimp;
+				    //chimpString="0,1:"+string(cpgEPO?"1":"0");
+				    root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
+				}else{
+				    if(alt == allel_chimp){//alt is chimp
+					//chimpString="0,1:"+string(cpgEPO?"1":"0");
+					root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
+				    }else{ //tri-allelic site, discard
+					continue;
+				    }
+				}
+			    }
+			}
+
+			//cerr<<"2 "<<ref<<" "<<alt<<endl;
+			if(!isResolvedDNA(allel_anc)){
+			    //ancString="0,0:0";					
+			    anc.setRefCount(0); anc.setAltCount(0);  anc.setIsCpg(false); 
+			}
+			//resolved ancestral allele
+			else{
+			    if(allel_anc == allel_hum){//no diff between ancestor and reference
+				//ancString="1,0:"+string(cpgEPO?"1":"0");
+				anc.setRefCount(1); anc.setAltCount(0);  anc.setIsCpg(cpgEPO); 
+			    }else{
+				if(alt == 'N'){//no alt defined, the ancestor becomes the alt			    
+				    alt = allel_anc;
+				    //ancString="0,1:"+string(cpgEPO?"1":"0");			    
+				    anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
+				}else{
+				    if(alt == allel_anc){//alt is ancestor
+					//ancString="0,1:"+string(cpgEPO?"1":"0");
+					anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
+				    }else{ //tri-allelic site, discard
+					continue;
+				    }
+				}
+			    }
+			}
+
+			//cerr<<"3 "<<ref<<" "<<alt<<endl;
+			//interpret missing records as monomorphic reference
+			if(alt!='N'){
+			    AlleleRecords arToWrite (false);
+			    arToWrite.chri          = chr2index[epoChr];
+			    arToWrite.coordinate    = epoCoord;
+			    arToWrite.sizePops      = int(vcfr.getPopulationNames().size());
+			    arToWrite.ref           = ref;
+			    arToWrite.alt           = alt;		
+			    arToWrite.vectorAlleles = new vector<SingleAllele>  ();
+
+			    arToWrite.vectorAlleles->push_back(root);
+			    arToWrite.vectorAlleles->push_back(anc);
+			    for(int i=0;i<numberOfPopulations;i++){
+				SingleAllele sample (2, 0, cpgEPO );
+				arToWrite.vectorAlleles->push_back(sample);
+			    }
+			
+			    if(!gw->writeAlleleRecord(&arToWrite)){
+				cerr<<"Vcf2MultiACF: error writing header "<<endl;
+				return 1; 
+			    }
+			}
+		    }//end produce missing
+		    
 		}
-
-		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_chimp,allel_anc,lineLeftEPO);	
+		
+		setVarsEPO(rtEPO,epoChr,epoCoord,cpgEPO,allel_hum,allel_chimp,allel_anc,lineLeftEPO);
 	    }
 
 	    if(epoCoord != toprint->at(0)->getPosition()){
@@ -481,6 +608,8 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 	    //cout<<"\t";
 	}
 	
+	lastWrittenCoordinate=arToWrite.coordinate;
+
 	if(!gw->writeAlleleRecord(&arToWrite)){
 	    cerr<<"Vcf2MultiACF: error writing header "<<endl;
 	    return 1;
