@@ -409,7 +409,8 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 			SingleAllele root;
 			SingleAllele anc;
 			//cerr<<"1 "<<ref<<" "<<alt<<" "<< allel_hum  << " "<<allel_anc<<" "<<allel_chimp<<endl;
-
+			bool triAllelic=false;
+			
 			if(!isResolvedDNA(allel_chimp)){
 			    //chimpString="0,0:0";					
 			    root.setRefCount(0); root.setAltCount(0);  root.setIsCpg(false); 
@@ -429,33 +430,37 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 					//chimpString="0,1:"+string(cpgEPO?"1":"0");
 					root.setRefCount(0); root.setAltCount(1);  root.setIsCpg(cpgEPO); 
 				    }else{ //tri-allelic site, discard
-					continue;
+					triAllelic=true;
+					//continue;
 				    }
 				}
 			    }
 			}
 
 			//cerr<<"2 "<<ref<<" "<<alt<<endl;
-			if(!isResolvedDNA(allel_anc)){
-			    //ancString="0,0:0";					
-			    anc.setRefCount(0); anc.setAltCount(0);  anc.setIsCpg(false); 
-			}
-			//resolved ancestral allele
-			else{
-			    if(allel_anc == allel_hum){//no diff between ancestor and reference
-				//ancString="1,0:"+string(cpgEPO?"1":"0");
-				anc.setRefCount(1); anc.setAltCount(0);  anc.setIsCpg(cpgEPO); 
-			    }else{
-				if(alt == 'N'){//no alt defined, the ancestor becomes the alt			    
-				    alt = allel_anc;
-				    //ancString="0,1:"+string(cpgEPO?"1":"0");			    
-				    anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
+			if(!triAllelic){//if still false, not triallelic
+			    if(!isResolvedDNA(allel_anc)){
+				//ancString="0,0:0";					
+				anc.setRefCount(0); anc.setAltCount(0);  anc.setIsCpg(false); 
+			    }
+			    //resolved ancestral allele
+			    else{
+				if(allel_anc == allel_hum){//no diff between ancestor and reference
+				    //ancString="1,0:"+string(cpgEPO?"1":"0");
+				    anc.setRefCount(1); anc.setAltCount(0);  anc.setIsCpg(cpgEPO); 
 				}else{
-				    if(alt == allel_anc){//alt is ancestor
-					//ancString="0,1:"+string(cpgEPO?"1":"0");
+				    if(alt == 'N'){//no alt defined, the ancestor becomes the alt			    
+					alt = allel_anc;
+					//ancString="0,1:"+string(cpgEPO?"1":"0");			    
 					anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
-				    }else{ //tri-allelic site, discard
-					continue;
+				    }else{
+					if(alt == allel_anc){//alt is ancestor
+					    //ancString="0,1:"+string(cpgEPO?"1":"0");
+					    anc.setRefCount(0); anc.setAltCount(1);  anc.setIsCpg(cpgEPO); 
+					}else{ //tri-allelic site, discard
+					    triAllelic=true;
+					    //continue;
+					}
 				    }
 				}
 			    }
@@ -463,25 +468,27 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
 			//cerr<<"3 "<<ref<<" "<<alt<<endl;
 			//interpret missing records as monomorphic reference
-			if(alt!='N'){
-			    AlleleRecords arToWrite (false);
-			    arToWrite.chri          = chr2index[epoChr];
-			    arToWrite.coordinate    = epoCoord;
-			    arToWrite.sizePops      = int(vcfr.getPopulationNames().size());
-			    arToWrite.ref           = ref;
-			    arToWrite.alt           = alt;		
-			    arToWrite.vectorAlleles = new vector<SingleAllele>  ();
+			if(!triAllelic){//if still false, not triallelic
+			    if(alt!='N'){
+				AlleleRecords arToWrite (false);
+				arToWrite.chri          = chr2index[epoChr];
+				arToWrite.coordinate    = epoCoord;
+				arToWrite.sizePops      = int(vcfr.getPopulationNames().size());
+				arToWrite.ref           = ref;
+				arToWrite.alt           = alt;		
+				arToWrite.vectorAlleles = new vector<SingleAllele>  ();
 
-			    arToWrite.vectorAlleles->push_back(root);
-			    arToWrite.vectorAlleles->push_back(anc);
-			    for(int i=0;i<numberOfPopulations;i++){
-				SingleAllele sample (2, 0, cpgEPO );
-				arToWrite.vectorAlleles->push_back(sample);
-			    }
+				arToWrite.vectorAlleles->push_back(root);
+				arToWrite.vectorAlleles->push_back(anc);
+				for(int i=0;i<numberOfPopulations;i++){
+				    SingleAllele sample (2, 0, cpgEPO );
+				    arToWrite.vectorAlleles->push_back(sample);
+				}
 			
-			    if(!gw->writeAlleleRecord(&arToWrite)){
-				cerr<<"Vcf2MultiACF: error writing header "<<endl;
-				return 1; 
+				if(!gw->writeAlleleRecord(&arToWrite)){
+				    cerr<<"Vcf2MultiACF: error writing header "<<endl;
+				    return 1; 
+				}
 			    }
 			}
 		    }//end produce missing
