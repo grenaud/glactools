@@ -190,7 +190,9 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
     }
 
     cerr<<"Program "<<argv[0]<<" wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully"<<endl;
-
+    if(keptRecords==0){
+	cerr<<"It seems you have no records that were produced, did you define the root population?"<<endl;
+    }
     return 0;
 }
 
