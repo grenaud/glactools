@@ -371,6 +371,13 @@ if [ ! $? -eq 0 ] ;then
     RVAL=1
 fi
 
+echo "Testing glac2vcf"
+./glac2vcf/test.sh
+if [ ! $? -eq 0 ] ;then
+    echo -e "${RED}Problem with glac2vcf exit code: $?${NC}"    
+    RVAL=1
+fi
+
 echo "Testing acf2bplink"
 ./acf2bplink/test.sh
 if [ ! $? -eq 0 ] ;then
