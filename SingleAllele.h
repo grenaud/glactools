@@ -53,6 +53,7 @@ public:
 
     void setIsCpg(bool isCpg);
     string toString();
+    string toGT(bool singleAlleleAsHomo=false);
 
     //SingleAllele &  operator= (const SingleAllele & other);
 

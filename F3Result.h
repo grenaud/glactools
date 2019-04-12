@@ -60,6 +60,20 @@ class F3Result{
     F3Result &  operator+=(const F3Result & other);
     F3Result &  operator-=(const F3Result & other);
 
+  friend istream &operator>>(istream &is , F3Result &dr){
+        //cerr<<" op TEST"<<endl;
+        is
+            >>dr.all
+            >>dr.onlyCpg
+            >>dr.noCpg
+            >>dr.transitions
+            >>dr.transversions
+            >>dr.noDamage;
+        return is;
+        //return dsr.read(s);
+    }
+
+
     friend ostream& operator<<(ostream& os, const F3Result & dr){
 	/* cout<<"F3Result print() begin"<<endl; */
 	/* exit(1); */

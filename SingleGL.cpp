@@ -82,6 +82,14 @@ string  SingleGL::toString(){
     return toReturn;
 }
 
+string  SingleGL::toPL(){
+    string toReturn =""+ 
+	stringify( rrGL)+","+
+	stringify( raGL)+","+
+	stringify( aaGL);
+    return toReturn;
+}
+
 bool SingleGL::alleleCountNull() const{
     if ( (rrGL == 0) &&
 	 (raGL == 0) &&

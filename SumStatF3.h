@@ -105,7 +105,7 @@ class SumStatF3{
     //void computeStat(    vector < AlleleRecords * >  * dataToUse,vector<string> & popNames,bool allowUndefined);
     void computeStat(       const   vector < AlleleRecords  >  * dataToUse,const vector<string> * popNames,bool allowUndefined);
     void computeStatSingle( const   AlleleRecords   * recordToUse                                         ,const bool allowUndefined);
-
+    void read(const string & res);
     string print() const;
     string printWithBootstraps(const   vector<SumStatF3 *> * bootstr,const string & dnaDistMode) const;
 

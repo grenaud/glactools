@@ -370,6 +370,7 @@ GlacParser::GlacParser(string bgzf_file,string bgzf_fileidx,string chrName,int s
 
 GlacParser::GlacParser(char * dataToRead_,const vector<string> & populationNames_,unsigned int sizeDataRead_,bool isGLF,char sizeBytesFormat_){
     //populationNames = populationNames_;
+    //cerr<<"GP "<<sizeDataRead_<<endl;
     populationNames   = new vector<string>( populationNames_);
     sizePops          = populationNames->size()-2;//no root/anc
     dataToRead        = dataToRead_;
@@ -737,7 +738,9 @@ void GlacParser::parseHeader(BGZF *bg){
 	//cerr<<"line "<<line<<endl;
 	if(strBeginsWith(line,"#SQ")){
             vector<string> tokensf = allTokens(line,'\t');
-            chrKnown.push_back(tokensf[1].substr(3));
+            chrKnown.push_back(                            tokensf[1].substr(3) );
+            chrKnownLength.push_back(destringify<uint32_t>(tokensf[2].substr(3)));
+
 	    headerSQ+=line+"\n";
         }else{
 	    headerNoSQNoDefline+=line+"\n";
@@ -824,7 +827,9 @@ void GlacParser::parseHeader(BGZF *bg){
 
 	if(strBeginsWith(line,"#SQ")){
             vector<string> tokensf = allTokens(line,'\t');
-            chrKnown.push_back(tokensf[1].substr(3));
+            chrKnown.push_back(                            tokensf[1].substr(3) );
+            chrKnownLength.push_back(destringify<uint32_t>(tokensf[2].substr(3)));
+
 	    headerSQ+=line+"\n";
         }else{
 	    headerNoSQNoDefline+=line+"\n";
@@ -1376,7 +1381,8 @@ bool GlacParser::hasData(){
 
     if(readBufferMode){
 	//reached the end
-	if(dataToReadInd==(sizeDataRead-1))
+	//if(dataToReadInd==(sizeDataRead-1))
+	if(dataToReadInd==(sizeDataRead))
 	    return false;
 
 	
@@ -1573,6 +1579,10 @@ map<string,uint16_t> GlacParser::getChr2chri() const{
 
 vector<string> GlacParser::getChrKnown() const{
     return chrKnown;
+}
+
+vector<uint32_t> GlacParser::getChrKnownLength() const{
+    return chrKnownLength;
 }
 
 char GlacParser::getSizeOf1DataPoint() const{

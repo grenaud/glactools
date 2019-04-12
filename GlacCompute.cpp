@@ -143,7 +143,7 @@ void *mainComputationThread(void * argc){
     // }
     //cout<<"Thread #"<<rankThread<<" building GP "<<dataToUse->sizeRecordsRead<<" size="<<int(sizeBytesFormat)<<" isGLF "<<isGLF<<endl;
 
-    //cout<<"BUFFERADDR "<<(void*)dataToUse->buffer<<endl;
+    //cerr<<"BUFFERADDR "<<(void*)dataToUse->buffer<<endl;
     GlacParser gp ( dataToUse->buffer,
 		    *populationNames,
 		    dataToUse->sizeRecordsRead,
@@ -156,6 +156,7 @@ void *mainComputationThread(void * argc){
     while(gp.hasData()){
 	//cout<<"Thread #"<<rankThread<<" before hasData() "<<endl;
     	currentRecord = gp.getData() ;
+	//cerr<<"coord gc "<<currentRecord->coordinate<<endl;
 	//cerr<<"Thread #"<<rankThread<<" "<<*currentRecord<<endl;
 	// cout<<"Thread #"<<rankThread<<" after hasData() "<<currentRecord->chri<<":"<<currentRecord->coordinate<<endl;
 	if( ((counterRecords%10000)==0) && counterRecords!=0 ){
@@ -165,7 +166,6 @@ void *mainComputationThread(void * argc){
 	}
 	counterRecords++;
     	statComputer->computeStatSingle(currentRecord,allowUndefined);
-
 
     	//cout<<test->print()<<endl;
     }
@@ -325,16 +325,17 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
     chunkToAdd->sizeRecordsRead = 0;
     // cout<<"chunkToAdd1 "<<chunkToAdd<<endl;
     // cout<<"chunkToAdd buffer #"<<(void *) chunkToAdd->buffer<<"#"<<endl;
+    // cout<<"size records "<<(gp.getSizeRecord())<<endl;
     // cout<<"buffer size "<<(sizeBins*gp.getSizeRecord())<<endl;
-    // cerr<<"reading block "<<sizeBins<<endl;
+    // cerr<<"size bins "<<sizeBins<<endl;
     // cout<<"chunkToAdd2 "<<chunkToAdd<<" "<<&chunkToAdd<<endl;
 
-    
+    //the return value depends if we could read all of the buffer size requested
     bool rbdReturn = gp.readBlockData(chunkToAdd->buffer,sizeBins,&chunkToAdd->sizeRecordsRead,&chri,&coordinate);
     // cout<<"rbdReturn "<<rbdReturn<<endl;
     // cout<<"chunkToAdd3 "<<chunkToAdd<<" "<<&chunkToAdd<<endl;
-
-    while( rbdReturn ){
+    //exit(1);
+    while( rbdReturn ){//while we can read full buffer
 	//cout<<*arr<<endl;
 	cerr<<"GlacCompute reading new bin, currently  "<<chri2chr[chri]<<":"<<thousandSeparator(coordinate)<<" size="<<chunkToAdd->sizeRecordsRead<<endl;
 	

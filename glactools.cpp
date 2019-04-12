@@ -23,6 +23,7 @@
 #include "AXT2ACF.h"
 
 #include "GlacClosest.h"
+#include "Glac2VCF.h"
 #include "Glac2BED.h"
 #include "GlacMeld.h"
 #include "GlacDown.h"
@@ -128,6 +129,7 @@ int main (int argc, char *argv[]) {
 	"\n"+
 	"   --Data export:\n"+                       
 	"      glac2bed        Convert a (GL|AC)f file to BED"+"\n"+
+	"      glac2vcf        Convert a (GL|AC)f file to VCF"+"\n"+
 	"      acf2bplink      Convert an ACF file to binary PLINK"+"\n"+
 	"      acf2fasta       Convert an ACF file to fasta"+"\n"+ 
 	"      acf2gphocs      Convert an ACF file to G-PhoCs"+"\n"+
@@ -312,6 +314,20 @@ int main (int argc, char *argv[]) {
 	argv++;
 	argc--;
 	return glac2bed_.run(argc, argv);
+
+    }else{      if(string(argv[1]) == "glac2vcf"){
+	Glac2VCF  glac2vcf_;
+
+	if( argc==2 ||
+	    (argc == 3 && (string(argv[2]) == "-h" || string(argv[2]) == "--help") )
+	    ){	    
+	    cerr<<glac2vcf_.usage()<<endl;
+	    return 1;       
+	}
+
+	argv++;
+	argc--;
+	return glac2vcf_.run(argc, argv);
 
     }else{      if(string(argv[1]) == "closest"){
      	GlacClosest  glacclosest_;
@@ -827,7 +843,7 @@ int main (int argc, char *argv[]) {
     }else{      	    
 	cerr<<"invalid command "<<string(argv[1])<<endl;
 	return 1;
-																							    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+																								}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
     
     return 0;
 }

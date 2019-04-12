@@ -82,6 +82,10 @@ int ACF2TREEMIX::run(int argc, char *argv[]){
     }
 
     GlacParser gp (argv[lastOpt]);
+    if(!gp.isACFormat()){
+        cerr<<"ACF2TREEMIX: Error the file "<<argv[lastOpt]<<" should be in ACF format"<<endl;
+        return 1;       
+    }
 
     vector<string> toprintPop;
     unsigned jinit=0;

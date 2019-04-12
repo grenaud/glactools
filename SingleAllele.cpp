@@ -97,6 +97,57 @@ string  SingleAllele::toString(){
     return toReturn;
 }
 
+string  SingleAllele::toGT(bool singleAlleleAsHomo){
+    string toReturn ="";
+
+    if(refCount == 2 && altCount == 0) //homo ref
+	return "0/0";
+
+    if(refCount == 1 && altCount == 1) //hetero
+	return "0/1";
+
+    if(refCount == 0 && altCount == 2) //homo alt
+	return "1/1";
+    
+    if(singleAlleleAsHomo){//print 1,0 and 0,1 as homo
+	if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
+	    return "0/0";
+	}
+
+	if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
+	    return "1/1";
+	}
+    }else{//print 1,0 and 0,1 as undef
+	if( (refCount == 1 && altCount == 0) ){ //has at least one ref, wrong but we will have to use it
+	    return "./.";
+	}
+
+	if( (refCount == 0 && altCount == 1) ){ //has at least one alt, wrong but we will have to use it
+	    return "./.";
+	}
+    }
+
+    if( (refCount == 0 && altCount == 0) ) //unknown
+	return "./.";
+
+
+    //If we reached this position, this means we deal with population allele frequency
+    //try to generate something random for populations
+    int randIndex1=rand()%totalCount;//returns a number between 0 and (totalCount-1)
+    //int randIndex2=rand()%totalCount;//returns a number between 0 and (totalCount-1)
+    bool ref1 = (randIndex1<refCount);
+    bool ref2 = (randIndex1<refCount);
+
+    if(ref1 && ref2 ) //homo ref
+	return "0/0";
+    
+    
+    if(!ref1 && !ref2 ) //homo alt
+	return "1/1";
+    
+    return toReturn;
+}
+
 SingleAllele  operator+(const SingleAllele & first,const SingleAllele & second){
 
     return SingleAllele( first.refCount + second.refCount, 

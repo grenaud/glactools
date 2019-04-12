@@ -10,6 +10,8 @@
 
 SumStatF3::SumStatF3(){
     //cout<<"CONSTR1"<<endl;
+    f3Results=NULL;//[numberOfPopulations][numberOfPopulations]
+    populationNames=NULL;
 }
 
 SumStatF3::SumStatF3(const SumStatF3 & other){
@@ -114,6 +116,160 @@ SumStatF3::~SumStatF3(){
 }
 
 
+
+void SumStatF3::read(const string & res){
+    //cout<<"READ()"<<endl;
+    //return s;
+    // cerr<<"to implelement"<<endl; //TODO
+    // exit(1);
+    vector<string> lines = allTokens(res,'\n');
+
+    //DETECTING # OF POP/IND
+    populationNames = new vector<string>();
+    map<string,int> ind2index;
+    unsigned int indIndices=2;//indIndices =0 (root)  indIndices =1 (anc) 
+    ind2index["root"]=0;  populationNames->push_back( "root" );
+    ind2index["anc"]=1;   populationNames->push_back( "anc" );
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() ) continue; //separator
+	//cerr<<lines[i]<<endl;
+	//vector<string> fields = allTokens(lines[i],'\t');
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+
+	string ind1;
+	string ind2;
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '-') break;
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t') break;
+	    ind2+=indsIds[k++];	   
+	}
+
+	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
+	trimWhiteSpacesBothEnds(&ind1);
+	trimWhiteSpacesBothEnds(&ind2);
+
+	if(ind2index.find(ind1) == ind2index.end()){
+	    ind2index[ind1]=indIndices;
+	    populationNames->push_back(  ind1 );
+	    indIndices++;
+	}
+
+	if(ind2index.find(ind2) == ind2index.end()){
+	    ind2index[ind2]=indIndices;
+	    populationNames->push_back(  ind2 );
+	    indIndices++;
+	}
+	
+
+	//cout<<fields.size()<<endl;
+    }
+    // cerr<<"indIndices "<<indIndices<<endl;
+    // for( map<string,int>::const_iterator it=ind2index.begin();it!=ind2index.end();it++){
+    // 	cerr<<it->first<<"\t"<<it->second<<endl;
+    // }
+    numberOfPopulations=indIndices;
+
+   f3Results = new F3Result**[numberOfPopulations];
+
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	f3Results[i] = new F3Result*[numberOfPopulations];
+
+    for(unsigned int i=0;i<numberOfPopulations;i++)
+	for(unsigned int j=0;j<numberOfPopulations;j++)
+	    f3Results[i][j] = new F3Result[numberOfPopulations];
+
+
+    for(unsigned int i=0;i<lines.size();i++){
+	if(strBeginsWith(lines[i],"---")) continue; //separator
+	if( lines[i].empty() )            continue; //separator
+
+	//vector<string> fields = allTokens(lines[i],'\t');
+	//cout<<"line read "<<lines[i]<<endl;
+	string indsIds;	
+	for(unsigned int j=0;j<lines[i].size();j++){
+	    if( lines[i][j] == '\t') break;
+	    indsIds+=lines[i][j];
+	}
+	
+	string ind1;
+	string ind2;
+	string ind3;
+	
+	unsigned int k=0;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == ';')		break;	   	    
+	    ind1+=indsIds[k++];  
+	}
+	k++;
+	//cerr<<"#l "<<ind1<<"# #"<<ind2<<"# "<<endl;
+	while(k<indsIds.size()){
+	    if(indsIds[k] == ',')		break;	    
+	    ind2+=indsIds[k++];	   
+	}
+	k++;
+
+	while(k<indsIds.size()){
+	    if(indsIds[k] == '\t')		break;	    
+	    ind3+=indsIds[k++];	   
+	}
+	k++;
+
+
+	trimWhiteSpacesBothEnds(&ind1);
+	trimWhiteSpacesBothEnds(&ind2);
+	trimWhiteSpacesBothEnds(&ind3);
+
+	//cerr<<"#m "<<ind1<<"# #"<<ind2<<"# "<<endl;
+	//fields.pop();//remove first element
+	//cout<<(lines[i]+indsIds.size() )<<endl;
+	//cout<<"#"<<lines[i].substr(indsIds.size()+1,lines[i].size())<<"#"<<endl;
+	istringstream in ( lines[i].substr(indsIds.size()+1,lines[i].size()) );
+	// cerr<<endl<<"line  "<<lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+	// cerr<<"index "<<ind1<<" "<<ind2<<" " <<endl;
+	// cerr<<"index "<<ind2index[ind1]<<" "<<ind2index[ind2]<<endl;
+	//lines[i].substr(indsIds.size()+1,lines[i].size())<<endl;
+
+	//                    @[src]              [ind1]       -     [ind2]
+	//in>>dstatResults[ ind2index[src] ] [ ind2index[ind1] ][ ind2index[ind2] ];
+
+	//                             ind1                        ind2                          ind3
+	//toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<
+	//                    f3Results[ind3][ind1][ind2].printWithJacknife( &jacknivesToSend )<<endl;
+	
+	in>>f3Results[ ind2index[ind3] ][ ind2index[ind1] ][ ind2index[ind2] ];
+	
+	//cerr<<"#stat "<<f2Results[ ind2index[ind1] ][ ind2index[ind2] ]<<endl;
+	//cout<<fields.size()<<endl;
+    }
+
+    // istringstream in (strResults);
+    //     dstatResults[i][j][k].
+    //[numberOfPopulations][numberOfPopulations];
+    //storing results
+    
+   //for(unsigned int i=0;i<popNames->size();i++){
+   //	populationNames->push_back(  popNames->at(i) );
+   //}
+   //populationNames->push_back("ref");
+    
+   //vector<AlleleRecords> segregatingSites;
+
+   //while(mp.hasData()){
+
+}
+
 F3Result const * const * const * SumStatF3::getF3Result() const{
     return f3Results;
 }
@@ -159,6 +315,7 @@ string SumStatF3::printWithBootstraps(const   vector<SumStatF3 *> * jackVec, con
 
 
 void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const bool allowUndefined){
+    
     //currentRow = dataToUse->at(i);
     //cout<<"coord1 "<<dataToUse->at(d).coordinate<<" "<<d<<" "<<dataToUse->at(d) <<endl;
     //cerr<<"coord1 "<<recordToUse->coordinate<<endl;
@@ -327,14 +484,20 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 
 
     for(unsigned i=2;i<numberOfPopulations;i++){
+    //for(unsigned i=2;i<=2;i++){
 
 	//for each population, except the root/ancestral at index 0,1
 	for(unsigned j=2;j<numberOfPopulations;j++){	       
+	    //for(unsigned j=3;j<=3;j++){	       
+	    
 	    //skip when the allele is identical
 	    if(i==j)
 		continue;
 
 	    for(unsigned k=2;k<numberOfPopulations;k++){	       
+		//for(unsigned k=4;k<=4;k++){	       
+
+
 		//skip when the allele is identical
 		if(i==k)
 		    continue;
@@ -360,20 +523,23 @@ void SumStatF3::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 				    isSitePotentialDamage,
 				    &(f3Results[i][j][k]) );
 		//cerr<<"pstcounter "<<i<<" "<<j<<" "<<k<<endl;
-
+		// cerr<<"freqAllele["<<i<<"] "<<freqAllele[i]<<endl;
+		// cerr<<"freqAllele["<<j<<"] "<<freqAllele[j]<<endl;
+		// cerr<<"freqAllele["<<k<<"] "<<freqAllele[k]<<endl;
+		//TODO no need to recompute for same pair of j,k just copy
 		computeF3triple(//freqAllele[1], //root
-			  // (freq_condition-freq_ind1)*(freq_condition-freq_ind2);
-			  freqAllele[i], //condition or target
-			  freqAllele[j], //ind 1
-			  freqAllele[k], //ind 2
-			  (cpgForPop[i] || cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
-			  isSitePotentialTransition,
-			  isSitePotentialDamage,
-			  &(f3Results[i][j][k]) );
+				// (freq_condition-freq_ind1)*(freq_condition-freq_ind2);
+				freqAllele[i], //condition or target
+				freqAllele[j], //ind 1
+				freqAllele[k], //ind 2
+				(cpgForPop[i] || cpgForPop[j] || cpgForPop[k]), //only look at j and k for CpG
+				isSitePotentialTransition,
+				isSitePotentialDamage,
+				&(f3Results[i][j][k]) );
 	    }//k
 	}//j
     }//i
-
+    //cerr<<"--"<<endl;
     
     
     SKIPTONEXTITERATION:

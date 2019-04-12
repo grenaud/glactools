@@ -89,7 +89,7 @@ int ACF2GPHOCS::run(int argc, char *argv[]){
 	if(dataRow->chr != chrName){//new chr
 	    if(inBlockOfSequence){
 		//TODO flush block
-
+		
 		inBlockOfSequence=false;
 	    }
 

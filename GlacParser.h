@@ -69,7 +69,9 @@ class GlacParser{
 
     uint32_t sizePops;
     
-    vector<string> chrKnown;
+    vector<string>   chrKnown;
+    vector<uint32_t> chrKnownLength;
+
     map<string,uint16_t> chr2chri;
     //void parseHeader(istream & in);
     void parseHeader(BGZF *myFilezipped); 
@@ -107,6 +109,8 @@ class GlacParser{
     string getChromosomeName(int chrIdx) const;
     map<string,uint16_t> getChr2chri() const;
     vector<string>       getChrKnown() const;
+    vector<uint32_t>     getChrKnownLength() const;
+
     const vector<string> *   getPopulationsNames() const ;
     char getSizeOf1DataPoint() const;
 
