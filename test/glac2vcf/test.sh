@@ -13,7 +13,7 @@ echo -n "Testing glac2vcf for ACF files:"
 echo -e " ${GREEN}ok${NC}"
 
 echo -ne "testing md5sum:"
-gzip -c -d glac2vcf.vcf.gz |md5sum > glac2vcf.vcf.md5sum
+gzip -c -d glac2vcf.vcf.gz |grep -v glactoolsVersion  |md5sum > glac2vcf.vcf.md5sum
 
 if diff glac2vcf.vcf.md5sum glac2vcf.vcf.md5sum_  > /dev/null
 then
