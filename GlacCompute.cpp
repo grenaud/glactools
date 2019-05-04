@@ -755,18 +755,24 @@ int GlacCompute::run(int argc, char *argv[]){
 		bootFromResults(arguments,st);	       
 		delete(st);
 	    }else{
-		if(program == "f2"){				
-		    SumStatF2 * st=new SumStatF2();
+		if(program == "f3"){				
+		    SumStatF3 * st=new SumStatF3();
 		    bootFromResults(arguments,st);	       
 		    delete(st);	    
 		}else{
-		    if(program == "paircoa"){				
-			SumStatAvgCoa * st=new SumStatAvgCoa();
+		    if(program == "f2"){				
+			SumStatF2 * st=new SumStatF2();
 			bootFromResults(arguments,st);	       
 			delete(st);	    
-		    }else{
-			cerr<<"GlacCompute: to implement (coming soon) "<<endl;
-			return 1;	    
+		    }else{			
+			if(program == "paircoa"){				
+			    SumStatAvgCoa * st=new SumStatAvgCoa();
+			    bootFromResults(arguments,st);	       
+			    delete(st);	    
+			}else{
+			    cerr<<"GlacCompute: to implement (coming soon) "<<endl;
+			    return 1;	    
+			}
 		    }
 		}
 	    }
