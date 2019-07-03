@@ -68,10 +68,23 @@ For MacOS, if you have Homebrew (https://brew.sh/) installed:
      brew install git
      brew install cmake
 
-2) make sure you have gcc that supports -std=c++11, gcc version 4.7 or above. Type "gcc -v" and check the version. For both Ubuntu and MacOS, 
+2) make sure you have gcc that supports -std=c++11, gcc version 4.7 or above. Type "gcc -v" and check the version. Have the standard zlib, bzlib.h and lzma. Under Ubuntu type:
 
+     sudo apt install g++
+     sudo apt install zlib1g-dev
+     sudo apt install libbz2-dev
+     sudo apt install liblzma-dev
+
+For MacOS, if you have Homebrew (https://brew.sh/) installed:
+
+     brew install gcc
+     brew install zlib
+     brew install zv
+     
+    
 
 3) As the makefile uses "git clone" to download subpackages, please make sure that the computer on which you are installing glactools has access to the internet. Once done, simply type :
+
      cd glactools
      make
 

@@ -597,6 +597,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
 	for(unsigned int i=0;i<toprint->size();i++){
 	    pair<int,int> pairCount;
+
 	    if( !onlyGT &&
 		(toprint->at(i)->getObservedGL() ||toprint->at(i)->getObservedPL() )//has either GL or PL
 	    ){
@@ -607,8 +608,8 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
 	    SingleAllele sample (pairCount.first, pairCount.second, toprint->at(i)->isCpg() );
 	    arToWrite.vectorAlleles->push_back(sample);
-
-	    //cout<<pairCount.first<<","<<pairCount.second<<":"<<(toprint->at(i)->isCpg()?"1":"0");	
+	    // cerr<<*toprint->at(i)<<endl;
+	    // cerr<<pairCount.first<<","<<pairCount.second<<":"<<(toprint->at(i)->isCpg()?"1":"0")<<endl;	
 
 	    //cout<<toprint->at(i)->getAlleCountBasedOnGT();//	pairCount.first<<","<<pairCount.second<<":"<<(toprint->at(0)->isCpg()?"1":"0")<<endl;	
 	    //if(i != (toprint->size()-1))

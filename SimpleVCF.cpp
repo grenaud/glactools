@@ -109,7 +109,7 @@ void SimpleVCF::init2(){
     observedGL=false;
     haploidCall=false;
     for(unsigned int i=0;i<formatFieldNames->size();i++){
-	//cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames->at(i)<<" = "<<formatFieldValues[i]<<endl;
+      //cerr<<"formatFieldNames["<<i<<"] "<<formatFieldNames->at(i)<<" = "<<formatFieldValues[i]<<endl;
 	
 	if(formatFieldNames->at(i) == "GT"){ 
 	    indexGenotype     =i; 
@@ -117,7 +117,7 @@ void SimpleVCF::init2(){
 	    bool determinedGenotype=false;
 	    //Taken from http://www.broadinstitute.org/gatk/guide/topic?name=intro
 
-	    
+
 	    if(formatFieldGT == "./."){ determinedGenotype=true; unresolvedGT=true;	    } 
 
 	    if(formatFieldGT == "0"){   determinedGenotype=true; homozygousREF=true;   haploidCall=true;   }
