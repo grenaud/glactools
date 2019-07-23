@@ -22,9 +22,44 @@ bool hasLineToPrint;
 AlleleRecords * arToPrint; 
 char   offsetQual=33;
 static unsigned int limitToReOpenFP = 200; //if the coordinate is this far away, we will re-open the file pointer
+string alphabetHTSLIB = "NACNGNNNTNNNNNNN";
+
+int alphabetHTSLIB2idx [16] = {-1, 0, 1,-1,  // N A C N
+			       2,-1,-1,-1,   // G N N N
+			       3,-1,-1,-1,   // T N N N
+			       -1,-1,-1,-1}; // N N N N
 
 
+typedef struct {
+    int min_mq, flag, min_baseQ, capQ_thres, max_depth, max_indel_depth, fmt_flag, all, rev_del;
+    int rflag_require, rflag_filter;
+    int openQ, extQ, tandemQ, min_support; // for indels
+    double min_frac; // for indels
+    char *reg, *pl_list, *fai_fname, *output_fname;
+    faidx_t *fai;
+    void *bed, *rghash, *auxlist;
+    int argc;
+    char **argv;
+    char sep, empty;
+    sam_global_args ga;
+} mplp_conf_t;
 
+
+typedef struct {
+    char *ref[2];
+    int ref_id[2];
+    int ref_len[2];
+} mplp_ref_t;
+
+#define MPLP_REF_INIT {{NULL,NULL},{-1,-1},{0,0}}
+
+typedef struct {
+    samFile *fp;
+    hts_itr_t *iter;
+    bam_hdr_t *h;
+    mplp_ref_t *ref;
+    const mplp_conf_t *conf;
+} mplp_aux_t;
 
 static int mplp_get_ref(mplp_aux_t *ma, int tid,  char **ref, int *ref_len) {
     mplp_ref_t *r = ma->ref;
@@ -473,13 +508,14 @@ BAM2ACF::~BAM2ACF(){
 
 //TODO remove proper pair to add all
 static int read_bamACF(void *data, bam1_t *b){ // read level filters better go here to avoid pileup
-    aux_t *aux = (aux_t*)data; // data in fact is a pointer to an auxiliary structure
+    mplp_aux_t *aux = (mplp_aux_t*)data; // data in fact is a pointer to an auxiliary structure
     int ret;
     while (1){
-        ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->hdr, b);
+        //ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->hdr, b);
+	ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->h, b);
         if ( ret<0 ) break;
 	// int32_t qlen   = bam_cigar2qlen(b->core.n_cigar, bam_get_cigar(b));
-	int32_t qlen   = b->core.l_qseq;
+	//int32_t qlen   = b->core.l_qseq;
 
 	//int32_t isize  = b->core.n_cigar;
 
@@ -498,10 +534,10 @@ static int read_bamACF(void *data, bam1_t *b){ // read level filters better go h
 		
 
 
-        if ( (int)b->core.qual < aux->min_mapQ ) continue;
+        if ( (int)b->core.qual < aux->conf->min_mq ) continue;
 
 	// cerr<<aux->min_len<<" "<<qlen<<" "<<int(MINLENGTHFRAGMENT)<<" "<<int(MAXLENGTHFRAGMENT)<<endl;
-        if ( aux->min_len && ( (qlen <  int(MINLENGTHFRAGMENT) ) || (qlen > int(MAXLENGTHFRAGMENT) ) )) continue;
+        //if ( aux->conf->min_len && ( (qlen <  int(MINLENGTHFRAGMENT) ) || (qlen > int(MAXLENGTHFRAGMENT) ) )) continue;
 
 	// if(specifiedDeam){
 	//     if( bam_is_paired( b) ) continue; //skip paired-end reads because we cannot get proper deamination
@@ -662,10 +698,10 @@ int BAM2ACF::run(int argc, char *argv[]){
     // 	return 1;
     //}
 
-    aux_t *data   =NULL;//bam reader
+    mplp_aux_t *data   =NULL;//bam reader
     hts_idx_t *idx=NULL; //bam index
 
-    data = (aux_t *)calloc(1, sizeof(aux_t));
+    data = (mplp_aux_t *)calloc(1, sizeof(mplp_aux_t));
 
 
     data->fp = sam_open_format(bamFileToOpen.c_str(), "r", NULL); // open BAM
@@ -680,8 +716,13 @@ int BAM2ACF::run(int argc, char *argv[]){
 	cerr<<"ERROR: Cannot load index for bamfile "<<bamFileToOpen<<""<<endl;
 	exit(1);
     }
-    data->hdr = sam_hdr_read(data->fp);    // read the BAM header
-    if (data->hdr == NULL) {
+    // data->hdr = sam_hdr_read(data->fp);    // read the BAM header
+    // if (data->hdr == NULL) {
+    // 	cerr<<"ERROR: Could not read header for bamfile "<<bamFileToOpen<<""<<endl;
+    // 	exit(1);
+    // }
+    data->h = sam_hdr_read(data->fp);    // read the BAM header
+    if (data->h == NULL) {
 	cerr<<"ERROR: Could not read header for bamfile "<<bamFileToOpen<<""<<endl;
 	exit(1);
     }
@@ -798,6 +839,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     int max_depth = 20*MAXCOV;
     const bam_pileup1_t **plp;
     //bool reg = !region.empty();
+    bool reg = false;
 
     void *bed = 0; // BED data structure
     string bedfilename;
@@ -806,7 +848,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     }
 
     bam_hdr_t *h = NULL; // BAM header of the 1st input
-    aux_t **dataIth;
+    mplp_aux_t **dataIth;
     bam_mplp_t mplp;
     int last_pos = -1, last_tid = -1, ret;
 
@@ -817,7 +859,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     n =1;
     
     // data = (aux_t **)calloc(1, sizeof(aux_t*)); // data[i] for the i-th input
-    aux_t **    dataArray = (aux_t **)calloc(1, sizeof(aux_t*)); // data[i] for the i-th input
+    mplp_aux_t **    dataArray = (mplp_aux_t **)calloc(1, sizeof(mplp_aux_t*)); // data[i] for the i-th input
     dataArray[0] = data;
     reg_tid = 0; beg = 0; end = INT_MAX;  // set the default region
 
@@ -867,7 +909,8 @@ int BAM2ACF::run(int argc, char *argv[]){
     // }
 
     //h = data[0]->hdr; // easy access to the header of the 1st BAM
-    h = data->hdr; // easy access to the header of the 1st BAM
+    //    h = data->hdr; // easy access to the header of the 1st BAM
+    h = data->h; // easy access to the header of the 1st BAM
     //dataToWrite->refID = bam_get_tid(h,currentChunk->rangeGen.getChrName().c_str());
 
     /*
@@ -911,11 +954,11 @@ int BAM2ACF::run(int argc, char *argv[]){
 	if (pos < beg || pos >= end) continue; // out of range; skip
         if (tid >= h->n_targets) continue;     // diff number of @SQ lines per file?
 	
-	char refC; //= toupper(seq[ pos-currentChunk->rangeGen.getStartCoord()+1 ]);
-	int ref_len;<
+	char * ref; //= toupper(seq[ pos-currentChunk->rangeGen.getStartCoord()+1 ]);
+	int ref_len;
 	mplp_get_ref(data, tid, &ref, &ref_len);
 
-	if(refC == 'N'){//skip unresolved
+	if(*ref == 'N'){//skip unresolved
 	    continue;
 	}
 
@@ -988,18 +1031,18 @@ int BAM2ACF::run(int argc, char *argv[]){
 	    int m = 0;//amount of invalid bases at site j that need to be removed from coverage calculations
 
 	    
-	    positionInformation piToAdd;
+	    //	    positionInformation piToAdd;
 
-	    piToAdd.skipPosition                 = false;
-	    piToAdd.posAlign                     = (pos+1);
-	    piToAdd.refBase                      = refC;
+	    // piToAdd.skipPosition                 = false;
+	    // piToAdd.posAlign                     = (pos+1);
+	    // piToAdd.refBase                      = refC;
 	    double probMM=0;
 	    int    basesRetained=0;
 	    bool foundSites=false;
 
-	    for(int n=0;n<4;n++){
-		piToAdd.baseC[n]=0;
-	    }
+	    // for(int n=0;n<4;n++){
+	    // 	piToAdd.baseC[n]=0;
+	    // }
 	    
 #ifdef AROUNDINDELS
 	    currIndel   =false;
@@ -1089,7 +1132,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 		int   m    = MIN2(  bam_mqual(p->b) , MAXMAPPINGQUAL );
 		bool isRev = bam_is_rev(p->b);
 
-		piToAdd.baseC[bIndex]++;
+		//		piToAdd.baseC[bIndex]++;
 		probMM += likeMismatchProbMap[m]; 
 		basesRetained++;
 
@@ -1123,7 +1166,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 		// }
 		// sr_.isrv=isRev;
 		totalBasesL++;
-		piToAdd.readsVec.push_back(sr_);
+		//piToAdd.readsVec.push_back(sr_);
 
 //currLevelVec.push_back(p->level);
 		//totalBasesL ++;
@@ -1174,11 +1217,11 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 	    
 	    if( foundSites ){
-		piToAdd.avgMQ =  round(-10*log10(probMM/double(basesRetained)));
+		//piToAdd.avgMQ =  round(-10*log10(probMM/double(basesRetained)));
 		totalSitesL++;
 	    }
 
-	    piForGenomicWindow->push_back(piToAdd);
+	    //piForGenomicWindow->push_back(piToAdd);
 	    //cerr<<"readsVec size= "<<piToAdd.readsVec.size()<<endl;
 	    prevPos = pos;
 
