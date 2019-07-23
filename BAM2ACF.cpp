@@ -25,6 +25,65 @@ static unsigned int limitToReOpenFP = 200; //if the coordinate is this far away,
 
 
 
+
+static int mplp_get_ref(mplp_aux_t *ma, int tid,  char **ref, int *ref_len) {
+    mplp_ref_t *r = ma->ref;
+
+    //printf("get ref %d {%d/%p, %d/%p}\n", tid, r->ref_id[0], r->ref[0], r->ref_id[1], r->ref[1]);
+
+    if (!r || !ma->conf->fai) {
+        *ref = NULL;
+        return 0;
+    }
+
+    // Do we need to reference count this so multiple mplp_aux_t can
+    // track which references are in use?
+    // For now we just cache the last two. Sufficient?
+
+    if (tid == r->ref_id[0]) {
+        *ref = r->ref[0];
+        *ref_len = r->ref_len[0];
+        return 1;
+    }
+    if (tid == r->ref_id[1]) {
+        // Last, swap over
+        int tmp;
+        tmp = r->ref_id[0];  r->ref_id[0]  = r->ref_id[1];  r->ref_id[1]  = tmp;
+        tmp = r->ref_len[0]; r->ref_len[0] = r->ref_len[1]; r->ref_len[1] = tmp;
+
+        char *tc;
+        tc = r->ref[0]; r->ref[0] = r->ref[1]; r->ref[1] = tc;
+        *ref = r->ref[0];
+        *ref_len = r->ref_len[0];
+        return 1;
+    }
+
+    // New, so migrate to old and load new
+    free(r->ref[1]);
+    r->ref[1]     = r->ref[0];
+    r->ref_id[1]  = r->ref_id[0];
+    r->ref_len[1] = r->ref_len[0];
+
+    r->ref_id[0] = tid;
+    r->ref[0] = faidx_fetch_seq(ma->conf->fai,
+                                ma->h->target_name[r->ref_id[0]],
+                                0,
+                                INT_MAX,
+                                &r->ref_len[0]);
+
+    if (!r->ref[0]) {
+        r->ref[0] = NULL;
+        r->ref_id[0] = -1;
+        r->ref_len[0] = 0;
+        *ref = NULL;
+        return 0;
+    }
+
+    *ref = r->ref[0];
+    *ref_len = r->ref_len[0];
+    return 1;
+}
+
 void BAM2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
 
     lineLeftEPO=(rtEPO->readLine( lineFromEPO ));
@@ -852,7 +911,10 @@ int BAM2ACF::run(int argc, char *argv[]){
 	if (pos < beg || pos >= end) continue; // out of range; skip
         if (tid >= h->n_targets) continue;     // diff number of @SQ lines per file?
 	
-	char refC = toupper(seq[ pos-currentChunk->rangeGen.getStartCoord()+1 ]);
+	char refC; //= toupper(seq[ pos-currentChunk->rangeGen.getStartCoord()+1 ]);
+	int ref_len;<
+	mplp_get_ref(data, tid, &ref, &ref_len);
+
 	if(refC == 'N'){//skip unresolved
 	    continue;
 	}
