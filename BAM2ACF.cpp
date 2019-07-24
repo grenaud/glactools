@@ -15,6 +15,10 @@ using namespace std;
 #define MAXCOV 250
 #define MINLENGTHFRAGMENT 0
 #define MAXLENGTHFRAGMENT 1000000
+#define MAXBASEQUAL             64      // maximal base quality score, greater qual score do not make a lot of sense
+#define MAXMAPPINGQUAL          37     // maximal mapping quality
+
+#define MIN2(a,b) (((a)<(b))?(a):(b))
 //#define MIN(a,b) (((a)<(b))?(a):(b))
 
 bool hasLineToPrint;
@@ -1036,7 +1040,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 	    // piToAdd.skipPosition                 = false;
 	    // piToAdd.posAlign                     = (pos+1);
 	    // piToAdd.refBase                      = refC;
-	    double probMM=0;
+	    // double probMM=0;
 	    int    basesRetained=0;
 	    bool foundSites=false;
 
@@ -1133,12 +1137,12 @@ int BAM2ACF::run(int argc, char *argv[]){
 		bool isRev = bam_is_rev(p->b);
 
 		//		piToAdd.baseC[bIndex]++;
-		probMM += likeMismatchProbMap[m]; 
+		// probMM += likeMismatchProbMap[m]; 
 		basesRetained++;
 
 
 		foundSites=true;
-
+#ifdef NOT_DEF
 		singleRead sr_;
 		sr_.base    = uint8_t(bIndex);
 		sr_.qual    = uint8_t(q);	    
@@ -1152,6 +1156,8 @@ int BAM2ACF::run(int argc, char *argv[]){
 		    sr_.pos5p = uint8_t( p->qpos ); 
 		}
 		sr_.isrv=isRev;
+#endif
+
 
 #ifdef DEBUGHTS
 		//cerr<<isRev<<" "<<"ACGT"[int(sr_.base)]<<" "<<int(sr_.qual)<<" "<<int(sr_.mapq)<<" "<<int(m)<<" "<<int(sr_.lengthF)<<" "<<int(sr_.pos5p)<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<" "<<p->b->core.n_cigar<<" p="<<(p->cd.p)<<" i="<<int(p->cd.i)<<" f="<<float(p->cd.f)<<" "<<p->indel<<" "<<p->level<<endl;
@@ -1237,7 +1243,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     }//end while mpileup
     
     if (ret < 0){ //status = EXIT_FAILURE;
-	cerr<<"Problem parsing region:"<<region<<" in bamfile "<<bamfilename<<endl;
+	cerr<<"Problem parsing in bamfile "<<bamFileToOpen<<endl;
 	exit(1);
     }
     free(n_plp); free(plp);
@@ -1264,14 +1270,23 @@ int BAM2ACF::run(int argc, char *argv[]){
     }
 
     //depth_end:
-    for (i = 0; i < n && data[i]; ++i) {
-        bam_hdr_destroy(data[i]->hdr);
-        if (data[i]->fp) sam_close(data[i]->fp);
-        hts_itr_destroy(data[i]->iter);
-        free(data[i]);
-    }
-    free(data); 
-    free(seq);
+    // for (i = 0; i < n && data[i]; ++i) {
+    //     bam_hdr_destroy(data[i]->hdr);
+    //     if (data[i]->fp) sam_close(data[i]->fp);
+    //     hts_itr_destroy(data[i]->iter);
+    //     free(data[i]);
+    // }
+
+    //    for (i = 0; i < n && data; ++i) {
+    bam_hdr_destroy(data->h);
+    if (data->fp) sam_close(data->fp);
+    hts_itr_destroy(data->iter);
+    free(data);
+    //}
+
+
+    //free(data); 
+    //free(seq);
     fai_destroy(fai);
 
     
@@ -1305,14 +1320,15 @@ int BAM2ACF::run(int argc, char *argv[]){
 	 
     //  }
 
-     cerr<<"Program bam2acf terminated gracefully, looked at "<<numReads<< " reads"<<endl;
+    //    cerr<<"Program bam2acf terminated gracefully, looked at TODO "<<numReads<< " reads"<<endl;
+    cerr<<"Program bam2acf terminated gracefully, looked at TODO  reads"<<endl;
 
      //clean up
      //reader.Close();
 
      //fastaReference.Close();
      delete(gw);
-     delete cv;
+     //     delete cv;
      
      return 0;
 }
