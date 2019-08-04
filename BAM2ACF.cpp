@@ -720,6 +720,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 	cerr<<"ERROR: Cannot load index for bamfile "<<bamFileToOpen<<""<<endl;
 	exit(1);
     }
+
     // data->hdr = sam_hdr_read(data->fp);    // read the BAM header
     // if (data->hdr == NULL) {
     // 	cerr<<"ERROR: Could not read header for bamfile "<<bamFileToOpen<<""<<endl;
@@ -796,7 +797,7 @@ int BAM2ACF::run(int argc, char *argv[]){
                         uncompressed);
 
 
-
+    cerr<<"break"<<endl;
 
     string header="";
     //cout<<"#ACF"<<endl;    
