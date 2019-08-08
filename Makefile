@@ -6,7 +6,7 @@ LIBGAB= $(realpath libgab/)
 
 
 CXXFLAGS = -Wall -lm -O3 -lz -Ihtslib/ -Ibamtools/include/ -Ibamtools/src/ -Itabixpp/ -I${LIBGAB} -I${LIBGAB}/gzstream/ -c
-LDFLAGS  =   -lpthread -lm -lbz2 -llzma -lz
+LDFLAGS  =   -lpthread -lm -lcurl -lbz2 -llzma -lz
 #LDFLAGS  =  ${BAMTOOLS}/build/src/utils/CMakeFiles/BamTools-utils.dir/*cpp.o -lpthread -lm -lbz2 -llzma -lz
 
 
