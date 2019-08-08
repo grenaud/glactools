@@ -34,94 +34,6 @@ int alphabetHTSLIB2idx [16] = {-1, 0, 1,-1,  // N A C N
 			       -1,-1,-1,-1}; // N N N N
 
 
-typedef struct {
-    int min_mq, flag, min_baseQ, capQ_thres, max_depth, max_indel_depth, fmt_flag, all, rev_del;
-    int rflag_require, rflag_filter;
-    int openQ, extQ, tandemQ, min_support; // for indels
-    double min_frac; // for indels
-    char *reg, *pl_list, *fai_fname, *output_fname;
-    faidx_t *fai;
-    void *bed, *rghash, *auxlist;
-    int argc;
-    char **argv;
-    char sep, empty;
-    sam_global_args ga;
-} mplp_conf_t;
-
-
-typedef struct {
-    char *ref[2];
-    int ref_id[2];
-    int ref_len[2];
-} mplp_ref_t;
-
-#define MPLP_REF_INIT {{NULL,NULL},{-1,-1},{0,0}}
-
-typedef struct {
-    samFile *fp;
-    hts_itr_t *iter;
-    bam_hdr_t *h;
-    mplp_ref_t *ref;
-    const mplp_conf_t *conf;
-} mplp_aux_t;
-
-static int mplp_get_ref(mplp_aux_t *ma, int tid,  char **ref, int *ref_len) {
-    mplp_ref_t *r = ma->ref;
-
-    //printf("get ref %d {%d/%p, %d/%p}\n", tid, r->ref_id[0], r->ref[0], r->ref_id[1], r->ref[1]);
-
-    if (!r || !ma->conf->fai) {
-        *ref = NULL;
-        return 0;
-    }
-
-    // Do we need to reference count this so multiple mplp_aux_t can
-    // track which references are in use?
-    // For now we just cache the last two. Sufficient?
-
-    if (tid == r->ref_id[0]) {
-        *ref = r->ref[0];
-        *ref_len = r->ref_len[0];
-        return 1;
-    }
-    if (tid == r->ref_id[1]) {
-        // Last, swap over
-        int tmp;
-        tmp = r->ref_id[0];  r->ref_id[0]  = r->ref_id[1];  r->ref_id[1]  = tmp;
-        tmp = r->ref_len[0]; r->ref_len[0] = r->ref_len[1]; r->ref_len[1] = tmp;
-
-        char *tc;
-        tc = r->ref[0]; r->ref[0] = r->ref[1]; r->ref[1] = tc;
-        *ref = r->ref[0];
-        *ref_len = r->ref_len[0];
-        return 1;
-    }
-
-    // New, so migrate to old and load new
-    free(r->ref[1]);
-    r->ref[1]     = r->ref[0];
-    r->ref_id[1]  = r->ref_id[0];
-    r->ref_len[1] = r->ref_len[0];
-
-    r->ref_id[0] = tid;
-    r->ref[0] = faidx_fetch_seq(ma->conf->fai,
-                                ma->h->target_name[r->ref_id[0]],
-                                0,
-                                INT_MAX,
-                                &r->ref_len[0]);
-
-    if (!r->ref[0]) {
-        r->ref[0] = NULL;
-        r->ref_id[0] = -1;
-        r->ref_len[0] = 0;
-        *ref = NULL;
-        return 0;
-    }
-
-    *ref = r->ref[0];
-    *ref_len = r->ref_len[0];
-    return 1;
-}
 
 void BAM2ACF::setVarsEPO(ReadTabix * rtEPO,string & epoChr,unsigned int & epoCoord,bool & cpgEPO,char & allel_chimp,char & allel_anc,bool & lineLeftEPO,string & lineFromEPO){
 
@@ -510,14 +422,22 @@ BAM2ACF::~BAM2ACF(){
 
 }
 
+
+
 //TODO remove proper pair to add all
 static int read_bamACF(void *data, bam1_t *b){ // read level filters better go here to avoid pileup
-    mplp_aux_t *aux = (mplp_aux_t*)data; // data in fact is a pointer to an auxiliary structure
+    ///mplp_aux_t *aux = (mplp_aux_t*)data; // data in fact is a pointer to an auxiliary structure
+    //cerr<<"l540 = "<<aux->conf->min_mq<<endl;
+    aux_t *aux = (aux_t*)data; // data in fact is a pointer to an auxiliary structure
+
     int ret;
     while (1){
         //ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->hdr, b);
-	ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->h, b);
+	ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->hdr, b);
         if ( ret<0 ) break;
+
+	// ret = aux->iter? sam_itr_next(aux->fp, aux->iter, b) : sam_read1(aux->fp, aux->h, b);
+        // if ( ret<0 ) break;
 	// int32_t qlen   = bam_cigar2qlen(b->core.n_cigar, bam_get_cigar(b));
 	//int32_t qlen   = b->core.l_qseq;
 
@@ -537,8 +457,11 @@ static int read_bamACF(void *data, bam1_t *b){ // read level filters better go h
 	}
 		
 
+	cerr<<"l540  "<<endl;
+	cerr<<"l540 = "<<(int)b->core.qual<<endl;
+	cerr<<"l540 = "<<aux->min_mapQ<<endl;
 
-        if ( (int)b->core.qual < aux->conf->min_mq ) continue;
+        if ( (int)b->core.qual < aux->min_mapQ ) continue;
 
 	// cerr<<aux->min_len<<" "<<qlen<<" "<<int(MINLENGTHFRAGMENT)<<" "<<int(MAXLENGTHFRAGMENT)<<endl;
         //if ( aux->conf->min_len && ( (qlen <  int(MINLENGTHFRAGMENT) ) || (qlen > int(MAXLENGTHFRAGMENT) ) )) continue;
@@ -610,7 +533,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     //lineToPrint ="";
     arToPrint= NULL;
     int lastOpt=1;
-    
+    string bedfilename;    
     //all but last arg
     for(int i=1;i<(argc);i++){ 
 	
@@ -638,6 +561,11 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 	if( string(argv[i]) == "--qc"){
 	    useQCFail=true;
+	    continue;
+	}
+
+	if( string(argv[i]) == "--bed"){
+	    bedfilename = string(argv[i+1]);
 	    continue;
 	}
 
@@ -701,46 +629,62 @@ int BAM2ACF::run(int argc, char *argv[]){
     //cerr << "Could not open input BAM file"<<bamfiletopen<< endl;
     // 	return 1;
     //}
+    int i, n, tid, reg_tid, beg, end, pos, *n_plp, baseQ = 0, mapQ = 0, min_len = MINLENGTHFRAGMENT;
+    int all = 1; //status = EXIT_SUCCESS, 
 
-    mplp_aux_t *data   =NULL;//bam reader
-    hts_idx_t *idx=NULL; //bam index
+    int max_depth = MAXCOV;
+    const bam_pileup1_t **plp;
+    bool reg = false;//!region.empty();
 
-    data = (mplp_aux_t *)calloc(1, sizeof(mplp_aux_t));
-
-
-    data->fp = sam_open_format(bamFileToOpen.c_str(), "r", NULL); // open BAM
-
-    if(data->fp == NULL) {
-	cerr<<"ERROR: Could not open input BAM file "<<bamFileToOpen<<""<<endl;
-	exit(1);
+    void *bed = 0; // BED data structure
+    if(!bedfilename.empty()){
+    	bed = bed_read(bedfilename.c_str()); // BED or position list file can be parsed now
     }
 
-    idx = sam_index_load(data->fp, bamFileToOpen.c_str());  // load the index
-    if (idx == NULL) {
-	cerr<<"ERROR: Cannot load index for bamfile "<<bamFileToOpen<<""<<endl;
-	exit(1);
-    }
+    bam_hdr_t *h = NULL; // BAM header of the 1st input
+    aux_t **data;
+    bam_mplp_t mplp;
+    int last_pos = -1, last_tid = -1, ret;
 
-    // data->hdr = sam_hdr_read(data->fp);    // read the BAM header
-    // if (data->hdr == NULL) {
-    // 	cerr<<"ERROR: Could not read header for bamfile "<<bamFileToOpen<<""<<endl;
-    // 	exit(1);
-    // }
-    data->h = sam_hdr_read(data->fp);    // read the BAM header
-    if (data->h == NULL) {
+
+    data = (aux_t **)calloc(1, sizeof(aux_t*)); // data[i] for the i-th input
+    reg_tid = 0; beg = 0; end = INT_MAX;  // set the default region
+
+    int rf;
+    data[0] = (aux_t *)calloc(1, sizeof(aux_t));
+
+    data[0]->fp = sam_open_format(bamFileToOpen.c_str(), "r", NULL); // open BAM
+
+    if (data[0]->fp == NULL) {
+	cerr<<"ERROR: Could not open BAM file "<<bamFileToOpen<<""<<endl;
+	exit(1);
+
+    }
+    rf = SAM_FLAG | SAM_RNAME | SAM_POS | SAM_MAPQ | SAM_CIGAR | SAM_SEQ;
+    if (baseQ) rf |= SAM_QUAL;
+
+    data[0]->min_mapQ = mapQ;                    // set the mapQ filter
+    data[0]->min_len  = min_len;                 // set the qlen filter
+    data[0]->hdr = sam_hdr_read(data[0]->fp);    // read the BAM header
+        
+    if (data[0]->hdr == NULL) {
 	cerr<<"ERROR: Could not read header for bamfile "<<bamFileToOpen<<""<<endl;
 	exit(1);
     }
 
+    // data->fp = sam_open_format(bamFileToOpen.c_str(), "r", NULL); // open BAM
 
+    // if(data->fp == NULL) {
+    // 	cerr<<"ERROR: Could not open input BAM file "<<bamFileToOpen<<""<<endl;
+    // 	exit(1);
+    // }
 
-     // if ( !reader.OpenIndex(bamfiletopen+".bai") ) {
-     // 	 cerr << "Could not open input index BAM files." << endl;
-     // 	 return 1;
-     // }
-
-    // retrieve reference data
-    //const RefVector  references = reader.GetReferenceData();
+    // idx = sam_index_load(data->fp, bamFileToOpen.c_str());  // load the index
+    // if (idx == NULL) {
+    // 	cerr<<"ERROR: Cannot load index for bamfile "<<bamFileToOpen<<""<<endl;
+    // 	exit(1);
+    // }
+    // data->hdr = sam_hdr_read(data->fp);    // read the BAM header
 
     string fastaIndex=fastaFile+".fai";
 
@@ -761,11 +705,23 @@ int BAM2ACF::run(int argc, char *argv[]){
      // }
 
 
-    faidx_t *fai = fai_load(fastaFile.c_str());
-    if (fai == NULL) { 
-	cerr << "ERROR: failed to open fasta index " << fastaIndex<<""<<endl;
-	return 1;
-    }
+
+    BamTools::Fasta * fastaReference=new BamTools::Fasta();
+    if ( !fastaReference->Open(fastaFile , fastaIndex) ){	 
+	 cerr << "ERROR: failed to open fasta file " <<fastaFile<<" and fasta index " << fastaIndex<<""<<endl;
+	 return 1;
+     }
+
+
+     vector<chrinfo> chrFound;
+     uint64_t genomeLength;
+     readFastaIndex(fastaIndex,chrFound,genomeLength);
+
+    // faidx_t *fai = fai_load(fastaFile.c_str());
+    // if (fai == NULL) { 
+    // 	cerr << "ERROR: failed to open fasta index " << fastaIndex<<""<<endl;
+    // 	return 1;
+    // }
 
     
     // typedef struct {
@@ -777,14 +733,14 @@ int BAM2ACF::run(int argc, char *argv[]){
     // } faidx1_t;
 
 
-    vector<chrinfo> chrFound;
+    // vector<chrinfo> chrFound;
     //uint64_t genomeLength;
-    for(int ns=0;ns<faidx_nseq(fai);ns++){
-	chrinfo toadd;
-	toadd.name    = string( faidx_iseq(fai,ns ) );
-	toadd.length  = faidx_seq_len(fai, toadd.name.c_str() );
+    //  for(int ns=0;ns<faidx_nseq(fai);ns++){
+    // 	chrinfo toadd;
+    // 	toadd.name    = string( faidx_iseq(fai,ns ) );
+    // 	toadd.length  = faidx_seq_len(fai, toadd.name.c_str() );
 
-    }
+    // }
      // 
      // readFastaIndex(fastaIndex,chrFound,genomeLength);
 
@@ -797,7 +753,7 @@ int BAM2ACF::run(int argc, char *argv[]){
                         uncompressed);
 
 
-    cerr<<"break"<<endl;
+
 
     string header="";
     //cout<<"#ACF"<<endl;    
@@ -835,38 +791,38 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 
 
-
-    int i, n, tid, reg_tid, beg, end, pos, *n_plp, baseQ = 0, mapQ = 0, min_len = MINLENGTHFRAGMENT;
+    cerr<<"l838"<<endl;
+    // int i, n, tid, reg_tid, beg, end, pos, *n_plp, baseQ = 0, mapQ = 0, min_len = MINLENGTHFRAGMENT;
     int prevPos=-1000;
 
-    int all = 0; //status = EXIT_SUCCESS, 
+    //    int all = 0; //status = EXIT_SUCCESS, 
 
-    int max_depth = 20*MAXCOV;
-    const bam_pileup1_t **plp;
+    //int max_depth = 20*MAXCOV;
+    //const bam_pileup1_t **plp;
     //bool reg = !region.empty();
-    bool reg = false;
+    //bool reg = false;
 
-    void *bed = 0; // BED data structure
-    string bedfilename;
-    if(!bedfilename.empty()){
-	bed = bed_read(bedfilename.c_str()); // BED or position list file can be parsed now
-    }
+    // void *bed = 0; // BED data structure
 
-    bam_hdr_t *h = NULL; // BAM header of the 1st input
-    mplp_aux_t **dataIth;
-    bam_mplp_t mplp;
-    int last_pos = -1, last_tid = -1, ret;
+    // if(!bedfilename.empty()){
+    // 	bed = bed_read(bedfilename.c_str()); // BED or position list file can be parsed now
+    // }
+
+    // bam_hdr_t *h = NULL; // BAM header of the 1st input
+    // mplp_aux_t **dataIth;
+    // bam_mplp_t mplp;
+    // int last_pos = -1, last_tid = -1, ret;
 
     
-     unsigned int totalBasesL=0;//=cv->getTotalBases();
-     unsigned int totalSitesL=0; //=cv->getTotalSites();
+    unsigned int totalBasesL=0;//=cv->getTotalBases();
+    unsigned int totalSitesL=0; //=cv->getTotalSites();
 
     n =1;
     
     // data = (aux_t **)calloc(1, sizeof(aux_t*)); // data[i] for the i-th input
-    mplp_aux_t **    dataArray = (mplp_aux_t **)calloc(1, sizeof(mplp_aux_t*)); // data[i] for the i-th input
-    dataArray[0] = data;
-    reg_tid = 0; beg = 0; end = INT_MAX;  // set the default region
+    //mplp_aux_t **    dataArray = (mplp_aux_t **)calloc(1, sizeof(mplp_aux_t*)); // data[i] for the i-th input
+    //dataArray[0] = data;
+    //reg_tid = 0; beg = 0; end = INT_MAX;  // set the default region
 
     // for (i = 0; i < n; ++i) {
     // 	//cerr<<"i ="<<i<<endl;
@@ -915,7 +871,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 
     //h = data[0]->hdr; // easy access to the header of the 1st BAM
     //    h = data->hdr; // easy access to the header of the 1st BAM
-    h = data->h; // easy access to the header of the 1st BAM
+    //h = data->h; // easy access to the header of the 1st BAM
     //dataToWrite->refID = bam_get_tid(h,currentChunk->rangeGen.getChrName().c_str());
 
     /*
@@ -929,8 +885,10 @@ int BAM2ACF::run(int argc, char *argv[]){
     }
     */
 
+
+
     // the core multi-pileup loop
-    mplp = bam_mplp_init(n, read_bamACF, (void**)dataArray); // initialization
+    mplp = bam_mplp_init(n, read_bamACF, (void**)data); // initialization
     if (0 < max_depth)
         bam_mplp_set_maxcnt(mplp,max_depth);  // set maximum coverage depth
     else if (!max_depth)
@@ -938,6 +896,19 @@ int BAM2ACF::run(int argc, char *argv[]){
     n_plp = (int *)calloc(n, sizeof(int)); // n_plp[i] is the number of covering reads from the i-th BAM
     plp   = (const bam_pileup1_t **)calloc(n, sizeof(bam_pileup1_t*)); // plp[i] points to the array of covering reads (internal in mplp)
     //int seqptr=0;
+
+    // // the core multi-pileup loop
+    // mplp = bam_mplp_init(n, read_bamACF, (void**)dataArray); // initialization
+    // cerr<<"mplp "<<mplp<<endl;
+    // if (0 < max_depth)
+    //     bam_mplp_set_maxcnt(mplp,max_depth);  // set maximum coverage depth
+    // else 
+    // 	if (!max_depth)
+    // 	    bam_mplp_set_maxcnt(mplp,INT_MAX);
+
+    // n_plp = (int *)calloc(n, sizeof(int)); // n_plp[i] is the number of covering reads from the i-th BAM
+    // plp   = (const bam_pileup1_t **)calloc(n, sizeof(bam_pileup1_t*)); // plp[i] points to the array of covering reads (internal in mplp)
+    // //int seqptr=0;
 
 #ifdef AROUNDINDELS
     bool prevIndel   =false;
@@ -952,21 +923,25 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 	    
 #endif
-    
+    cerr<<"l955"<<endl;    
+
+
+
     while ((ret=bam_mplp_auto(mplp, &tid, &pos, n_plp, plp)) > 0) { // come to the next covered position	
 	//cerr<<endl<<(pos+1)<<" "<<" -----------------------"<<endl;
 	
 	if (pos < beg || pos >= end) continue; // out of range; skip
         if (tid >= h->n_targets) continue;     // diff number of @SQ lines per file?
 	
-	char * ref; //= toupper(seq[ pos-currentChunk->rangeGen.getStartCoord()+1 ]);
-	int ref_len;
-	mplp_get_ref(data, tid, &ref, &ref_len);
-
-	if(*ref == 'N'){//skip unresolved
-	    continue;
+	// char refC = toupper(seq[ pos-currentChunk->rangeGen.getStartCoord()+1 ]);
+	// if(refC == 'N'){//skip unresolved
+	//     continue;
+	// }
+	char refC='N';
+	if ( !fastaReference->GetBase(tid, pos, refC ) ) {
+	    cerr << "ERROR: pileup conversion - could not read reference base from FASTA file" << endl;
+	    exit(1);
 	}
-
 	// #ifdef DEBUGHTS
 	// 	cerr<<endl<<(pos+1)<<" "<<refc<<" -----------------------"<<endl;
 	// #endif
@@ -1036,12 +1011,12 @@ int BAM2ACF::run(int argc, char *argv[]){
 	    int m = 0;//amount of invalid bases at site j that need to be removed from coverage calculations
 
 	    
-	    //	    positionInformation piToAdd;
+	    // positionInformation piToAdd;
 
 	    // piToAdd.skipPosition                 = false;
 	    // piToAdd.posAlign                     = (pos+1);
 	    // piToAdd.refBase                      = refC;
-	    // double probMM=0;
+	    double probMM=0;
 	    int    basesRetained=0;
 	    bool foundSites=false;
 
@@ -1138,27 +1113,25 @@ int BAM2ACF::run(int argc, char *argv[]){
 		bool isRev = bam_is_rev(p->b);
 
 		//		piToAdd.baseC[bIndex]++;
-		// probMM += likeMismatchProbMap[m]; 
+		//probMM += likeMismatchProbMap[m]; 
 		basesRetained++;
 
 
 		foundSites=true;
-#ifdef NOT_DEF
-		singleRead sr_;
-		sr_.base    = uint8_t(bIndex);
-		sr_.qual    = uint8_t(q);	    
-		sr_.mapq    = uint8_t(m);
-		sr_.lengthF = uint8_t( (p->b)->core.l_qseq );
-		
-		if(isRev){
-		    sr_.pos5p = uint8_t( sr_.lengthF - p->qpos -1 );
-		    sr_.base  = 3 - sr_.base;//complement
-		}else{
-		    sr_.pos5p = uint8_t( p->qpos ); 
-		}
-		sr_.isrv=isRev;
-#endif
 
+		// singleRead sr_;
+		// sr_.base    = uint8_t(bIndex);
+		// sr_.qual    = uint8_t(q);	    
+		// sr_.mapq    = uint8_t(m);
+		// sr_.lengthF = uint8_t( (p->b)->core.l_qseq );
+		
+		// if(isRev){
+		//     sr_.pos5p = uint8_t( sr_.lengthF - p->qpos -1 );
+		//     sr_.base  = 3 - sr_.base;//complement
+		// }else{
+		//     sr_.pos5p = uint8_t( p->qpos ); 
+		// }
+		// sr_.isrv=isRev;
 
 #ifdef DEBUGHTS
 		//cerr<<isRev<<" "<<"ACGT"[int(sr_.base)]<<" "<<int(sr_.qual)<<" "<<int(sr_.mapq)<<" "<<int(m)<<" "<<int(sr_.lengthF)<<" "<<int(sr_.pos5p)<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<" "<<p->b->core.n_cigar<<" p="<<(p->cd.p)<<" i="<<int(p->cd.i)<<" f="<<float(p->cd.f)<<" "<<p->indel<<" "<<p->level<<endl;
@@ -1190,7 +1163,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 		//  */
 		//coord
 		//printf("%d,",p->qpos);
-    cerr<<p->qpos<<"/"<<int(sr_.lengthF) <<",";
+		cerr<<p->qpos<<"/"<<int(sr_.lengthF) <<",";
 		//flag
 		//printf("%d,",(p->b)->core.flag);
 		cerr<<((p->b)->core.flag)<<",";
@@ -1228,7 +1201,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 		totalSitesL++;
 	    }
 
-	    //piForGenomicWindow->push_back(piToAdd);
+	    ///piForGenomicWindow->push_back(piToAdd);
 	    //cerr<<"readsVec size= "<<piToAdd.readsVec.size()<<endl;
 	    prevPos = pos;
 
@@ -1244,31 +1217,31 @@ int BAM2ACF::run(int argc, char *argv[]){
     }//end while mpileup
     
     if (ret < 0){ //status = EXIT_FAILURE;
-	cerr<<"Problem parsing in bamfile "<<bamFileToOpen<<endl;
+	cerr<<"Problem parsing region in bamfile "<<bamFileToOpen<<endl;
 	exit(1);
     }
     free(n_plp); free(plp);
     bam_mplp_destroy(mplp);
 
-    if (all) {
-        // Handle terminating region
-        if (last_tid < 0 && reg && all > 1) {
-            last_tid = reg_tid;
-            last_pos = beg-1;
-        }
-        while (last_tid >= 0 && last_tid < h->n_targets) {
-            while (++last_pos < int(h->target_len[last_tid])) {
-                if (last_pos >= end) break;
-                if (bed && bed_overlap(bed, h->target_name[last_tid], last_pos, last_pos + 1) == 0)
-                    continue;
-		totalSitesL++;
-            }
-            last_tid++;
-            last_pos = -1;
-            if (all < 2 || reg)
-                break;
-        }
-    }
+    // if (all) {
+    //     // Handle terminating region
+    //     if (last_tid < 0 && reg && all > 1) {
+    //         last_tid = reg_tid;
+    //         last_pos = beg-1;
+    //     }
+    //     while (last_tid >= 0 && last_tid < h->n_targets) {
+    //         while (++last_pos < int(h->target_len[last_tid])) {
+    //             if (last_pos >= end) break;
+    //             if (bed && bed_overlap(bed, h->target_name[last_tid], last_pos, last_pos + 1) == 0)
+    //                 continue;
+    // 		totalSitesL++;
+    //         }
+    //         last_tid++;
+    //         last_pos = -1;
+    //         if (all < 2 || reg)
+    //             break;
+    //     }
+    // }
 
     //depth_end:
     // for (i = 0; i < n && data[i]; ++i) {
@@ -1279,16 +1252,16 @@ int BAM2ACF::run(int argc, char *argv[]){
     // }
 
     //    for (i = 0; i < n && data; ++i) {
-    bam_hdr_destroy(data->h);
-    if (data->fp) sam_close(data->fp);
-    hts_itr_destroy(data->iter);
+    bam_hdr_destroy(data[0]->hdr);
+    if (data[0]->fp) sam_close(data[0]->fp);
+    hts_itr_destroy(data[0]->iter);
     free(data);
     //}
 
 
     //free(data); 
     //free(seq);
-    fai_destroy(fai);
+    //fai_destroy(fai);
 
     
     //free(reg);
@@ -1327,7 +1300,7 @@ int BAM2ACF::run(int argc, char *argv[]){
      //clean up
      //reader.Close();
 
-     //fastaReference.Close();
+     fastaReference->Close();
      delete(gw);
      //     delete cv;
      

@@ -1,5 +1,5 @@
 
-CXX      = g++ -std=c++11 -fpermissive #-g  # -fstack-protector -g -pg 
+CXX      = g++ -std=c++11 -fpermissive -g -pg  #-g  # -fstack-protector 
 #LIBGAB   = libgab/
 #BAMTOOLS= $(realpath bamtools/)
 #LIBGAB= $(realpath libgab/)

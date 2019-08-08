@@ -44,7 +44,9 @@ typedef struct {     // auxiliary data structure
 
 /* #include <api/BamConstants.h> */
 /* #include <api/BamMultiReader.h> */
-/* #include <utils/bamtools_fasta.h> */
+
+#include <utils/bamtools_fasta.h>
+
 /* #include <utils/bamtools_options.h> */
 /* #include <utils/bamtools_pileup_engine.h> */
 /* #include <utils/bamtools_utilities.h> */
