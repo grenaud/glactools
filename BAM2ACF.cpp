@@ -17,7 +17,7 @@ using namespace std;
 #define MAXLENGTHFRAGMENT 1000000
 #define MAXBASEQUAL             64      // maximal base quality score, greater qual score do not make a lot of sense
 #define MAXMAPPINGQUAL          37     // maximal mapping quality
-#define DEBUGHTS
+//#define DEBUGHTS
 
 #define MIN2(a,b) (((a)<(b))?(a):(b))
 //#define MIN(a,b) (((a)<(b))?(a):(b))
@@ -442,7 +442,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 	unsigned int posAlign    = pos+1;
 	int          posAlignInt = int(pos+1);
 
-	cerr<<endl<<(posAlign)<<" "<<"TNAME "<< headerBAM->target_name[tid]<<" -----------------------"<<endl;
+	//cerr<<endl<<(posAlign)<<" "<<"TNAME "<< headerBAM->target_name[tid]<<" -----------------------"<<endl;
 	
 	if (pos < beg || pos >= end) continue; // out of range; skip
         if (tid >= headerBAM->n_targets) continue;     // diff number of @SQ lines per file?
@@ -667,9 +667,10 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 		char  b    = "ACGT"[bIndex];
 		int   q    = MIN2( int(bam_get_qual(p->b)[p->qpos] ), MAXBASEQUAL);//offsetqual?
-		int   m    = MIN2(  bam_mqual(p->b) , MAXMAPPINGQUAL );
+		//int   m    = MIN2(  bam_mqual(p->b) , MAXMAPPINGQUAL );
+#ifdef DEBUGHTS
 		bool isRev = bam_is_rev(p->b);
-		
+#endif	
 		if(q<minBaseQual){
 		    continue;
 		}
@@ -701,7 +702,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 #ifdef DEBUGHTS
 		//cerr<<isRev<<" "<<"ACGT"[int(sr_.base)]<<" "<<int(sr_.qual)<<" "<<int(sr_.mapq)<<" "<<int(m)<<" "<<int(sr_.lengthF)<<" "<<int(sr_.pos5p)<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<" "<<p->b->core.n_cigar<<" p="<<(p->cd.p)<<" i="<<int(p->cd.i)<<" f="<<float(p->cd.f)<<" "<<p->indel<<" "<<p->level<<endl;
 		//cerr<<"ADD "<<isRev<<" "<<int(sr_.base)<<" "<<int(sr_.qual)<<" "<<int(sr_.mapq)<<" "<<int(m)<<" "<<int(sr_.lengthF)<<" "<<int(sr_.pos5p)<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<endl;
-		cerr<<"ADD "<<isRev<<" "<<bam_seqi(bam_get_seq(p->b),p->qpos)<<" "<<"ACGT"[bIndex]<<" "<<uint8_t(q)<<" "<<uint8_t(m)<<" "<<int(m)<<" "<<int( (p->b)->core.l_qseq )<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<endl;
+		cerr<<"ADD "<<isRev<<" "<<bam_seqi(bam_get_seq(p->b),p->qpos)<<" "<<"ACGT"[bIndex]<<" "<<uint8_t(q)<<" "<<int( (p->b)->core.l_qseq )<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<endl;
 
 //<<" "<<int(sr_.pos5p)<<" "<< bam1_qname(p->b)<<" "<<int((p->b)->core.flag)<<endl;
 #endif
