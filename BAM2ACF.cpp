@@ -12,12 +12,12 @@
 //using namespace BamTools;
 using namespace std;
 
-#define MAXCOV 250
+#define MAXCOV 1000
 #define MINLENGTHFRAGMENT 0
 #define MAXLENGTHFRAGMENT 1000000
 #define MAXBASEQUAL             64      // maximal base quality score, greater qual score do not make a lot of sense
 #define MAXMAPPINGQUAL          37     // maximal mapping quality
-//#define DEBUGHTS
+#define DEBUGHTS
 
 #define MIN2(a,b) (((a)<(b))?(a):(b))
 //#define MIN(a,b) (((a)<(b))?(a):(b))
@@ -562,7 +562,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 	
 #ifdef DEBUGHTS
-	cout<<endl<<(posAlign)<<" "<<refC<<" -----------------------"<<endl;
+	cerr<<endl<<(posAlign)<<" "<<refC<<" -----------------------"<<endl;
 #endif
 	
 
@@ -604,7 +604,7 @@ int BAM2ACF::run(int argc, char *argv[]){
                 const bam_pileup1_t *p = plp[i] + j; // DON'T modfity plp[][] unless you really know
 
 #ifdef DEBUGHTS
-		cerr<<"i="<<i<<" "<< bam1_qname(p->b)<<" j="<<j<<" "<<int((p->b)->core.flag)<<" "<<p->b->core.n_cigar<<" p="<<(p->cd.p)<<" i="<<int(p->cd.i)<<" f="<<float(p->cd.f)<<" "<<p->is_del<<" "<<p->is_refskip<<" "<<p->indel<<" "<<p->level<<" "<<p->aux<<" "<<endl;
+		cerr<<"i="<<i<<" "<< bam1_qname(p->b)<<" j="<<j<<" "<<int((p->b)->core.flag)<<" "<<p->b->core.n_cigar<<" p="<<(p->cd.p)<<" i="<<int(p->cd.i)<<" f="<<float(p->cd.f)<<" isdel="<<p->is_del<<" isrefsk="<<p->is_refskip<<" indel="<<p->indel<<" "<<p->level<<" "<<p->aux<<" "<<endl;
 
 #endif
 
@@ -623,10 +623,11 @@ int BAM2ACF::run(int argc, char *argv[]){
 		}
 
 
-		if ( p->indel != 0 ){// having dels or refskips at the next
-		    ++m; 
-		    continue;
-		}
+		// This variable will not be zero if the next position is a a deletion of a base in the read or insert in the reference
+		// if ( p->indel != 0 ){// having dels or refskips at the next
+		//     ++m; 
+		//     continue;
+		// }
 
 #ifdef AROUNDINDELS
 
