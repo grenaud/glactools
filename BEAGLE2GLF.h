@@ -12,11 +12,11 @@
 #include <climits>
 #include <gzstream.h>
 
-#include <api/BamConstants.h>
-#include <api/BamMultiReader.h>
+/* #include <api/BamConstants.h> */
+/* #include <api/BamMultiReader.h> */
 #include <utils/bamtools_fasta.h>
-#include <utils/bamtools_options.h>
-#include <utils/bamtools_utilities.h>
+/* #include <utils/bamtools_options.h> */
+/* #include <utils/bamtools_utilities.h> */
 
 
 #include "utils.h"

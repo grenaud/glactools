@@ -11,12 +11,45 @@
 #include <string>
 
 
-#include <api/BamConstants.h>
-#include <api/BamMultiReader.h>
+extern "C" {
+    //#include "tabix.h"
+    //#include "bam.h"
+#include "htslib/sam.h"
+#include "htslib/faidx.h"
+#include "htslib/tbx.h"
+#include "htslib/bgzf.h"
+#include "bam.h"
+
+#include "samtools.h"
+#include "sam_opts.h"
+#include "bedidx.h"
+}
+
+#define bam_is_properpair(b)    (((b)->core.flag&BAM_FPROPER_PAIR) != 0)
+#define bam_is_paired(b)    (((b)->core.flag&BAM_FPAIRED) != 0)
+#define bam_is_pair1(b)     (((b)->core.flag&BAM_FREAD1)  != 0)
+#define bam_is_pair2(b)     (((b)->core.flag&BAM_FREAD2)  != 0)
+#define bam_is_qcfailed(b)  (((b)->core.flag&BAM_FQCFAIL)     != 0)
+#define bam_is_rmdup(b)     (((b)->core.flag&BAM_FDUP)        != 0)
+#define bam_is_failed(b)    ( bam_is_qcfailed(b) || bam_is_rmdup(b) )
+#define bam_mqual(b)        ((b)->core.qual)
+#define bam1_qname(b)       (bam_get_qname((b)))
+
+typedef struct {     // auxiliary data structure
+    samFile *fp;     // the file handle
+    bam_hdr_t *hdr;  // the file header
+    hts_itr_t *iter; // NULL if a region not specified
+    int min_mapQ, min_len; // mapQ filter; length filter
+} aux_t;
+
+/* #include <api/BamConstants.h> */
+/* #include <api/BamMultiReader.h> */
+
 #include <utils/bamtools_fasta.h>
-#include <utils/bamtools_options.h>
-#include <utils/bamtools_pileup_engine.h>
-#include <utils/bamtools_utilities.h>
+
+/* #include <utils/bamtools_options.h> */
+/* #include <utils/bamtools_pileup_engine.h> */
+/* #include <utils/bamtools_utilities.h> */
 
 #include <climits>
 #include <fstream>
