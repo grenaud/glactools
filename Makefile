@@ -33,9 +33,7 @@ tabixpp/tabix.o: tabixpp/tabix.hpp htslib/libhts.so
 
 
 bamtools/src/bamtools_fasta.o:
-	cd bamtools/src/
-	g++ -lm -c -I.  -Ishared/ -Iutils/ utils/bamtools_fasta.cpp
-	cd ../..
+	cd bamtools/src/ && g++ -lm -c -I.  -Ishared/ -Iutils/ utils/bamtools_fasta.cpp && cd ../..
 
 #bamtools/src/api/BamAlignment.:
 #	rm -rf bamtools/
