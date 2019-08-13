@@ -17,7 +17,7 @@ using namespace std;
 #define MAXLENGTHFRAGMENT 1000000
 #define MAXBASEQUAL             64      // maximal base quality score, greater qual score do not make a lot of sense
 #define MAXMAPPINGQUAL          37     // maximal mapping quality
-#define DEBUGHTS
+//#define DEBUGHTS
 
 #define MIN2(a,b) (((a)<(b))?(a):(b))
 //#define MIN(a,b) (((a)<(b))?(a):(b))
@@ -228,7 +228,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 
     //string epoFile  = string(argv[argc-1]);
-    // string epoFileidx = epoFile+".tbi";
+    string epoFileidx = epoFile+".tbi";
     // string epoChr;
     // unsigned int epoCoord;
 
@@ -390,8 +390,8 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 
     //EPO stuff
-    string epoFile;
-    string epoFileidx;
+    // string epoFile;
+    // string epoFileidx;
     //bool epoFileB;
 
     string epoChr;
@@ -526,7 +526,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 	int countAlt=0;
 	int    basesRetained=0;
 	bool foundSites=false;
-	//	bool triAllelic=false;
+
 	
         if (all) {
             while (tid > last_tid) {
@@ -686,7 +686,6 @@ int BAM2ACF::run(int argc, char *argv[]){
 			if(b == altBase){
 			    countAlt++;
 			}else{ //tri-allelic site
-			    //triAllelic=true;
 			    goto skiptonextpos;
 			}
 		    }
@@ -768,7 +767,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 
 
-	    //if(!triAllelic){
+
 	    if(countRef != 0 || countAlt != 0 ){//we add
 		//		char alt=altBase;//(toprint->getAlt()=="."?'N':toprint->getAlt()[0]);
 		
@@ -866,9 +865,6 @@ int BAM2ACF::run(int argc, char *argv[]){
 		    previousPosAlign == (posAlign-1) &&
 		    hasCpreviousPos                  &&
 		    ( refC == 'G' || altBase  == 'G')){
-		    //currentLine+=":1";
-		    //cout<<lineToPrint<<":1"<<endl;
-		    //cout<<currentLine<<":1"<<endl;		
 		    arToPrint->vectorAlleles->at(2).setIsCpg(true);
 		    if(!gw->writeAlleleRecord(arToPrint)){
 			cerr<<"BAM2ACF: error writing header "<<endl;
@@ -884,11 +880,9 @@ int BAM2ACF::run(int argc, char *argv[]){
 		    delete(arCurrent);
 		    
 		    hasLineToPrint=false;
-		    //lineToPrint ="";
 		    arToPrint=NULL;
 		}else{//no CpG
 		    if(hasLineToPrint){
-			//cout<<lineToPrint<<":0"<<endl;
 			arToPrint->vectorAlleles->at(2).setIsCpg(false);
 			if(!gw->writeAlleleRecord(arToPrint)){
 			    cerr<<"BAM2ACF: error writing allele record "<<endl;
@@ -897,7 +891,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 			delete(arToPrint);			
 		    }
 		    hasLineToPrint=true;		
-		    //lineToPrint = currentLine;		
+
 		    arToPrint = arCurrent;
 		}
 
@@ -906,7 +900,6 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 		//no line to print
 		if(hasLineToPrint){
-		    //cout<<lineToPrint<<":0"<<endl;
 		    arToPrint->vectorAlleles->at(2).setIsCpg(false);
 		    if(!gw->writeAlleleRecord(arToPrint)){
 			cerr<<"BAM2ACF: error writing allele record "<<endl;
@@ -926,22 +919,30 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 
 	}//closes pos
-	//}//close !triallelic
+
     
 	if( foundSites ){// && !triAllelic ){
-	    //piToAdd.avgMQ =  round(-10*log10(probMM/double(basesRetained)));
 	    totalSitesL++;
 	}
 
-	///piForGenomicWindow->push_back(piToAdd);
-	//cerr<<"readsVec size= "<<piToAdd.readsVec.size()<<endl;
 #ifdef AROUNDINDELS
 	    prevPos = pos;
 #endif
 
     }//end for all pos
 
-        
+
+    //flushing last one if need be
+    if(hasLineToPrint){
+	arToPrint->vectorAlleles->at(2).setIsCpg(false);
+	if(!gw->writeAlleleRecord(arToPrint)){
+	    cerr<<"BAM2ACF: error writing allele record "<<endl;
+	    exit(1);
+	}
+	delete(arToPrint);
+    }
+    
+
     //end while mpileup
     
     if (ret < 0){ //status = EXIT_FAILURE;
@@ -984,7 +985,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     if (bed) bed_destroy(bed);
 
     
-    cerr<<"Program bam2acf terminated gracefully, looked at TODO  reads"<<endl;
+    cerr<<"Program bam2acf terminated gracefully, considered "<<totalBasesL<<" bases at "<<totalSitesL<<endl;
 
      //clean up
      //reader.Close();

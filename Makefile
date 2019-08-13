@@ -1,12 +1,12 @@
 
-CXX      = g++ -std=c++11 -fpermissive -g -pg  #-g  # -fstack-protector 
+CXX      = g++ -std=c++11 -fpermissive #-g -pg  #-g  # -fstack-protector 
 #LIBGAB   = libgab/
 #BAMTOOLS= $(realpath bamtools/)
 #LIBGAB= $(realpath libgab/)
 
 
 CXXFLAGS = -Wall -lm -O3 -lz -Ihtslib/ -Isamtools/ -Itabixpp/ -Ilibgab/ -Ilibgab/gzstream/ -Ibamtools/src/ -c #-Ibamtools/include/ -Ibamtools/src/
-LDFLAGS  =   -lpthread -lm -lbz2 -llzma -lz
+LDFLAGS  =   -lpthread -lm -lcurl -lbz2 -llzma -lz
 LDLIBS   =     htslib/libhts.a samtools/libbam.a samtools/libst.a 
 
 #LDFLAGS  =  ${BAMTOOLS}/build/src/utils/CMakeFiles/BamTools-utils.dir/*cpp.o -lpthread -lm -lbz2 -llzma -lz

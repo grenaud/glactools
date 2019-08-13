@@ -74,7 +74,8 @@ For MacOS, if you have Homebrew (https://brew.sh/) installed:
      sudo apt install zlib1g-dev
      sudo apt install libbz2-dev
      sudo apt install liblzma-dev
-
+     sudo apt install libcurl4-openssl-dev
+     
 For MacOS, if you have Homebrew (https://brew.sh/) installed:
 
      brew install gcc
@@ -151,8 +152,8 @@ We will download 5 different, single individual VCF files as testData:
     wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004468.hg19_1000g.21.mod.vcf.gz
     wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004475.hg19_1000g.21.mod.vcf.gz
     wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004477.hg19_1000g.21.mod.vcf.gz
-    wget http://dna.ku.dk/~gabriel/epo/all.epo.gz
-    wget http://dna.ku.dk/~gabriel/epo/all.epo.gz.tbi
+    wget -O all.epo.gz      https://sid.erda.dk/share_redirect/aJi5NEeKf7
+    wget -O all.epo.gz.tbi  https://sid.erda.dk/share_redirect/aEcMczMVW4
     wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai
     cd ..
 
