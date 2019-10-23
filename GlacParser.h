@@ -124,7 +124,7 @@ inline char sampleRandomRefAltAllele(char ref,char alt,int refCount,int altCount
 inline char sampleRandomRefAltAllele(char ref,char alt,int refCount,int altCount){
 
     if(refCount == 0 && altCount == 0 ){
-	cerr<<"GlacParser::sampleRandomRefAltAllele() cannot sample when both allele counts are 0, find the null record in your input, exiting"<<endl;
+	cerr<<"GlacParser::sampleRandomRefAltAllele() cannot sample when both allele counts are 0. If you do not mind, you can run glactools compute you can use the unsafe option -u to allow empty records or find and remove the null record in your input, exiting"<<endl;
 	exit(1);
     }
 
