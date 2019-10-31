@@ -14,8 +14,10 @@ GlacWindows::~GlacWindows(){
 }
 
 string GlacWindows::usage() const{
-    string usage=string("glactools")+" windows  <ACF or GLF file>"+
+    string usage=string("glactools")+" windows  <ACF or GLF or .fai (fasta index) file>"+
 	"\nThis program will print set of windows along the genome\n"+
+	"\nIt does not currently handle file descriptors for .fai file\n"+
+	
 	"Options:\n"+
 	//"\t\t"+"--allowsexchr" +"\t\t\t\t"+"Allow sites to be generated on X and Y (default: "+boolStringify(allowSexChr)+")\n";
 	"\n\tLoci size option:\n"+
@@ -216,13 +218,25 @@ int GlacWindows::run(int argc, char *argv[]){
 	
     }
 
-
+    string sqLines;
     string glacfile  = string(argv[argc-1]);
-
-
-    
-    GlacParser gp (glacfile);
-    string sqLines = gp.getHeaderSQ();
+    if( strEndsWith(glacfile,".fai") ){
+	vector<chrinfo>  chrFound;
+	uint64_t         genomeLength;
+	readFastaIndex(glacfile,chrFound,genomeLength);
+	if(!chrFound.empty()){
+	    sqLines+="#SQ\tSN:"+chrFound[0].name+"\tLN:"+stringify(chrFound[0].length)+"";
+	}else{
+	    cerr << "Error:  file "<<glacfile<<" does not contain any size"<<endl;
+	    return 1;
+	}
+	for(unsigned int i=1;i<chrFound.size();i++){
+	    sqLines+="\n#SQ\tSN:"+chrFound[i].name+"\tLN:"+stringify(chrFound[i].length)+"";
+	}
+    }else{   
+	GlacParser gp (glacfile);
+	sqLines = gp.getHeaderSQ();
+    }
 
     // vector<string> sq = allTokens(linesSQ,'\n');
     // for(unsigned int i=0;i<sq.size();i++){
