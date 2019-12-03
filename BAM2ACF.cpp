@@ -18,6 +18,7 @@ using namespace std;
 #define MAXBASEQUAL             64      // maximal base quality score, greater qual score do not make a lot of sense
 #define MAXMAPPINGQUAL          37     // maximal mapping quality
 //#define DEBUGHTS
+//#define DEBUGALT
 
 #define MIN2(a,b) (((a)<(b))?(a):(b))
 //#define MIN(a,b) (((a)<(b))?(a):(b))
@@ -454,7 +455,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 	    cerr << "ERROR: pileup conversion - could not read reference base from FASTA file" << endl;
 	    exit(1);
 	}
-
+	refC=toupper(refC);
 	if(refC == 'N'){//skip unresolved
 	    continue;
 	}
@@ -694,7 +695,10 @@ int BAM2ACF::run(int argc, char *argv[]){
 		}
 
 		basesRetained++;
+#ifdef DEBUGALT
+		cerr<<"alt1\t"<<chr2index[ headerBAM->target_name[tid] ]<<"\t"<<posAlign<<"\t"<<refC<<"\t"<<altBase<<"\t"<<countRef<<"\t"<<countAlt<<endl;
 
+#endif
 
 		foundSites=true;
 
@@ -845,7 +849,12 @@ int BAM2ACF::run(int argc, char *argv[]){
 			}
 		    }
 		}
-	    
+
+#ifdef DEBUGALT
+		cerr<<"alt2\t"<<chr2index[ headerBAM->target_name[tid] ]<<"\t"<<posAlign<<"\t"<<refC<<"\t"<<altBase<<"\t"<<countRef<<"\t"<<countAlt<<endl;
+
+#endif
+
 		//TODO put tri-allelic to skip to label
 		AlleleRecords * arCurrent = new AlleleRecords (false);
 		arCurrent->chri          = chr2index[ headerBAM->target_name[tid] ]; //m_references[pileupData.RefId].RefName];//probably redundant
