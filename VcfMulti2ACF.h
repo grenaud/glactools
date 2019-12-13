@@ -33,6 +33,7 @@ private:
     bool misroot=false;
     int numberOfPopulations=-1;
     int minPLdiffind=33;
+    int minDP=1;
     string epoFile   = "none";
     bool   epoFileB  = false;
     const kstring_t * kstringPtrEPO;

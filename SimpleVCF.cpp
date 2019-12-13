@@ -119,6 +119,9 @@ void SimpleVCF::init2(){
 
 
 	    if(formatFieldGT == "./."){ determinedGenotype=true; unresolvedGT=true;	    } 
+	    //missing alt
+	    if(formatFieldGT == "./0"){ determinedGenotype=true; unresolvedGT=true;	    } 
+	    if(formatFieldGT == "./1"){ determinedGenotype=true; unresolvedGT=true;	    } 
 
 	    if(formatFieldGT == "0"){   determinedGenotype=true; homozygousREF=true;   haploidCall=true;   }
 	    if(formatFieldGT == "1"){   determinedGenotype=true; homozygousALT=true;   haploidCall=true;   }
@@ -721,7 +724,7 @@ string SimpleVCF::getAlleCountBasedOnGT() const{
 }
 
 
-pair<int,int> SimpleVCF::returnLikelyAlleleCountForRefAlt(int minPLdiffind) const{
+pair<int,int> SimpleVCF::returnLikelyAlleleCountForRefAlt(int minPLdiffind,int minDPcutoff) const{
     // if(!observedPL){
     // 	cerr<<"SimpleVCF: returnLikelyAlleleCountForRefAlt() cannot be called is PL value hasn't been defined for "<<*this<<endl;
     // 	exit(1);
@@ -735,6 +738,9 @@ pair<int,int> SimpleVCF::returnLikelyAlleleCountForRefAlt(int minPLdiffind) cons
     if(!observedPL) //unresolved, we cannot infer anything
 	return pair<int,int>(0,0);
 
+    if(minDPcutoff>1 && (getDepth() < minDPcutoff))//less than DP
+	return pair<int,int>(0,0);
+    
 
     if ( (formatFieldPLHetero-formatFieldPLHomoRef) >= minPLdiffind && (formatFieldPLHomoAlt-formatFieldPLHomoRef) >= minPLdiffind) {  //high likelihood of homo ref, produce 2 alleles ref
 	// refAlleles+=2;

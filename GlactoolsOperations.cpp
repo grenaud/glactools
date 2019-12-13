@@ -179,6 +179,10 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
     uint16_t chrcheck = 0;  //= vecAlleleRecords[0]->chr;
     char refAllele  = '\0'; // = vecAlleleRecords[0]->ref;
     bool isSane=sanityCheck(vectorOfGP,hasData,hasCoordinate,vecAlleleRecords,chr1,coordCurrent,chrcheck,refAllele,force);
+#ifdef DEBUG                                                                                                                                                                                               
+    cerr<<"isSane\t"<<isSane<<"\t"<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<endl;
+#endif
+    
     if(!isSane)
 	return false;
     
@@ -194,11 +198,17 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
     //determining new alternative allele
     char newAlt = 'N';
     vector<SingleAllele> toPrint;
-    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
-	if(hasData[i] && hasCoordinate[i]){
 
-	    if( !isResolvedDNA(newAlt)  && //is 'N'
-		isResolvedDNA(vecAlleleRecords[i]->alt) ){ //not 'N'
+    for(unsigned int i=0;i<vectorOfGP.size();i++){
+#ifdef DEBUG
+	cerr<<i<<":"<<hasData[i]<<"\t"<<hasCoordinate[i]<<endl;
+#endif
+	if(hasData[i] && hasCoordinate[i]){
+#ifdef DEBUG
+	    cerr<<i<<":"<<hasData[i]<<"\t"<<hasCoordinate[i]<<"\t"<<newAlt<<"\t"<<vecAlleleRecords[i]->alt<<endl;
+#endif
+	    if( !isResolvedDNA(newAlt)  && //alt so far is 'N'
+		isResolvedDNA(vecAlleleRecords[i]->alt) ){ //alt in current record is not 'N'
 		newAlt = vecAlleleRecords[i]->alt;
 	    }
 		
@@ -212,9 +222,12 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
 	}
     }
 	    
-	  
+
     for(unsigned int i=0;i<vectorOfGP.size();i++){ 
 	if(hasData[i] && hasCoordinate[i]){
+#ifdef DEBUG
+	    cerr<<i<<":"<<hasData[i]<<"\t"<<hasCoordinate[i]<<endl;
+#endif
 	    //chimp
 	    //so ugly..
 	    if(isGL){
@@ -282,14 +295,17 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
 		    }
 		}
 	    }
-	}
+	}//end hasData && hasCoordinate
     }
     //cout<<endl;
 	     
 
     // 	printnewrecord:
-    //cout<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<","<<newAlt<<endl;
-    //cout<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<","<<newAlt<<"\t"<<chimp<<"\t"<<anc<<"\t";
+#ifdef DEBUG
+    cerr<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<","<<newAlt<<endl;
+    cerr<<chr1<<"\t"<<coordCurrent<<"\t"<<refAllele<<","<<newAlt<<"\t"<<chimpAC<<"\t"<<ancAC<<"\t";
+#endif
+    
     AlleleRecords arw (isGL);
 
 
