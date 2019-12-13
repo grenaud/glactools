@@ -248,7 +248,7 @@ int GlacBedfilter::run(int argc, char *argv[]){
     delete(gw);
 
 
-    cerr<<"Program undef wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully"<<endl;
+    cerr<<"Program bedfilter wrote "<<keptRecords<<" out of "<<totalRecords<<" terminated gracefully"<<endl;
 
     return 0;
 }
