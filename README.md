@@ -265,7 +265,160 @@ The root is an individual or population that is an outgroup to all other individ
 
 ### how do I specify the root and ancestral population
 
-if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc"
+if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc". Here is an example:
+
+Suppose you have a file with the populations you want to use as outgroup and ancestor. In the case of hominin, it would be the chimp as outgroup and the Chimp/human ancestor as the ancestor. For example we have the following:
+
+file1.acf.gz:
+
+    #ACF
+    #PG:union AltaiNean.acf.gz Denisova.acf.gz FrenchB.acf.gz YorubaB.acf.gz AustralianB.acf.gz 
+    #GITVERSION: 6e48e0efbfb131a6723830fa98f655a36da8c574
+    #DATE: 2019-12-02
+    #SQ	SN:1	LN:249250621
+    #SQ	SN:2	LN:243199373
+    #chr	coord	REF,ALT	root	anc	chimp	ChimpHumanAncestor
+    2	100022	A,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100023	G,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100024	A,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100025	C,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100026	A,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100027	G,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100028	A,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100029	A,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100030	C,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100031	T,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100032	T,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100033	C,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100034	A,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100035	T,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100036	T,N	0,0:0	0,0:0	1,0:0	1,0:0
+    2	100037	G,N	0,0:0	0,0:0	1,0:0	1,0:0
+
+And we would have a second file without root and ancestral information:
+
+file2.acf.gz:
+
+    #ACF
+    #PG:union AltaiNean.acf.gz Denisova.acf.gz FrenchB.acf.gz YorubaB.acf.gz AustralianB.acf.gz 
+    #GITVERSION: 6e48e0efbfb131a6723830fa98f655a36da8c574
+    #DATE: 2019-12-02
+    #SQ	SN:1	LN:249250621
+    #SQ	SN:2	LN:243199373
+    #chr	coord	REF,ALT	root	anc	AltaiNean	Denisova	FrenchB	YorubaB	AustralianB
+    2	100022	A,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100023	G,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100024	A,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100025	C,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100026	A,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100027	G,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100028	A,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100029	A,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100030	C,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100031	T,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100032	T,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100033	C,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100034	A,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100035	T,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100036	T,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100037	G,N	0,0:0	0,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    
+First we will go into file1 and it take our two populations as our root and ancestor and put it into file3.acf.gz:
+
+`glactools usepopsrootanc file1.acf.gz chimp ChimpHumanAncestor  > file3.acf.gz
+`
+
+file3.acf.gz will look like this:
+
+    #ACF
+    #PG:usepopsrootanc /tmp/temp.acf.gz chimp ChimpHumanAncestor 
+    #GITVERSION: 9d3e4107ea445a16737fb841e2181dabf31acac9
+    #DATE: 2020-04-02
+    #USEPOPASROOTANC: chimp chimp
+    #USEPOPASROOTANC#1
+    #	#ACF
+    #	#PG:union AltaiNean.acf.gz Denisova.acf.gz FrenchB.acf.gz YorubaB.acf.gz AustralianB.acf.gz 
+    #	#GITVERSION: 6e48e0efbfb131a6723830fa98f655a36da8c574
+    #	#DATE: 2019-12-02
+    #	#chr	coord	REF,ALT	root	anc	chimp	ChimpHumanAncestor
+    #SQ	SN:1	LN:249250621
+    #SQ	SN:2	LN:243199373
+    #chr	coord	REF,ALT	root	anc
+    2	100022	A,N	1,0:0	1,0:0
+    2	100023	G,N	1,0:0	1,0:0
+    2	100024	A,N	1,0:0	1,0:0
+    2	100025	C,N	1,0:0	1,0:0
+    2	100026	A,N	1,0:0	1,0:0
+    2	100027	G,N	1,0:0	1,0:0
+    2	100028	A,N	1,0:0	1,0:0
+    2	100029	A,N	1,0:0	1,0:0
+    2	100030	C,N	1,0:0	1,0:0
+    2	100031	T,N	1,0:0	1,0:0
+    2	100032	T,N	1,0:0	1,0:0
+    2	100033	C,N	1,0:0	1,0:0
+    2	100034	A,N	1,0:0	1,0:0
+    2	100035	T,N	1,0:0	1,0:0
+    2	100036	T,N	1,0:0	1,0:0
+    2	100037	G,N	1,0:0	1,0:0
+
+Then you can use "replaceanc" to put the ancestral information into file2:
+
+`glactools replaceanc  file2.acf.gz  file3.acf.gz  > file4.acf.gz
+`
+
+file4 should contain the same information as file1 except with the ancestral information of file1:
+
+    #ACF
+    #PG:replaceanc /tmp/temp2.acf.gz /tmp/file3.acf.gz 
+    #GITVERSION: 9d3e4107ea445a16737fb841e2181dabf31acac9
+    #DATE: 2020-04-02
+    #REPLACEANC:
+    #REPLACEANC#1
+    #	#ACF
+    #	#PG:union AltaiNean.acf.gz Denisova.acf.gz FrenchB.acf.gz YorubaB.acf.gz AustralianB.acf.gz 
+    #	#GITVERSION: 6e48e0efbfb131a6723830fa98f655a36da8c574
+    #	#DATE: 2019-12-02
+    #	#chr	coord	REF,ALT	root	anc	AltaiNean	Denisova	FrenchB	YorubaB	AustralianB
+    #REPLACEANC#2
+    #	#ACF
+    #	#PG:usepopsrootanc /tmp/temp.acf.gz chimp ChimpHumanAncestor 
+    #	#GITVERSION: 9d3e4107ea445a16737fb841e2181dabf31acac9
+    #	#DATE: 2020-04-02
+    #	#USEPOPASROOTANC: chimp chimp
+    #	#USEPOPASROOTANC#1
+    #	#	#ACF
+    #	#	#PG:union AltaiNean.acf.gz Denisova.acf.gz FrenchB.acf.gz YorubaB.acf.gz AustralianB.acf.gz 
+    #	#	#GITVERSION: 6e48e0efbfb131a6723830fa98f655a36da8c574
+    #	#	#DATE: 2019-12-02
+    #	#	#chr	coord	REF,ALT	root	anc	chimp	ChimpHumanAncestor
+    #	#chr	coord	REF,ALT	root	anc
+    #SQ	SN:1	LN:249250621
+    #SQ	SN:2	LN:243199373
+    #chr	coord	REF,ALT	root	anc	AltaiNean	Denisova	FrenchB	YorubaB	AustralianB
+    2	100022	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100023	G,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100024	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100025	C,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100026	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100027	G,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100028	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100029	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100030	C,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100031	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100032	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100033	C,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100034	A,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100035	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100036	T,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    2	100037	G,N	1,0:0	1,0:0	2,0:0	2,0:0	2,0:0	2,0:0	2,0:0
+    
+
+In this case I have created 1 superfluous files, depending on the level of comfort with Unix file descriptors, you can do the same process without creating intermediate files:
+
+`glactools replaceanc  file2.acf.gz  <(glactools usepopsrootanc -u file1.acf.gz chimp ChimpHumanAncestor )  > file4.acf.gz
+`
+
+
 
 ### Can glactools handle data coming from simulations?
 
@@ -296,3 +449,6 @@ Update cmake, in Ubuntu, the following seems to work:
 ### When I import data from EIGENSTRAT, all sites are flagged as non-CpGs, why?
 
 We cannot know for sure whether a C or G had a G or a C after it. 
+
+
+ 
