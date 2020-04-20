@@ -450,5 +450,15 @@ Update cmake, in Ubuntu, the following seems to work:
 
 We cannot know for sure whether a C or G had a G or a C after it. 
 
+### When I run "compute", I get 6 types of results, what are the difference?
+
+The summary stats in glactools compute are reported as such:
+* all: all sites
+* no Cpg: sites marked as CpG are ignored        
+* only Cpg: only sites marked as CpG are considered        
+* transitions: only transitions are considered        
+* transversions: only transversions are considered        
+* no damage: sites that are potential damage are ignored. The difference between transversions is that ancestral C -> derived T is ignored but not ancestral T -> derived C.
 
  
+
