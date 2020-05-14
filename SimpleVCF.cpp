@@ -118,6 +118,7 @@ void SimpleVCF::init2(){
 	    //Taken from http://www.broadinstitute.org/gatk/guide/topic?name=intro
 
 
+	    if(formatFieldGT == "."){ determinedGenotype=true; unresolvedGT=true;	    } 
 	    if(formatFieldGT == "./."){ determinedGenotype=true; unresolvedGT=true;	    } 
 	    //missing alt
 	    if(formatFieldGT == "./0"){ determinedGenotype=true; unresolvedGT=true;	    } 
@@ -241,6 +242,13 @@ void SimpleVCF::init2(){
 	    }
 
 	    indexPL        = i; 
+	    //
+	    if(formatFieldValues[i] == "."){
+		formatFieldGL = formatFieldValues[i];
+		unresolvedGT=true; 
+		continue;
+	    }
+	    ///
 	    formatFieldGL  = formatFieldValues[i];
 	    vector<string> glfields = allTokens(formatFieldGL,',');
 
