@@ -242,13 +242,13 @@ void SimpleVCF::init2(){
 	    }
 
 	    indexPL        = i; 
-	    //
+	    
 	    if(formatFieldValues[i] == "."){
 		formatFieldGL = formatFieldValues[i];
 		unresolvedGT=true; 
 		continue;
 	    }
-	    ///
+	    
 	    formatFieldGL  = formatFieldValues[i];
 	    vector<string> glfields = allTokens(formatFieldGL,',');
 
