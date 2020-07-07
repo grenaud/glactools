@@ -298,6 +298,18 @@ void SingleAllele::downsample(const int c){
     totalCount=(refCount+altCount);    
 }
 
+
+//! This function returns a random ref or alt with a probability that correspond to their respective count
+/*!
+ *
+ *  This function generates a random int between a number between 0 and (refCount+altCount-1)
+ *  if the number is less than refcount, it returns a ref base, alt alternative
+ *
+ *
+ \param ref the refence base
+ \param alt the alternative base
+ \return The random base
+*/
 char SingleAllele::generateRandomAlleleBias(const char ref,const char alt){
     if(totalCount==0){
 	// cerr<<"SingleAllele: cannot call generateRandomAlleleBias() where the allele count is 0 :"<<*this<<endl;
@@ -314,6 +326,18 @@ char SingleAllele::generateRandomAlleleBias(const char ref,const char alt){
 
 }
 
+//! This function returns a random ref or alt with equal prob for het. sites, or the ref/alt for homo. sites
+/*!
+ *
+ *  If only the reference is present, we return the reference
+ *  If only the alternative is present, we return the alternative
+ *  If both are present, we return either the ref or alt with equal probability
+ *
+ *
+  \param ref the refence base
+  \param alt the alternative base
+  \return The random base
+*/
 char SingleAllele::generateRandomAllele(const char ref,const char alt){
     if(totalCount==0){
 	// cerr<<"SingleAllele: cannot call generateRandomAlleleBias() where the allele count is 0 :"<<*this<<endl;

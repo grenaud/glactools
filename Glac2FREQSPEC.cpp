@@ -119,8 +119,10 @@ int Glac2FREQSPEC::run(int argc, char *argv[]){
 	    
 	    if(arr->vectorAlleles->at(0).getAltCount() != 0 ){
 		if(arr->vectorAlleles->at(0).getRefCount() != 0 ){
-		    cerr<<"Cannot determine the root allele for "<<*arr<<endl;
-		    return 1;      
+		    char b=arr->vectorAlleles->at(0).generateRandomAlleleBias(arr->ref,arr->alt);
+		    rootIsRef = (b==arr->ref);
+		    // cerr<<"Cannot determine the root allele for "<<*arr<<endl;
+		    // return 1;      
 		}	
 		rootIsRef=false;
 	    }else{
@@ -137,8 +139,10 @@ int Glac2FREQSPEC::run(int argc, char *argv[]){
 	    
 	    if(arr->vectorAlleles->at(1).getAltCount() != 0 ){
 		if(arr->vectorAlleles->at(1).getRefCount() != 0 ){
-		    cerr<<"Cannot determine the root allele for "<<*arr<<endl;
-		    return 1;      
+		    char b=arr->vectorAlleles->at(1).generateRandomAlleleBias(arr->ref,arr->alt);
+		    ancIsRef = (b==arr->ref);
+		    // cerr<<"Cannot determine the root allele for "<<*arr<<endl;
+		    // return 1;      
 		}	
 		ancIsRef=false;
 	    }else{
