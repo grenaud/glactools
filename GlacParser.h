@@ -14,7 +14,7 @@
 #include "htslib/bgzf.h"
 #include "htslib/hts.h"
 
-#include "hts_internal.h"
+//#include "hts_internal.h"
 #include "htslib/hfile.h"
 #include "htslib/hts_endian.h"
 #include "htslib/kstring.h"
