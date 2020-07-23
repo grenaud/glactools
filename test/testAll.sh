@@ -118,7 +118,7 @@ fi
 
 
 echo -n "Retrieving test data file 10 of 16:"
-if wget -O tiny.bam  -o /dev/null https://www.dropbox.com/s/zvdaws3n8q2fww0/tiny.bed.gz?dl=0; then
+if wget -O tiny.bed.gz  -o /dev/null https://www.dropbox.com/s/zvdaws3n8q2fww0/tiny.bed.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
     echo -e " ${RED}failed${NC}";
