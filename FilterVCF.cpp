@@ -109,8 +109,10 @@ bool passedFilters(SimpleVCF * smvcf,const SetVCFFilters * filtersToUse){
 	coverageREF=smvcf->getDepthInfo();
     }
     //cerr<<"coverageREF\t"<<coverageREF<<endl;
-    if(coverageREF < filtersToUse->getMinCovcutoff() ||
-       coverageREF > filtersToUse->getMaxCovcutoff() ){
+    if( (coverageREF != -1)
+	&&
+	((coverageREF < filtersToUse->getMinCovcutoff()) ||
+	 (coverageREF > filtersToUse->getMaxCovcutoff() ))){
 	rejectLOWCOV_REF++;
 	return false;
     }
