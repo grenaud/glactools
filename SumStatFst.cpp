@@ -153,7 +153,7 @@ void SumStatFst::computeStatSingle( const   AlleleRecords   * recordToUse,const 
 	N_hom[1] += (1-pRef)*(1-pRef) * numDiploidInd;
 	N_het[1] += pRef*(1-pRef)     * numDiploidInd;
 
-	for (unsigned int j=0; j<N_alleles; j++){
+	for (int j=0; j<N_alleles; j++){
 	    
 	    cout<<"pop#"<<i<<" allele#"<<j<<"\thom"<<N_hom[j]<<"\thet"<<N_het[j]<<endl;
 	
@@ -167,7 +167,7 @@ void SumStatFst::computeStatSingle( const   AlleleRecords   * recordToUse,const 
 	    hbar[j] += N_het[j];
 	}
 	
-	for (unsigned int j=0; j<N_alleles; j++)
+	for (int j=0; j<N_alleles; j++)
 	    p[i][j] /= (2.0*n[i]);	// diploid
 
 	sum_nsqr += (n[i] * n[i]);

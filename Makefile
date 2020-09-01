@@ -5,7 +5,7 @@ CXX      = g++ -std=c++11 -fpermissive #-g -pg  #-g  # -fstack-protector
 #LIBGAB= $(realpath libgab/)
 
 
-CXXFLAGS = -Wall -lm -O3 -lz -Ihtslib/ -Isamtools/ -Itabixpp/ -Ilibgab/ -Ilibgab/gzstream/ -Ibamtools/src/ -c #-Ibamtools/include/ -Ibamtools/src/
+CXXFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable -lm -O3 -lz -Ihtslib/ -Isamtools/ -Itabixpp/ -Ilibgab/ -Ilibgab/gzstream/ -Ibamtools/src/ -c #-Ibamtools/include/ -Ibamtools/src/
 LDFLAGS  =   -lpthread -lm -lcurl -lbz2 -llzma -lz
 LDLIBS   =     htslib/libhts.a samtools/libbam.a samtools/libst.a 
 
@@ -14,8 +14,8 @@ LDLIBS   =     htslib/libhts.a samtools/libbam.a samtools/libst.a
 
 all: libgab/utils.o tabixpp/tabix.o samtools/bedidx.o bamtools/src/bamtools_fasta.o glactools 
 
-%.o: libgab/utils.o tabixpp/tabix.o samtools/bedidx.o bamtools/src/bamtools_fasta.o %.cpp 
-	${CXX} ${CXXFLAGS} $^ -o $@
+%.o: %.cpp libgab/utils.o tabixpp/tabix.o samtools/bedidx.o bamtools/src/bamtools_fasta.o 
+	${CXX} ${CXXFLAGS} $< -o $@
 
 libgab/gzstream/gzstream.o: libgab/utils.o
 	echo ""
@@ -65,6 +65,15 @@ lib/libglactools.a: tabixpp/tabix.o libgab/utils.o bamtools/src/bamtools_fasta.o
 
 glactools:	glactools.o  lib/libglactools.a htslib/libhts.a samtools/bedidx.o 
 	${CXX} -o $@ $^ $(LDLIBS)  $(LDFLAGS)
+
+cleanall :
+	make -C htslib/ clean
+	make -C samtools/ clean
+	make -C libgab/ clean
+	make -C tabixpp/ clean
+	make -C tabixpp/ clean
+	rm bamtools/src/bamtools_fasta.o
+	rm -f *.o glactools
 
 clean :
 	rm -f *.o glactools

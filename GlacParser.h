@@ -105,7 +105,7 @@ class GlacParser{
     bool isGLFormat() const;
     uint32_t getSizePops() const;
     size_t getSizeRecord() const; //size of 1 record in binary
-    int getNumberOfChromosomes() const;
+    unsigned int getNumberOfChromosomes() const;
     string getChromosomeName(int chrIdx) const;
     map<string,uint16_t> getChr2chri() const;
     vector<string>       getChrKnown() const;

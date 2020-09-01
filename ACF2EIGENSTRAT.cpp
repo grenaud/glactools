@@ -146,17 +146,22 @@ int ACF2EIGENSTRAT::run(int argc, char *argv[]){
 	
 	unsigned int firstIndex=2;
 
-	if(printRoot)
-	    if(haploidRoot)
+	if(printRoot){
+	    if(haploidRoot){
 		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT( false );	   
-	    else
-		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT( !singleAlHomo );	   
-	if(printAnc)
-	    if(haploidRoot)
-		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT(false);	   
-	    else
-		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT( !singleAlHomo );
+	    }else{
+		genoFileS<<record->vectorAlleles->at(0).printEIGENSTRAT( !singleAlHomo );
+	    }
+	}
 
+	if(printAnc){
+	    if(haploidRoot){
+		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT(false);	   
+	    }else{
+		genoFileS<<record->vectorAlleles->at(1).printEIGENSTRAT( !singleAlHomo );
+	    }
+	}	
+	
 	for(unsigned int i=firstIndex;i<record->vectorAlleles->size();i++){
 	    genoFileS<<record->vectorAlleles->at(i).printEIGENSTRAT( !singleAlHomo );	   
 	} 
