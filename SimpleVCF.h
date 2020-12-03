@@ -15,7 +15,7 @@
 
 #include "CoreVCF.h"
 #include "AlleleInfo.h"
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

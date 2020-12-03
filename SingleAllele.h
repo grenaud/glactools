@@ -9,7 +9,7 @@
 #define SingleAllele_h
 
 #include <iostream>
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

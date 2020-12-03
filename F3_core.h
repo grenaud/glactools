@@ -9,7 +9,7 @@
 #define F3_core_h
 #include <ctype.h>
 #include "F3Result.h"
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

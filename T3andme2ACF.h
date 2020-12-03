@@ -12,7 +12,7 @@
 #include <climits>
 #include <gzstream.h>
 
-#include "utils.h"
+#include "libgab.h"
 #include "GlacWriter.h"
 #include "GlacParser.h"
 #include "AlleleRecords.h"

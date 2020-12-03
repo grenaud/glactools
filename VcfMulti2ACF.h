@@ -9,7 +9,7 @@
 #define VcfMulti2ACF_h
 
 
-#include "utils.h"
+#include "libgab.h"
 #include "SetVCFFilters.h"
 #include "SimpleVCF.h"
 #include "VCFreader.h"

@@ -5,7 +5,7 @@
 #include <sys/time.h> //for srand
 #include <climits>
 
-#include "utils.h"
+#include "libgab.h"
 #include "SingleAllele.h"
 #include "AlleleRecords.h"
 #include "ReadTabix.h"

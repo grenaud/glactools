@@ -10,7 +10,7 @@
 #include "VCFreader.h"
 #include "SimpleVCF.h"
 
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

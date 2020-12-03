@@ -12,7 +12,7 @@
 #include <iostream> 
 #include <stdlib.h>
 
-#include "utils.h"
+#include "libgab.h"
 
 /* #extern "C"{ */
 /*     //#include "tabix.h" */

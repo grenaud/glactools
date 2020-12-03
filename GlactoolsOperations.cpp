@@ -374,7 +374,7 @@ bool printAllele(vector<GlacParser * > & vectorOfGP,
 
 
 
-//! Method to read a sorted bed file (copy pasted from vcfcompute.cpp (did not integrate well with utils.h))
+//! Method to read a sorted bed file (copy pasted from vcfcompute.cpp (did not integrate well with libgab.h))
 /*!
  *
  * This method checks for the records being ordered

@@ -21,7 +21,7 @@
 #include "htslib/hfile.h"
 #include "htslib/hts_endian.h"
 
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

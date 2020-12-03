@@ -4,7 +4,7 @@
 #include <memory>
 #include <climits>
 
-#include "utils.h"
+#include "libgab.h"
 #include "AlleleInfo.h"
 #include "ReadTabix.h"
 #include "SimpleVCF.h"

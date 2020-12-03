@@ -9,7 +9,7 @@
 #define F2_core_h
 #include <ctype.h>
 #include "F2Result.h"
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

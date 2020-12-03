@@ -16,7 +16,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 
-#include "utils.h"
+#include "libgab.h"
 #include "GenomicRange.h"
 #include "GlactoolsOperations.h"
 
