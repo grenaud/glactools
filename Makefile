@@ -54,7 +54,7 @@ htslib/libhts.a: htslib/libhts.so
 	echo ""
 
 htslib/libhts.so:  htslib/hts_internal.h
-	cd htslib/ && make && cd ../
+	cd htslib/ && git submodule update --init --recursive &&  make && cd ../
 
 htslib/hts_internal.h:
 	rm -rf htslib/
