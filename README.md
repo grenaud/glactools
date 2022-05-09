@@ -141,7 +141,7 @@ The documentation is found here:
 Example of usage
 -----------------
 
-We will download 5 different, single individual VCF files as testData:
+We will download 5 different, single individual VCF files as testData (those were mapped to hg19, see "how do I specify the root and ancestral population?" for info about hg38):
 
     mkdir -p testData/
     cd testData/
@@ -150,19 +150,18 @@ We will download 5 different, single individual VCF files as testData:
     wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004468.hg19_1000g.21.mod.vcf.gz
     wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004475.hg19_1000g.21.mod.vcf.gz
     wget http://cdna.eva.mpg.de/neandertal/altai/ModernHumans/vcf/SS6004477.hg19_1000g.21.mod.vcf.gz
-    wget -O all.epo.gz      https://sid.erda.dk/share_redirect/aJi5NEeKf7
-    wget -O all.epo.gz.tbi  https://sid.erda.dk/share_redirect/aEcMczMVW4
+    wget ftp://ftp.healthtech.dtu.dk/public/EPO/all_hg19.epo.gz
+    wget ftp://ftp.healthtech.dtu.dk/public/EPO/all_hg19.epo.gz.tbi
     wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai
     cd ..
 
 - Convert the VCF files to ACF files:
 
-      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/AltaiNea.hg19_1000g.21.mod.vcf.gz      AltaiNean    > testData/AltaiNean.acf.gz
-      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/DenisovaPinky.hg19_1000g.21.mod.vcf.gz Denisova     > testData/Denisova.acf.gz
-      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004468.hg19_1000g.21.mod.vcf.gz     FrenchB      > testData/FrenchB.acf.gz
-      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004475.hg19_1000g.21.mod.vcf.gz     YorubaB      > testData/YorubaB.acf.gz
-      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all.epo.gz testData/SS6004477.hg19_1000g.21.mod.vcf.gz     AustralianB  > testData/AustralianB.acf.gz
-
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all_hg19.epo.gz testData/AltaiNea.hg19_1000g.21.mod.vcf.gz      AltaiNean    > testData/AltaiNean.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all_hg19.epo.gz testData/DenisovaPinky.hg19_1000g.21.mod.vcf.gz Denisova     > testData/Denisova.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all_hg19.epo.gz testData/SS6004468.hg19_1000g.21.mod.vcf.gz     FrenchB      > testData/FrenchB.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all_hg19.epo.gz testData/SS6004475.hg19_1000g.21.mod.vcf.gz     YorubaB      > testData/YorubaB.acf.gz
+      glactools vcf2acf --fai testData/human_g1k_v37.fasta.fai --epo testData/all_hg19.epo.gz testData/SS6004477.hg19_1000g.21.mod.vcf.gz     AustralianB  > testData/AustralianB.acf.gz
 
 - glactools index them:
 
@@ -265,7 +264,16 @@ The root is an individual or population that is an outgroup to all other individ
 
 ### how do I specify the root and ancestral population
 
-if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc"
+if you're dealing with hominin samples,  we recommend using the -epo option which uses  EPO alignments from Ensembl which are alignments to different primate species. otherwise simply transform  a VCF file  from the roof population  using the program "usepopsrootanc". The EPO information can be found here for hg19:
+
+    ftp://ftp.healthtech.dtu.dk/public/EPO/all_hg19.epo.gz
+    ftp://ftp.healthtech.dtu.dk/public/EPO/all_hg19.epo.gz.tbi
+
+and here for hg38:
+
+    ftp://ftp.healthtech.dtu.dk/public/EPO/all_hg38.epo.gz
+    ftp://ftp.healthtech.dtu.dk/public/EPO/all_hg38.epo.gz.tbi
+
 
 ### Can glactools handle data coming from simulations?
 
