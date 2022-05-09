@@ -36,7 +36,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 1 of 15:"
+echo -n "Retrieving test data file 1 of 16:"
 if wget -O AltaiNea.hg19_1000g.2.mod.vcf.gz  -o /dev/null https://www.dropbox.com/s/sdxoxdd2t2agl8p/AltaiNea.hg19_1000g.2.mod.vcf.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -45,7 +45,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 2 of 15:"
+echo -n "Retrieving test data file 2 of 16:"
 if wget -O DenisovaPinky.hg19_1000g.2.mod.vcf.gz  -o /dev/null https://www.dropbox.com/s/gjsougijkp1tcdf/DenisovaPinky.hg19_1000g.2.mod.vcf.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -54,7 +54,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 3 of 15:"
+echo -n "Retrieving test data file 3 of 16:"
 if wget -O SS6004468.hg19_1000g.2.mod.vcf.gz  -o /dev/null https://www.dropbox.com/s/lgjsv9vfzk7pqog/SS6004468.hg19_1000g.2.mod.vcf.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -63,7 +63,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 4 of 15:"
+echo -n "Retrieving test data file 4 of 16:"
 if wget -O SS6004475.hg19_1000g.2.mod.vcf.gz  -o /dev/null https://www.dropbox.com/s/f96lfi6gh2a1cd9/SS6004475.hg19_1000g.2.mod.vcf.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -72,7 +72,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 5 of 15:"
+echo -n "Retrieving test data file 5 of 16:"
 if wget -O SS6004477.hg19_1000g.2.mod.vcf.gz  -o /dev/null  https://www.dropbox.com/s/nl1ctxqid9b80mr/SS6004477.hg19_1000g.2.mod.vcf.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -81,7 +81,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 6 of 15:"
+echo -n "Retrieving test data file 6 of 16:"
 if wget -O ALL.chr2.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz  -o /dev/null https://www.dropbox.com/s/rn20i08jk22o9ea/ALL.chr2.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -90,7 +90,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 7 of 15:"
+echo -n "Retrieving test data file 7 of 16:"
 if wget -O human_MT.fa  -o /dev/null https://www.dropbox.com/s/jzy6bzhufuqk85e/human_MT.fa?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -99,7 +99,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 8 of 15:"
+echo -n "Retrieving test data file 8 of 16:"
 if wget -O human_MT.fa.fai   -o /dev/null https://www.dropbox.com/s/7c3r6pvve5w9s1v/human_MT.fa.fai?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -108,7 +108,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 9 of 15:"
+echo -n "Retrieving test data file 9 of 16:"
 if wget -O tiny.bam  -o /dev/null https://www.dropbox.com/s/6wdma5kfgye3fq4/tiny.bam?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -117,7 +117,18 @@ else
 fi
 
 
-echo -n "Retrieving test data file 10 of 15:"
+echo -n "Retrieving test data file 10 of 16:"
+if wget -O tiny.bed.gz  -o /dev/null https://www.dropbox.com/s/zvdaws3n8q2fww0/tiny.bed.gz?dl=0; then
+    echo -e " ${GREEN}ok${NC}";
+else
+    echo -e " ${RED}failed${NC}";
+    exit 1;
+fi
+
+
+
+
+echo -n "Retrieving test data file 11 of 16:"
 if wget -O tiny.bam.bai  -o /dev/null https://www.dropbox.com/s/ektzxgj7gpczhm3/tiny.bam.bai?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -126,7 +137,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 11 of 15:"
+echo -n "Retrieving test data file 12 of 16:"
 if wget -O chrM.hg19.panTro5.net.axt.gz  -o /dev/null https://www.dropbox.com/s/02rygzvagccox94/chrM.hg19.panTro5.net.axt.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -135,7 +146,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 12 of 15:"
+echo -n "Retrieving test data file 13 of 16:"
 if wget -O chrM.fa.fai  -o /dev/null https://www.dropbox.com/s/ve8ualt1b3q9m2f/chrM.fa.fai?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -145,7 +156,7 @@ fi
 
 
 
-echo -n "Retrieving test data file 13 of 15:"
+echo -n "Retrieving test data file 14 of 16:"
 if wget -O smallPublic23andMeData.gz  -o /dev/null https://www.dropbox.com/s/j0vyeepec9uhnbj/smallPublic23andMeData.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -153,7 +164,7 @@ else
     exit 1;
 fi
 
-echo -n "Retrieving test data file 14 of 15:"
+echo -n "Retrieving test data file 15 of 16:"
 if wget -O epochr1.gz  -o /dev/null https://www.dropbox.com/s/zn831wkv3ljb24i/epochr1.gz?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else
@@ -162,7 +173,7 @@ else
 fi
 
 
-echo -n "Retrieving test data file 15 of 15:"
+echo -n "Retrieving test data file 16 of 16:"
 if wget -O epochr1.gz.tbi  -o /dev/null https://www.dropbox.com/s/9m5rl0y5eetyqw0/epochr1.gz.tbi?dl=0; then
     echo -e " ${GREEN}ok${NC}";
 else

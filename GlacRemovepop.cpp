@@ -124,8 +124,6 @@ int GlacRemovepop::run(int argc, char *argv[]){
 
 
 
-
-
     stringstream header;
     if(gp.isGLFormat())
         header<<"#GLF"<<endl;           
@@ -166,21 +164,25 @@ int GlacRemovepop::run(int argc, char *argv[]){
 	arw.copyCoreFields(*arr);
 	arw.sizePops=newsizepop;
 	
-
+	bool someoneHasAlt=false;//flag to check if someone has the alternative, otherwise, we will set the alt to N
 	if( gp.isGLFormat() ){
 	    arw.vectorGLs->push_back(    arr->vectorGLs->at(0));
 	    arw.vectorGLs->push_back(    arr->vectorGLs->at(1));
+	    someoneHasAlt=someoneHasAlt || (arr->vectorGLs->at(0).hasAlt());
+	    someoneHasAlt=someoneHasAlt || (arr->vectorGLs->at(1).hasAlt());
 	}else{
 	    arw.vectorAlleles->push_back(arr->vectorAlleles->at(0));
 	    arw.vectorAlleles->push_back(arr->vectorAlleles->at(1));
+	    someoneHasAlt=someoneHasAlt || (arr->vectorAlleles->at(0).hasAlt());
+	    someoneHasAlt=someoneHasAlt || (arr->vectorAlleles->at(1).hasAlt());	    
 	}
-	bool someoneHasAlt=false;//flag to check if someone has the alternative, otherwise, we will set the alt to N
+
 
 			
 	for(unsigned int j=2;j<arr->vectorAlleles->size();j++){
-
-	    if(flagsPopToAdd[j]){
-		if( gp.isGLFormat() ){
+	    
+	    if(flagsPopToAdd[j]){//the pop was selected
+		if( gp.isGLFormat() ){		    
 		    arw.vectorGLs->push_back(       arr->vectorGLs->at(j));		 
 		    someoneHasAlt=someoneHasAlt || (arr->vectorGLs->at(j).hasAlt());
 		}else{
@@ -188,7 +190,7 @@ int GlacRemovepop::run(int argc, char *argv[]){
 		    someoneHasAlt=someoneHasAlt || (arr->vectorAlleles->at(j).hasAlt());
 		}
 	    }
-	       
+	    
 	}
 
 	if(!someoneHasAlt)

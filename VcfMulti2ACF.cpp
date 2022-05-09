@@ -4,7 +4,7 @@
 #include <memory>
 #include <climits>
 
-#include "utils.h"
+#include "libgab.h"
 #include "AlleleInfo.h"
 #include "ReadTabix.h"
 #include "SimpleVCF.h"
@@ -111,6 +111,7 @@ string VcfMulti2ACF::usage() const{
 			      "\t"+"--onlyGT"        +"\t\t" +"Do not use PL values for alleles, simply use genotypes (GT)      (default: "+booleanAsString(onlyGT)+")\n"+ 
 			      //"\t"+"--epo [EPO alignment file]"       +"\t\t" +"Use file as EPO alignment   (default: none)\n"+ 			      
 			      "\t"+"--minPL [pl]"       +"\t\t" +"Use this as the minimum difference of PL values for alleles      (default: "+stringify(minPLdiffind)+")\n"+ 
+			      "\t"+"--minDP [DP]"       +"\t\t" +"Use this as the minimum depth (DP)       (default: "+stringify(minDP)+")\n"+ 
 
 			      "\t"+"--epo [EPO file]"       +"\t" +"Use file as EPO alignment to set the (default: none)\n"+   
 			      "\t"+"                "       +"\t" +"ancestral/root alleles for hominin samples\n"+   
@@ -157,6 +158,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
     // epoFileB  = false;
 
     bool specifiedPL  = false;
+    //    bool specifiedDP  = false;
 
 
     for(int i=1;i<(argc-1);i++){ 
@@ -180,6 +182,13 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
         if(strcmp(argv[i],"--minPL") == 0 ){
             minPLdiffind=destringify<int>(argv[i+1]);
 	    specifiedPL  =true;
+            i++;
+            continue;
+	}
+
+        if(strcmp(argv[i],"--minDP") == 0 ){
+            minDP=destringify<int>(argv[i+1]);
+	    //specifiedDP  =true;
             i++;
             continue;
 	}
@@ -505,7 +514,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 
 	}
 	
-	//pair<int,int> pairCount= toprint->at(0)->returnLikelyAlleleCountForRefAlt(minPLdiffind);
+	//pair<int,int> pairCount= toprint->at(0)->returnLikelyAlleleCountForRefAlt(minPLdiffind,minDP);
 
 	// if(pairCount.first != 0 || pairCount.second != 0 ){
 	char alt=(toprint->at(0)->getAlt()=="."?'N':toprint->at(0)->getAlt()[0]);
@@ -601,7 +610,7 @@ int VcfMulti2ACF::run(int argc, char *argv[]){
 	    if( !onlyGT &&
 		(toprint->at(i)->getObservedGL() ||toprint->at(i)->getObservedPL() )//has either GL or PL
 	    ){
-		pairCount = toprint->at(i)->returnLikelyAlleleCountForRefAlt(minPLdiffind);
+		pairCount = toprint->at(i)->returnLikelyAlleleCountForRefAlt(minPLdiffind,minDP);
 	    }else{//just use GT 
 		pairCount = toprint->at(i)->returnLikelyAlleleCountForRefAltJustGT();
 	    }

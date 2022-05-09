@@ -53,7 +53,7 @@ int GlacIDXSTATS::run(int argc, char *argv[]){
     }
 
     cout<<"#chromosome"<<"\t"<<"records"<<endl;	
-    for(int i=0;i<gp.getNumberOfChromosomes();i++){	
+    for(unsigned int i=0;i<gp.getNumberOfChromosomes();i++){	
 	uint64_t u, v;
         hts_idx_get_stat(idx, i, &u, &v);
 	cout<<gp.getChromosomeName(i)<<"\t"<<u<<endl;	

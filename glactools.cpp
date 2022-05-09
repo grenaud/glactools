@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "utils.h"
+#include "libgab.h"
 
 #include "BAM2ACF.h"
 #include "EIGENSTRAT2ACF.h"

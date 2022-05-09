@@ -187,6 +187,7 @@ int BAM2ACF::run(int argc, char *argv[]){
 
 	if( string(argv[i]) == "--bed"){
 	    bedfilename = string(argv[i+1]);
+	    i++;
 	    continue;
 	}
 
@@ -994,7 +995,7 @@ int BAM2ACF::run(int argc, char *argv[]){
     if (bed) bed_destroy(bed);
 
     
-    cerr<<"Program bam2acf terminated gracefully, considered "<<totalBasesL<<" bases at "<<totalSitesL<<endl;
+    cerr<<"Program bam2acf terminated gracefully, considered "<<totalBasesL<<" bases at "<<totalSitesL<<" sites"<<endl;
 
      //clean up
      //reader.Close();

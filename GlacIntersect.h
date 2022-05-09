@@ -11,7 +11,7 @@
 //#define DEBUG
 #include <string>
 
-#include "utils.h"
+#include "libgab.h"
 #include "GlacWriter.h"
 #include "GlacParser.h"
 #include "AlleleRecords.h"

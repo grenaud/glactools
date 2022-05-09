@@ -1557,8 +1557,8 @@ size_t GlacParser::getSizeRecord() const{
     }
 }
 
-int GlacParser::getNumberOfChromosomes() const{
-    return int(chrKnown.size());
+unsigned int GlacParser::getNumberOfChromosomes() const{
+    return chrKnown.size();
 }
 
 string GlacParser::getChromosomeName(int chrIdx) const{

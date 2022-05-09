@@ -15,7 +15,23 @@ echo -e " ${GREEN}ok${NC}"
 echo -n "testing md5sum:"
 ../glactools view bam.acf.gz |md5sum > bam_acf.md5sum
 
+
 if diff bam_acf.md5sum bam_acf.md5sum_ > /dev/null
+then
+    echo -e " ${GREEN}test passed${NC}"    
+else
+    echo -e " ${RED}test failed${NC}"
+    exit 1
+fi
+
+echo -n "Converting BAM to ACF using a bed filter:"
+ ../glactools  bam2acf  --bed tiny.bed.gz human_MT.fa tiny.bam  test 2> /dev/null > bambed.acf.gz
+echo -e " ${GREEN}ok${NC}"
+
+echo -n "testing md5sum:"
+../glactools view bambed.acf.gz |md5sum > bambed_acf.md5sum
+
+if diff bambed_acf.md5sum bambed_acf.md5sum_ > /dev/null
 then
     echo -e " ${GREEN}test passed${NC}"    
 else

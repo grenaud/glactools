@@ -1,6 +1,6 @@
 language: C++
 
-before_script: make libgab/utils.o tabixpp/tabix.o && sed -i  "s/++11/++11\ -coverage/g" Makefile
+before_script: make libgab/libgab.a tabixpp/tabix.o && sed -i  "s/++11/++11\ -coverage/g" Makefile
 
 script: make test
 

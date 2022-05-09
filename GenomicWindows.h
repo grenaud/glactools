@@ -15,7 +15,7 @@
 #include <fstream>
 #include <sys/time.h>
 
-#include "utils.h"
+#include "libgab.h"
 #include "GenomicRange.h"
 #include "RandomGenomicCoord.h"
 

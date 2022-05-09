@@ -15,7 +15,7 @@
 
 #include "CoreVCF.h"
 #include "AlleleInfo.h"
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 
@@ -264,7 +264,7 @@ public:
     bool hasAllele(int indexAlle) const;
 
     //! returns the count of reference and alternative allele based on PL field
-    pair<int,int> returnLikelyAlleleCountForRefAlt(int minPLdiffind=33) const;
+    pair<int,int> returnLikelyAlleleCountForRefAlt(int minPLdiffind=33,int minDP=1) const;
     pair<int,int> returnLikelyAlleleCountForRefAltJustGT() const;
 
     //returns a string just using GT

@@ -9,7 +9,7 @@
 #define Dstat_core_h
 #include <ctype.h>
 #include "DstatResult.h"
-#include "utils.h"
+#include "libgab.h"
 
 using namespace std;
 

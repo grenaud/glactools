@@ -5,7 +5,7 @@
 #include <sys/time.h> //for srand
 #include <climits>
 
-#include "utils.h"
+#include "libgab.h"
 #include "SingleAllele.h"
 #include "AlleleRecords.h"
 #include "ReadTabix.h"
@@ -14,7 +14,7 @@
 #include "htslib/bgzf.h"
 #include "htslib/hts.h"
 
-#include "hts_internal.h"
+//#include "hts_internal.h"
 #include "htslib/hfile.h"
 #include "htslib/hts_endian.h"
 #include "htslib/kstring.h"
@@ -105,7 +105,7 @@ class GlacParser{
     bool isGLFormat() const;
     uint32_t getSizePops() const;
     size_t getSizeRecord() const; //size of 1 record in binary
-    int getNumberOfChromosomes() const;
+    unsigned int getNumberOfChromosomes() const;
     string getChromosomeName(int chrIdx) const;
     map<string,uint16_t> getChr2chri() const;
     vector<string>       getChrKnown() const;

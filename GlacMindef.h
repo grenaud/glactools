@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "utils.h"
+#include "libgab.h"
 #include "ReadTabix.h"
 #include "GlacWriter.h"
 #include "GlacParser.h"

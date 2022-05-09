@@ -14,7 +14,7 @@ using namespace std;
 #include <vector>
 #include <list>
 #include "FstAlleleCounter.h"
-#include "utils.h"
+#include "libgab.h"
 
 class FstResult{
  private:

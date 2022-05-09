@@ -6,6 +6,7 @@
  */
 
 #include "GlacUnion.h"
+//#define DEBUG
 
 GlacUnion::GlacUnion(){
 
@@ -20,7 +21,7 @@ string GlacUnion::usage() const{
 
     
     return string("glactools") +" union [OPTIONS] <acf|glf file1> <acf|glf file2> .. "+"\n"+
-                  "\nThis program returns the intersection of ACF/GLF files given that they were from the same genome assembly\n"+    
+                  "\nThis program returns the union of ACF/GLF files given that they were from the same genome assembly\n"+    
 		  "and prints to STDOUT. It will skip triallelic sites\n"+
 	          "Files have to be from the same organism\n"+
                   "Options:\n"+
@@ -82,7 +83,10 @@ int GlacUnion::run(int argc, char *argv[]){
     for(int i=lastOpt;i<(argc);i++){ 
 
 	GlacParser * gp = new GlacParser(string(argv[i]));
-
+#ifdef DEBUG
+	cerr<<vectorOfGP.size()<<"\t"<<string(argv[i])<<endl;
+#endif
+	
 	numberOfPops += int(gp->getSizePops());
 
 	if(i==lastOpt){
@@ -136,7 +140,7 @@ int GlacUnion::run(int argc, char *argv[]){
 
 
     
-    string defline=initFiles(vectorOfGP,
+    string defline=initFiles(vectorOfGP,//vector of glacparsers
 			     // atLeastOneHasData,
 			     hasData,
 			     popSizePerFile,
@@ -172,8 +176,9 @@ int GlacUnion::run(int argc, char *argv[]){
 	}
 
 #ifdef DEBUG
-	cerr<<"coordCurrent "<<vectorOfGP[0]->getChromosomeName(chr1)<<" chri="<<chr1<<"\t"<<coordCurrent<<endl;
+	cerr<<"coordCurrent "<<vectorOfGP[0]->getChromosomeName(chr1)<<" chri="<<chr1<<"\t"<<coordCurrent<<"\tsize="<<vectorOfGP.size()<<endl;
 #endif
+	
 	//check if at least someone has data and is at 
 	vector<bool> hasCoordinate (vectorOfGP.size(),false);
 	bool atLeastOneHasCoordinate=false;
@@ -188,13 +193,19 @@ int GlacUnion::run(int argc, char *argv[]){
 		}
 	    }
 	}
-	// cout<<vectorToString(hasData,"-")<<endl;
-
+	
+#ifdef DEBUG
+	cerr<<vectorToString(hasData,"-")<<"\t"<<atLeastOneHasCoordinate<<endl;
+#endif
 	
 	//we print
 	if(atLeastOneHasCoordinate){
 
 	    //flushing out the ones with data
+#ifdef DEBUG
+	cerr<<"printAllele"<<"\t"<<coordCurrent<<endl;
+#endif
+	    
 	    printAllele(vectorOfGP,
 			hasData,
 			hasCoordinate,
@@ -206,7 +217,6 @@ int GlacUnion::run(int argc, char *argv[]){
 			isGL,
 			force);
 
-
 	    // 	seekdata:
 
 	    atLeastOneHasData=false;
@@ -215,7 +225,6 @@ int GlacUnion::run(int argc, char *argv[]){
 	    for(unsigned int i=0;i<vectorOfGP.size();i++){ 
 		 
 		 if(hasData[i] ){
-
 
 		     //only get data from those with the coordinate
 		     if(hasCoordinate[i]){
