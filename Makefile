@@ -29,7 +29,7 @@ libgab/libgab.a: htslib/libhts.so libgab/libgab.h
 
 tabixpp/tabix.hpp:
 	rm -rf tabixpp/
-	git clone --recursive https://github.com/grenaud/tabixpp.git
+	git clone --recursive https://github.com/vcflib/tabixpp.git
 
 tabixpp/tabix.o: tabixpp/tabix.hpp htslib/libhts.so
 	make -C tabixpp
@@ -40,13 +40,11 @@ bamtools/src/bamtools_fasta.o:
 samtools/bedidx.o: samtools/libst.a
 	echo ""
 
-samtools/libst.a: samtools/libst.a
-	echo ""
-
-samtools/libst.a:  samtools/sam.h
+samtools/libst.a:  samtools/samtools.h
 	cd samtools/ && make && cd ..
+#	cd samtools/  && autoreconf -i && ./configure --disable-libcurl &&  make && cd ../
 
-samtools/sam.h: htslib/libhts.so
+samtools/samtools.h: htslib/libhts.so
 	rm -rf samtools/
 	git clone --recursive https://github.com/samtools/samtools.git samtools/
 
@@ -55,6 +53,7 @@ htslib/libhts.a: htslib/libhts.so
 
 htslib/libhts.so:  htslib/hts_internal.h
 	cd htslib/ && git submodule update --init --recursive &&  make && cd ../
+#	cd htslib/ && git submodule update --init --recursive && autoreconf -i && ./configure --disable-libcurl  && make && cd ../
 
 htslib/hts_internal.h:
 	rm -rf htslib/
@@ -65,6 +64,9 @@ lib/libglactools.a: tabixpp/tabix.o libgab/libgab.a bamtools/src/bamtools_fasta.
 
 glactools:	glactools.o  lib/libglactools.a htslib/libhts.a samtools/bedidx.o 
 	${CXX} -o $@ $^ $(LDLIBS)  $(LDFLAGS)
+
+static:	glactools.o  lib/libglactools.a htslib/libhts.a samtools/bedidx.o 
+	${CXX} -static -o $@ $^ $(LDLIBS)  $(LDFLAGS)
 
 cleanall :
 	make -C htslib/ clean
