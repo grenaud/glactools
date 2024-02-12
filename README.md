@@ -461,7 +461,7 @@ Update cmake, in Ubuntu, the following seems to work:
 
 We cannot know for sure whether a C or G had a G or a C after it. 
 
-### When I run "compute", I get 6 types of results, what are the difference?
+### When I run "compute", I get 6 types of results, what are the differences?
 
 The summary stats in glactools compute are reported as such:
 * all: all sites
@@ -469,7 +469,12 @@ The summary stats in glactools compute are reported as such:
 * only Cpg: only sites marked as CpG are considered        
 * transitions: only transitions are considered        
 * transversions: only transversions are considered        
-* no damage: sites that are potential damage are ignored. The difference between transversions is that ancestral C -> derived T is ignored but not ancestral T -> derived C.
+* no damage: sites that are potentially damaged are ignored. The difference between transversions is that ancestral C -> derived T is ignored but not ancestral T -> derived C.
+ 
+
+### I get: "Error, missing data in the EPO file" when adding the ancestral alleles, why?
+
+The likely reason is a discrepancy between chromosome names (e.g. "1" and "chr1"). 
 
  
 
