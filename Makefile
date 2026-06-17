@@ -32,7 +32,7 @@ tabixpp/tabix.hpp:
 	git clone --recursive https://github.com/vcflib/tabixpp.git
 
 tabixpp/tabix.o: tabixpp/tabix.hpp htslib/libhts.so
-	make -C tabixpp
+	make -C tabixpp tabix.o
 
 bamtools/src/bamtools_fasta.o:
 	cd bamtools/src/ && g++ -lm -c -I.  -Ishared/ -Iutils/ utils/bamtools_fasta.cpp && cd ../..

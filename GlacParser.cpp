@@ -9,7 +9,7 @@
 
 
 
-static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *beg, int *end){
+static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, hts_pos_t *beg, hts_pos_t *end){
     // bam1_t *b = bv;
     // int ret;
     AlleleRecords * ptrar = (AlleleRecords *) (bv);
@@ -135,7 +135,7 @@ static int glac_readrecACF2b(BGZF *fp, void *ignored, void *bv, int *tid, int *b
 
 
 
-static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, int *beg, int *end){
+static int glac_readrecGLF1b(BGZF *fp, void *ignored, void *bv, int *tid, hts_pos_t *beg, hts_pos_t *end){
     // bam1_t *b = bv;
     // int ret;
     AlleleRecords * ptrar = (AlleleRecords *) (bv);
