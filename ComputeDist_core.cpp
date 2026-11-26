@@ -51,7 +51,12 @@ void computeDist(const char allel_anc,const char allel_1,const char allel_2,bool
     else
 	divr->noCpg.addAllelePair(allePairIndex);
 
-    if(isTransition(allel_1,allel_2)){
+    //an identical pair is a compared site without a transition and without a transversion, so it counts in
+    //the denominator of both rates; the two rates then add up to the rate for all sites
+    if(allel_1 == allel_2){
+	divr->transitions.addAllelePair(allePairIndex);
+	divr->transversions.addAllelePair(allePairIndex);
+    }else if(isTransition(allel_1,allel_2)){
 	divr->transitions.addAllelePair(allePairIndex);
     }else{
 	divr->transversions.addAllelePair(allePairIndex);
@@ -77,11 +82,8 @@ void addIdenticalSite(const char allel_anc,const char allel_1,bool isCpG,DistRes
     else
 	divr->noCpg.addAllelePair(allePairIndex);
 
-    // if(isTransition(allel_1,allel_2)){
-    // 	divr->transitions.addAllelePair(allePairIndex);
-    // }else{
+    divr->transitions.addAllelePair(allePairIndex);   //identical: in the denominator of both rates
     divr->transversions.addAllelePair(allePairIndex);
-	//    }
     
     
     if( (allel_anc != 'N')              && 
