@@ -71,8 +71,15 @@ void F2Counter::addAlleleCounts(int c1_1,int c2_1,double f_1,int c1_2,int c2_2,d
     // double f_1 = (double) c1_1 / ( (double) c1_1 + (double) c2_1 );
     // double f_2 = (double) c1_2 / ( (double) c1_2 + (double) c2_2 );
 
-    hz1 +=  (f_1*(1-f_1));
-    hz2 +=  (f_2*(1-f_2));
+    //as in F3Counter: f*(1-f)*N/(N-1) for N sampled alleles, so that the correction below subtracts the
+    //unbiased estimate f*(1-f)/(N-1) of the sampling variance of f. With fewer than two alleles it cannot
+    //be estimated and nothing is added (f is then 0 or 1)
+    int n1 = c1_1 + c2_1;
+    int n2 = c1_2 + c2_2;
+    if(n1 >= 2)
+	hz1 +=  (f_1*(1-f_1)) * double(n1)/double(n1-1);
+    if(n2 >= 2)
+	hz2 +=  (f_2*(1-f_2)) * double(n2)/double(n2-1);
     // cerr<<"f_1 "<<f_1<<" f_2 "<<f_2<<endl;
     // cerr<<"hz1 "<<hz1<<" hz2 "<<hz2<<endl;
 
