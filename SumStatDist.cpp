@@ -157,15 +157,14 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
     //start at 1 for ancestral
     if(notASegSite){
 	for(unsigned i=0;i<recordToUse->vectorAlleles->size();i++){
-	    if(allowUndefined){
-		if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
-		   recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
-		    sampledAllele[i] = 'N';
-		    cpgForPop[i]     = false;
-		    continue ;
-		}
+	    if(recordToUse->vectorAlleles->at(i).getRefCount() ==  0 &&
+	       recordToUse->vectorAlleles->at(i).getAltCount() ==  0){
+		sampledAllele[i] = 'N';
+		cpgForPop[i]     = false;
+		continue ;
 	    }
-	    cpgForPop[i] = recordToUse->vectorAlleles->at(i).getIsCpg();
+	    sampledAllele[i] = recordToUse->ref;//without an alternative allele, only the reference one
+	    cpgForPop[i]     = recordToUse->vectorAlleles->at(i).getIsCpg();
 	}
     
     }else{//is seg site
@@ -236,7 +235,12 @@ void SumStatDist::computeStatSingle( const   AlleleRecords   * recordToUse,const
 		//skip when the allele is identical
 		if(i==j)
 		    continue;
-		
+
+		if(sampledAllele[i] == 'N')
+		    continue;
+		if(sampledAllele[j] == 'N')
+		    continue;
+
 		//defined in ComputeDist_core
 		addIdenticalSite(sampledAllele[1], //0 is root, 1 is ancestral
 				 recordToUse->ref,
