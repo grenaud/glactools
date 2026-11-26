@@ -59,7 +59,7 @@ string DstatResult::printWithBootstrap(list<vector< vector< vector<DstatResult> 
     pair<double,double> onlyCpgDEV         = computeMeanSTDDEV(onlycpgBoot);
     pair<double,double> transitionsDEV     = computeMeanSTDDEV(transitionsBoot);
     pair<double,double> transversionsDEV   = computeMeanSTDDEV(transversionsBoot);
-    pair<double,double> noDamageDEV        = computeMeanSTDDEV(transversionsBoot);
+    pair<double,double> noDamageDEV        = computeMeanSTDDEV(noDamageBoot);
 
 
     //cout<<allBootDEV.first<<"\t"<<allBootDEV.second<<endl;
@@ -118,7 +118,7 @@ string DstatResult::printWithJacknife(const vector<const  DstatResult * >  * jac
     pair<double,double> onlyCpgJK       =  computeJackknifeConfIntervals(onlyCpg.computeDST(),      onlycpgBoot      );
     pair<double,double> transitionsJK   =  computeJackknifeConfIntervals(transitions.computeDST(),  transitionsBoot  );
     pair<double,double> transversionsJK =  computeJackknifeConfIntervals(transversions.computeDST(),transversionsBoot);
-    pair<double,double> noDamageJK      =  computeJackknifeConfIntervals(noDamage.computeDST(),     transversionsBoot);
+    pair<double,double> noDamageJK      =  computeJackknifeConfIntervals(noDamage.computeDST(),     noDamageBoot);
 
 
     

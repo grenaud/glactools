@@ -103,14 +103,14 @@ string AvgCoaResult::printWithJacknife(const vector<const  AvgCoaResult * >  * j
     pair<double,double> onlyCpgDEVRefSamJK       =  computeJackknifeConfIntervals(onlyCpg.avgCoaRefSam(),onlycpgBootRefSam);
     pair<double,double> transitionsDEVRefSamJK   =  computeJackknifeConfIntervals(transitions.avgCoaRefSam(),transitionsBootRefSam);
     pair<double,double> transversionsDEVRefSamJK =  computeJackknifeConfIntervals(transversions.avgCoaRefSam(),transversionsBootRefSam);
-    pair<double,double> noDamageDEVRefSamJK      =  computeJackknifeConfIntervals(noDamage.avgCoaRefSam(),transversionsBootRefSam);
+    pair<double,double> noDamageDEVRefSamJK      =  computeJackknifeConfIntervals(noDamage.avgCoaRefSam(),noDamageBootRefSam);
 
     pair<double,double> allDEVSamRefJK           =  computeJackknifeConfIntervals(all.avgCoaRefSam(),allBootSamRef);
     pair<double,double> noCpgDEVSamRefJK         =  computeJackknifeConfIntervals(noCpg.avgCoaRefSam(),nocpgBootSamRef);
     pair<double,double> onlyCpgDEVSamRefJK       =  computeJackknifeConfIntervals(onlyCpg.avgCoaRefSam(),onlycpgBootSamRef);
     pair<double,double> transitionsDEVSamRefJK   =  computeJackknifeConfIntervals(transitions.avgCoaRefSam(),transitionsBootSamRef);
     pair<double,double> transversionsDEVSamRefJK =  computeJackknifeConfIntervals(transversions.avgCoaRefSam(),transversionsBootSamRef);
-    pair<double,double> noDamageDEVSamRefJK      =  computeJackknifeConfIntervals(noDamage.avgCoaRefSam(),transversionsBootSamRef);
+    pair<double,double> noDamageDEVSamRefJK      =  computeJackknifeConfIntervals(noDamage.avgCoaRefSam(),noDamageBootSamRef);
 
 
     // pair<double,double> ppp     = computeJackknifeConfIntervals(all.avgCoaRefSam(),                        allBootRefSam);

@@ -94,7 +94,7 @@ string DistResult::printWithJacknife(const vector<const  DistResult * >  * jackn
     pair<double,double> onlyCpgDEVDistJK       =  computeJackknifeConfIntervals(onlyCpg.dist(dnaDistMode),      onlycpgBootDist);
     pair<double,double> transitionsDEVDistJK   =  computeJackknifeConfIntervals(transitions.dist(dnaDistMode),  transitionsBootDist);
     pair<double,double> transversionsDEVDistJK =  computeJackknifeConfIntervals(transversions.dist(dnaDistMode),transversionsBootDist);
-    pair<double,double> noDamageDEVDistJK      =  computeJackknifeConfIntervals(noDamage.dist(dnaDistMode),     transversionsBootDist);
+    pair<double,double> noDamageDEVDistJK      =  computeJackknifeConfIntervals(noDamage.dist(dnaDistMode),     noDamageBootDist);
 
     // pair<double,double> allDEVSamRefJK           =  computeJackknifeConfIntervals(all.distRefSam(),allBootSamRef);
     // pair<double,double> noCpgDEVSamRefJK         =  computeJackknifeConfIntervals(noCpg.distRefSam(),nocpgBootSamRef);
