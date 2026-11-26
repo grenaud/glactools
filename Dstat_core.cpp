@@ -49,11 +49,11 @@ bool computeDstat(const char allel_chimpHumanAncestor,const char allel_condition
 	else
 	    dSres->transversions.counterAncAnc++;
 	
-	if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
+	if( !((toupper(allel_chimpHumanAncestor)  == 'C' && 
 	     toupper(allel_condition)           == 'T'  ) 
 	    ||
 	    (toupper(allel_chimpHumanAncestor)  == 'G' && 
-	     toupper(allel_condition)           == 'A'  ) ){
+	     toupper(allel_condition)           == 'A'  )) ){//skip ancestral C -> derived T and G -> A
 	    dSres->noDamage.counterAncAnc++;
 	}
 
@@ -79,11 +79,11 @@ bool computeDstat(const char allel_chimpHumanAncestor,const char allel_condition
 	    else
 		dSres->transversions.counterAncDer++;
 
-	    if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
+	    if( !((toupper(allel_chimpHumanAncestor)  == 'C' && 
 		 toupper(allel_condition)           == 'T'  ) 
 		||
 		(toupper(allel_chimpHumanAncestor)  == 'G' && 
-		 toupper(allel_condition)           == 'A'  ) ){
+		 toupper(allel_condition)           == 'A'  )) ){//skip ancestral C -> derived T and G -> A
 		dSres->noDamage.counterAncDer++;
 	    }
 
@@ -108,11 +108,11 @@ bool computeDstat(const char allel_chimpHumanAncestor,const char allel_condition
 		else
 		    dSres->transversions.counterDerAnc++;
 
-		if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
+		if( !((toupper(allel_chimpHumanAncestor)  == 'C' && 
 		     toupper(allel_condition)           == 'T'  ) 
 		    ||
 		    (toupper(allel_chimpHumanAncestor)  == 'G' && 
-		     toupper(allel_condition)           == 'A'  ) ){
+		     toupper(allel_condition)           == 'A'  )) ){//skip ancestral C -> derived T and G -> A
 		    dSres->noDamage.counterDerAnc++;
 		}
 
@@ -140,11 +140,11 @@ bool computeDstat(const char allel_chimpHumanAncestor,const char allel_condition
 			dSres->transversions.counterDerDer++;
 
 
-		    if( (toupper(allel_chimpHumanAncestor)  == 'C' && 
+		    if( !((toupper(allel_chimpHumanAncestor)  == 'C' && 
 			 toupper(allel_condition)           == 'T'  ) 
 			||
 			(toupper(allel_chimpHumanAncestor)  == 'G' && 
-			 toupper(allel_condition)           == 'A'  ) ){
+			 toupper(allel_condition)           == 'A'  )) ){//skip ancestral C -> derived T and G -> A
 			dSres->noDamage.counterDerDer++;
 		    }
 
