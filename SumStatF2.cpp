@@ -277,7 +277,7 @@ string SumStatF2::printWithBootstraps(const   vector<SumStatF2 *> * jackVec, con
 	       jacknivesToSend.push_back( &( temsp[i][j] ) );
 	   }
 	   //toReturn<<populationNames->at(i)<<"-"<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"\t"<<divergenceResults[i][j][k].printWithJacknife( &jacknivesToSend )<<endl;
-	   toReturn<<populationNames->at(j)<<"-"<< populationNames->at(i)  <<"\t"<<f2Results[i][j].printWithJacknife( &jacknivesToSend )<<endl;
+	   toReturn<<populationNames->at(i)<<"-"<< populationNames->at(j)  <<"\t"<<f2Results[i][j].printWithJacknife( &jacknivesToSend )<<endl;
 	   
 	   //}//k
 	}//j
