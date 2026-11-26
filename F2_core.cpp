@@ -37,7 +37,8 @@ bool addCountersInd(const int  refCount1,
     if( !isSitePotentialDamage ){
 	f2res->noDamage.addAlleleCounts(refCount1,altCount1,freq_ind1,refCount2,altCount2,freq_ind2);
     }//TODO check!
-        
+
+    return false;
 }
 
 bool computeF2pair(const double freq_ind1,

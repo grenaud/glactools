@@ -33,7 +33,8 @@ bool addCountersInd(const int  refCount,
     if( !isSitePotentialDamage ){
 	f3res->noDamage.addAlleleCounts(refCount,altCount);
     }//TODO check!
-        
+
+    return false;
 }
 
 bool computeF3triple(const double freq_condition,//target

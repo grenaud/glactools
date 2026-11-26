@@ -342,8 +342,6 @@ void SumStatF2::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     
     bool isSitePotentialTransition ;
     bool isSitePotentialDamage     ;
-    double m;
-    double sumF=0.0;
     for(unsigned i=1;i<recordToUse->vectorAlleles->size();i++){
 	// if(i == 1 ){ //the root can be absent, need to check	      
 	//     //if the allele count is unknown for both, skip
@@ -370,7 +368,6 @@ void SumStatF2::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	double sumAllBases = double( recordToUse->vectorAlleles->at(i).getRefCount() + recordToUse->vectorAlleles->at(i).getAltCount() );
 	double freqRef = double( recordToUse->vectorAlleles->at(i).getRefCount() ) / sumAllBases;
 	freqAllele[i] =  freqRef;
-	sumF+=freqRef;
 	//cerr<<"freqAllele["<<i<<"] =  "<<freqAllele[i]<<endl;
 	// average_nInds[ j ] += sumAllBases/2.0;
 	
@@ -428,25 +425,6 @@ void SumStatF2::computeStatSingle( const   AlleleRecords   * recordToUse,const b
     cpgForPop[ numberOfPopulations-1]    = recordToUse->vectorAlleles->at(0).getIsCpg();//set the cpg to the ancestral CpG flag
     undefined[ numberOfPopulations-1 ]   = false;//we always have the ref
 
-    m = double(sumF)/double(numberOfPopulations-2);//we do not count the ref+(either root or anc)
-    
-    //cerr<<"m "<<m<<" "<<sumF<<" "<<(numberOfPopulations-2)<<endl;
-    // if(randomBool()){//flip the allele frequencies at each 0.5 site
-	
-    // 	for(unsigned i=2;i<numberOfPopulations;i++)
-    // 	    freqAllele [ i ] = 1.0 - freqAllele [ i ]; 
-    // }
-    
-    //if(true)//TODO to re-enable??
-    for(unsigned i=1;i<(recordToUse->vectorAlleles->size()+1);i++){//go over by one to compute the reference
-	//cerr<<i<<" fold="<< freqAllele[i]<<" m="<< m<<endl;
-	freqAllele[i] =   freqAllele[i] - m;
-	//cerr<<i<<" fnew="<< freqAllele[i]<<"\t"<<undefined[i]<<endl;
-	// average_nInds[i] = average_nInds[i]/ id2nsnp[i];
-	// average_hzy[i]   = average_hzy[i]/ id2nsnp[i];
-    }
-    
-    
     isSitePotentialTransition = isPotentialTransition(  recordToUse->ref, recordToUse->alt );
     isSitePotentialDamage     = isSitePotentialTransition;//since for f2 we do not care about the ancestral, we cannot tell anything. 
     
@@ -471,14 +449,9 @@ void SumStatF2::computeStatSingle( const   AlleleRecords   * recordToUse,const b
 	    // 	    continue;
 	       	      
 
-	    if(!allowUndefined){//if one has undefined allele
-		if(undefined[i] )
-		    continue;
-		if(undefined[j] )
-		    continue;
-		// if(undefined[k] )
-		//     continue;
-	    }
+	    //with -u, a site is used for every pair in which both populations are defined
+	    if(undefined[i] || undefined[j])
+		continue;
 	    //cerr<<allowUndefined<<" seg "<<recordToUse->coordinate<<"\t"<<i<<"\t"<<j<<"\t"<<k<<endl;
 	    //bool dstval = computeF2(sampledAllele[0], //root
 	    //cerr<<"precounter "<<i<<" "<<j<<" "<<k<<endl;
