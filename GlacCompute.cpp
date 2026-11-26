@@ -557,29 +557,43 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
     //cerr<<"bootFromResults"<<endl;
     for(unsigned int i=0;i<arguments->size();i++){
 	igzstream myfileResults;
-	STAT * statComputer = new STAT();
 	myfileResults.open(arguments->at(i).c_str(), ios::in);
-	if (myfileResults.good()){
-	    //fix the operators
-	    // while (!myfileResults.eof()){
-	    // 	myfileResults >> statComputer ;
-
-	    // }
-
-	    cerr<<"Reading file "<<arguments->at(i)<<endl;
-	    string strResults;
-	    string lineResults;
-	    while( getline(myfileResults,lineResults)){
-	    	strResults+=lineResults+"\n";
-	    }
-	    //istringstream in (strResults);
-	    statComputer->read(strResults);
-	    results->push_back(statComputer);
-	    //cerr<<*statComputer<<endl;
-	}else{
+	if (!myfileResults.good()){
 	    cerr<<"Cannot open file "<<arguments->at(i)<<endl;
 	    exit(1);
 	}
+
+	cerr<<"Reading file "<<arguments->at(i)<<endl;
+	//a file from --noboot holds one table per block, each after a line of dashes; every table is one jackknife block
+	string strResults;
+	string lineResults;
+	unsigned int blocksInFile=0;
+	bool moreLines=true;
+	while(moreLines){
+	    moreLines = bool(getline(myfileResults,lineResults));
+	    bool isSeparator = moreLines && strBeginsWith(lineResults,"---");
+	    if(isSeparator && lineResults.find("ALL") != string::npos){
+		cerr<<"GlacCompute: ERROR: "<<arguments->at(i)<<" already contains combined results, --boot needs the output of --noboot"<<endl;
+		exit(1);
+	    }
+	    if(moreLines && !isSeparator){
+		if(!lineResults.empty())
+		    strResults+=lineResults+"\n";
+		continue;
+	    }
+	    if(!strResults.empty()){
+		STAT * statComputer = new STAT();
+		statComputer->read(strResults);
+		results->push_back(statComputer);
+		strResults.clear();
+		blocksInFile++;
+	    }
+	}
+	if(blocksInFile == 0){
+	    cerr<<"GlacCompute: ERROR: no results in file "<<arguments->at(i)<<endl;
+	    exit(1);
+	}
+	cerr<<"Read "<<blocksInFile<<" block(s) from "<<arguments->at(i)<<endl;
     }
     //    exit(1);
 
