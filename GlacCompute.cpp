@@ -739,6 +739,11 @@ int GlacCompute::run(int argc, char *argv[]){
 	}
     }
 
+    if(program == "fst"){//SumStatFst was never completed and crashes
+	cerr<<"GlacCompute: ERROR: fst is not implemented"<<endl;
+	return 1;
+    }
+
     if(justBoot){//just perform bootstaps
 	vector<string> * arguments=new vector<string>();
 	for(int i=lastOpt;i<argc;i++){		
