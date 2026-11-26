@@ -54,6 +54,7 @@ class AvgCoaResult{
 	onlyCpg       += other.onlyCpg;
 	transitions   += other.transitions;
 	transversions += other.transversions;
+	noDamage      += other.noDamage;
 	
 	return *this;
     }
@@ -65,6 +66,7 @@ class AvgCoaResult{
 	onlyCpg       -= other.onlyCpg;
 	transitions   -= other.transitions;
 	transversions -= other.transversions;	
+	noDamage      -= other.noDamage;
 	return *this;
     }
 

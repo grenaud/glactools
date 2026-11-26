@@ -55,6 +55,7 @@ class DistResult{
 	onlyCpg       += other.onlyCpg;
 	transitions   += other.transitions;
 	transversions += other.transversions;
+	noDamage      += other.noDamage;
 	
 	return *this;
     }
@@ -66,6 +67,7 @@ class DistResult{
 	onlyCpg       -= other.onlyCpg;
 	transitions   -= other.transitions;
 	transversions -= other.transversions;	
+	noDamage      -= other.noDamage;
 	return *this;
     }
 
