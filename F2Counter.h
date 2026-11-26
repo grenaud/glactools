@@ -88,35 +88,11 @@ class F2Counter{
     }
 
     friend istream &operator>>(istream &is , F2Counter &ct){
-	//cerr<<"DstatCounter in"<<endl;
-	//double dst;
-
 	is>>ct.f2Sum>>ct.counterSites>>ct.nInds1>>ct.nInds2>>ct.hz1>>ct.hz2>>ct.nsnp;
-	    
-	double f2; 
-	string f2Str;
-	char c;
-	is.get(c);
-	if(c != '\t'){
-	    cerr<<"A single f2 should have 8 fields"<<endl;
-	}
 
-	while (is.get(c)){          // loop getting single characters
-	    if(c == '\t') break;
-	    f2Str+=c;
-	    //cerr<<"#"<<c<<"#"<<endl;
-	}
-	if(f2Str == "-nan"){
-	    f2 = -1.0*numeric_limits<double>::quiet_NaN();
-	}else{
-	    f2 =  destringify<double>(f2Str);
-	}
+	string derived; //f2, recomputed from the sums
+	is>>derived;
 
-	/* //cerr<<"#"; */
-	/* for(int i=0;i<=15;i++){ */
-	/*     cerr<<ct.count[i]<<" "; */
-	/* } */
-	/* cerr<<"i:"<<ident<<" m:"<<mutations<<" d:"<<dist<<"# "; */
 	return is;
     }
 

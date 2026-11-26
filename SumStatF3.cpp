@@ -97,22 +97,22 @@ SumStatF3::SumStatF3(const vector<string> * popNames,const bool onlyOnRef_){
 // }
 
 SumStatF3::~SumStatF3(){
-  // cout<<"destructor#1"<<endl;
-    delete(populationNames);
-    //cout<<"destructor#2"<<endl;
-    //cout<<"destructor #"<<i<<endl;
+    if(populationNames!=NULL)
+	delete(populationNames);
 
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	for(unsigned int j=0;j<numberOfPopulations;j++){
-	    delete [] f3Results[i][j];
+    if(f3Results!=NULL){
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    for(unsigned int j=0;j<numberOfPopulations;j++){
+		delete [] f3Results[i][j];
+	    }
 	}
-    }
 
-    for(unsigned int i=0;i<numberOfPopulations;i++){
-	delete [] f3Results[i];
-    }
+	for(unsigned int i=0;i<numberOfPopulations;i++){
+	    delete [] f3Results[i];
+	}
 
-    delete [] f3Results;
+	delete [] f3Results;
+    }
 }
 
 
@@ -143,18 +143,16 @@ void SumStatF3::read(const string & res){
 	    indsIds+=lines[i][j];
 	}
 
-	string ind1;
-	string ind2;
-	unsigned int k=0;
-	while(k<indsIds.size()){
-	    if(indsIds[k] == '-') break;
-	    ind1+=indsIds[k++];  
+	//rows are named "pop1 ; pop2 , pop3"
+	size_t semicolon = indsIds.find(';');
+	size_t comma     = indsIds.find(',',semicolon);
+	if(semicolon == string::npos || comma == string::npos){
+	    cerr<<"SumStatF3.cpp read(): cannot parse the f3 row \""<<indsIds<<"\""<<endl;
+	    exit(1);
 	}
-	k++;
-	while(k<indsIds.size()){
-	    if(indsIds[k] == '\t') break;
-	    ind2+=indsIds[k++];	   
-	}
+	string ind1 = indsIds.substr(0,semicolon);
+	string ind2 = indsIds.substr(semicolon+1,comma-semicolon-1);
+	string ind3 = indsIds.substr(comma+1);
 
 	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
 	trimWhiteSpacesBothEnds(&ind1);
@@ -169,6 +167,14 @@ void SumStatF3::read(const string & res){
 	if(ind2index.find(ind2) == ind2index.end()){
 	    ind2index[ind2]=indIndices;
 	    populationNames->push_back(  ind2 );
+	    indIndices++;
+	}
+
+	trimWhiteSpacesBothEnds(&ind3);
+
+	if(ind2index.find(ind3) == ind2index.end()){
+	    ind2index[ind3]=indIndices;
+	    populationNames->push_back(  ind3 );
 	    indIndices++;
 	}
 	
@@ -248,7 +254,7 @@ void SumStatF3::read(const string & res){
 	//toReturn<<populationNames->at(j)<<"-"<<populationNames->at(k)<<"@"<< populationNames->at(i)  <<"\t"<<
 	//                    f3Results[ind3][ind1][ind2].printWithJacknife( &jacknivesToSend )<<endl;
 	
-	in>>f3Results[ ind2index[ind3] ][ ind2index[ind1] ][ ind2index[ind2] ];
+	in>>f3Results[ ind2index[ind1] ][ ind2index[ind2] ][ ind2index[ind3] ];
 	
 	//cerr<<"#stat "<<f2Results[ ind2index[ind1] ][ ind2index[ind2] ]<<endl;
 	//cout<<fields.size()<<endl;
