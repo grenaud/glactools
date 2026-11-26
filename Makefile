@@ -83,4 +83,5 @@ clean :
 .PHONY: test
 
 test:	all
+	bash test/testCompute.sh ./glactools
 	cd test/ && bash testAll.sh && cd ..
