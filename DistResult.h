@@ -44,7 +44,7 @@ class DistResult{
     DistResult();
     ~DistResult();
     string getHeader();
-    void addIfNotInfinity( vector<double> * target , double val );
+    void addReplicate( vector<double> * target , double val );
     string printWithBootstrap(list< vector< vector< DistResult >  > >  & boostraps,unsigned int i,unsigned int j,unsigned int numberOfBootstraps);
     string printWithJacknife(const vector< const DistResult * >  * jacknife,const string & dnaDistMode);
     string printAll() const;

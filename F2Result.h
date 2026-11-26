@@ -52,7 +52,7 @@ class F2Result{
 	return *this;
     }
 
-    void addIfNotInfinity( vector<double> * target , double val );
+    void addReplicate( vector<double> * target , double val );
     string printWithBootstrap(list<vector< vector< vector<F2Result> >  > >  & boostraps,unsigned int i,unsigned int j,unsigned int k,unsigned int numberOfBootstraps);
     string printWithJacknife(const vector< const F2Result * >  * jacknife);
     void addAlleleCounts(int c1,int c2);

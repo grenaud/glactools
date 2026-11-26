@@ -6,6 +6,7 @@
  */
 
 #include "F3Result.h"
+#include "SafeJackknife.h"
 
 F3Result::F3Result(){
     all.reinitializedCounters();
@@ -74,10 +75,8 @@ string F3Result::printWithBootstrap(list<vector< vector< vector<F3Result> >  > >
     return toreturn.str();
 }
 
-void F3Result::addIfNotInfinity( vector<double> * target , double val ){
-    if(val != std::numeric_limits<double>::infinity()){
-	target->push_back(val);
-    }
+void F3Result::addReplicate( vector<double> * target , double val ){
+    target->push_back(val);
 }
 
 string F3Result::printWithJacknife(const vector<const  F3Result * >  * jacknife){
@@ -98,23 +97,23 @@ string F3Result::printWithJacknife(const vector<const  F3Result * >  * jacknife)
     //for (vector< AvgCoaResult * > ::iterator it=jacknife->begin(); it != jacknife->end(); it++){
     for (unsigned int k=0;k<jacknife->size(); k++){
 	//cout<<"jack "<<jacknife->at(k)->all.avgCoaRefSam()<<endl;
-	addIfNotInfinity( &allBoot,             jacknife->at(k)->all.computeF3()              );
-	addIfNotInfinity( &nocpgBoot,           jacknife->at(k)->noCpg.computeF3()            );
-	addIfNotInfinity( &onlycpgBoot,         jacknife->at(k)->onlyCpg.computeF3()          );
-	addIfNotInfinity( &transitionsBoot,     jacknife->at(k)->transitions.computeF3()      );
-	addIfNotInfinity( &transversionsBoot,   jacknife->at(k)->transversions.computeF3()    );
-	addIfNotInfinity( &noDamageBoot,        jacknife->at(k)->noDamage.computeF3()         );
+	addReplicate( &allBoot,             jacknife->at(k)->all.computeF3()              );
+	addReplicate( &nocpgBoot,           jacknife->at(k)->noCpg.computeF3()            );
+	addReplicate( &onlycpgBoot,         jacknife->at(k)->onlyCpg.computeF3()          );
+	addReplicate( &transitionsBoot,     jacknife->at(k)->transitions.computeF3()      );
+	addReplicate( &transversionsBoot,   jacknife->at(k)->transversions.computeF3()    );
+	addReplicate( &noDamageBoot,        jacknife->at(k)->noDamage.computeF3()         );
 
 
     }
 
 
-    pair<double,double> allJK           =  computeJackknifeConfIntervals(all.computeF3(),          allBoot          );
-    pair<double,double> noCpgJK         =  computeJackknifeConfIntervals(noCpg.computeF3(),        nocpgBoot        );
-    pair<double,double> onlyCpgJK       =  computeJackknifeConfIntervals(onlyCpg.computeF3(),      onlycpgBoot      );
-    pair<double,double> transitionsJK   =  computeJackknifeConfIntervals(transitions.computeF3(),  transitionsBoot  );
-    pair<double,double> transversionsJK =  computeJackknifeConfIntervals(transversions.computeF3(),transversionsBoot);
-    pair<double,double> noDamageJK      =  computeJackknifeConfIntervals(noDamage.computeF3(),     noDamageBoot);
+    pair<double,double> allJK           =  jackknifeOrNan(all.computeF3(),          allBoot          );
+    pair<double,double> noCpgJK         =  jackknifeOrNan(noCpg.computeF3(),        nocpgBoot        );
+    pair<double,double> onlyCpgJK       =  jackknifeOrNan(onlyCpg.computeF3(),      onlycpgBoot      );
+    pair<double,double> transitionsJK   =  jackknifeOrNan(transitions.computeF3(),  transitionsBoot  );
+    pair<double,double> transversionsJK =  jackknifeOrNan(transversions.computeF3(),transversionsBoot);
+    pair<double,double> noDamageJK      =  jackknifeOrNan(noDamage.computeF3(),     noDamageBoot);
 
 
     

@@ -44,7 +44,7 @@ class FstResult{
     FstResult();
     ~FstResult();
     string getHeader();
-    void addIfNotInfinity( vector<double> * target , double val );
+    void addReplicate( vector<double> * target , double val );
     string printWithBootstrap(list< vector< vector< FstResult >  > >  & boostraps,unsigned int i,unsigned int j,unsigned int numberOfBootstraps);
     string printWithJacknife(const vector< const FstResult * >  * jacknife);
 

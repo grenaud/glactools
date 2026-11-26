@@ -6,6 +6,7 @@
  */
 
 #include "DistResult.h"
+#include "SafeJackknife.h"
 
 DistResult::DistResult(){
     all.reinitializedCounters();
@@ -33,10 +34,8 @@ string DistResult::getHeader(){
 	noDamage.getHeader("noDam");
 }
 
-void DistResult::addIfNotInfinity( vector<double> * target , double val ){
-    if(val != std::numeric_limits<double>::infinity()){
-	target->push_back(val);
-    }
+void DistResult::addReplicate( vector<double> * target , double val ){
+    target->push_back(val);
 }
 
 string DistResult::printWithJacknife(const vector<const  DistResult * >  * jacknife,const string & dnaDistMode){
@@ -63,12 +62,12 @@ string DistResult::printWithJacknife(const vector<const  DistResult * >  * jackn
     // //for (vector< DistResult * > ::iterator it=jacknife->begin(); it != jacknife->end(); it++){
     for (unsigned int k=0;k<jacknife->size(); k++){
     	//cout<<"jack "<<jacknife->at(k)->all.distRefSam()<<endl;
-    	addIfNotInfinity( &allBootDist,             jacknife->at(k)->all.dist(          dnaDistMode)    );
-    	addIfNotInfinity( &nocpgBootDist,           jacknife->at(k)->noCpg.dist(        dnaDistMode)    );
-    	addIfNotInfinity( &onlycpgBootDist,         jacknife->at(k)->onlyCpg.dist(      dnaDistMode)    );
-    	addIfNotInfinity( &transitionsBootDist,     jacknife->at(k)->transitions.dist(  dnaDistMode)    );
-    	addIfNotInfinity( &transversionsBootDist,   jacknife->at(k)->transversions.dist(dnaDistMode)    );
-    	addIfNotInfinity( &noDamageBootDist,        jacknife->at(k)->noDamage.dist(     dnaDistMode)    );
+    	addReplicate( &allBootDist,             jacknife->at(k)->all.dist(          dnaDistMode)    );
+    	addReplicate( &nocpgBootDist,           jacknife->at(k)->noCpg.dist(        dnaDistMode)    );
+    	addReplicate( &onlycpgBootDist,         jacknife->at(k)->onlyCpg.dist(      dnaDistMode)    );
+    	addReplicate( &transitionsBootDist,     jacknife->at(k)->transitions.dist(  dnaDistMode)    );
+    	addReplicate( &transversionsBootDist,   jacknife->at(k)->transversions.dist(dnaDistMode)    );
+    	addReplicate( &noDamageBootDist,        jacknife->at(k)->noDamage.dist(     dnaDistMode)    );
 
     }
     // }
@@ -89,12 +88,12 @@ string DistResult::printWithJacknife(const vector<const  DistResult * >  * jackn
     // // pair<double,double> transversionsDEVSamRef =  computeMeanSTDDEV(transversionsBootSamRef);
     // // pair<double,double> noDamageDEVSamRef      =  computeMeanSTDDEV(transversionsBootSamRef);
 
-    pair<double,double> allDEVDistJK           =  computeJackknifeConfIntervals(all.dist(dnaDistMode),          allBootDist);
-    pair<double,double> noCpgDEVDistJK         =  computeJackknifeConfIntervals(noCpg.dist(dnaDistMode),        nocpgBootDist);
-    pair<double,double> onlyCpgDEVDistJK       =  computeJackknifeConfIntervals(onlyCpg.dist(dnaDistMode),      onlycpgBootDist);
-    pair<double,double> transitionsDEVDistJK   =  computeJackknifeConfIntervals(transitions.dist(dnaDistMode),  transitionsBootDist);
-    pair<double,double> transversionsDEVDistJK =  computeJackknifeConfIntervals(transversions.dist(dnaDistMode),transversionsBootDist);
-    pair<double,double> noDamageDEVDistJK      =  computeJackknifeConfIntervals(noDamage.dist(dnaDistMode),     noDamageBootDist);
+    pair<double,double> allDEVDistJK           =  jackknifeOrNan(all.dist(dnaDistMode),          allBootDist);
+    pair<double,double> noCpgDEVDistJK         =  jackknifeOrNan(noCpg.dist(dnaDistMode),        nocpgBootDist);
+    pair<double,double> onlyCpgDEVDistJK       =  jackknifeOrNan(onlyCpg.dist(dnaDistMode),      onlycpgBootDist);
+    pair<double,double> transitionsDEVDistJK   =  jackknifeOrNan(transitions.dist(dnaDistMode),  transitionsBootDist);
+    pair<double,double> transversionsDEVDistJK =  jackknifeOrNan(transversions.dist(dnaDistMode),transversionsBootDist);
+    pair<double,double> noDamageDEVDistJK      =  jackknifeOrNan(noDamage.dist(dnaDistMode),     noDamageBootDist);
 
     // pair<double,double> allDEVSamRefJK           =  computeJackknifeConfIntervals(all.distRefSam(),allBootSamRef);
     // pair<double,double> noCpgDEVSamRefJK         =  computeJackknifeConfIntervals(noCpg.distRefSam(),nocpgBootSamRef);
@@ -157,19 +156,19 @@ string DistResult::printWithBootstrap(list< vector< vector< DistResult >  > >  &
     // 	 it != boostraps.end(); it++){
 
 
-    // 	addIfNotInfinity( &allBootRefSam,             (*it)[i][j].all.distRefSam()              );
-    // 	addIfNotInfinity( &nocpgBootRefSam,           (*it)[i][j].noCpg.distRefSam()            );
-    // 	addIfNotInfinity( &onlycpgBootRefSam,         (*it)[i][j].onlyCpg.distRefSam()          );
-    // 	addIfNotInfinity( &transitionsBootRefSam,     (*it)[i][j].transitions.distRefSam()      );
-    // 	addIfNotInfinity( &transversionsBootRefSam,   (*it)[i][j].transversions.distRefSam()    );
-    // 	addIfNotInfinity( &noDamageBootRefSam,        (*it)[i][j].noDamage.distRefSam()         );
+    // 	addReplicate( &allBootRefSam,             (*it)[i][j].all.distRefSam()              );
+    // 	addReplicate( &nocpgBootRefSam,           (*it)[i][j].noCpg.distRefSam()            );
+    // 	addReplicate( &onlycpgBootRefSam,         (*it)[i][j].onlyCpg.distRefSam()          );
+    // 	addReplicate( &transitionsBootRefSam,     (*it)[i][j].transitions.distRefSam()      );
+    // 	addReplicate( &transversionsBootRefSam,   (*it)[i][j].transversions.distRefSam()    );
+    // 	addReplicate( &noDamageBootRefSam,        (*it)[i][j].noDamage.distRefSam()         );
 
-    // 	addIfNotInfinity( &allBootSamRef,             (*it)[i][j].all.distSamRef()           );
-    // 	addIfNotInfinity( &nocpgBootSamRef,           (*it)[i][j].noCpg.distSamRef()         );
-    // 	addIfNotInfinity( &onlycpgBootSamRef,         (*it)[i][j].onlyCpg.distSamRef()       );
-    // 	addIfNotInfinity( &transitionsBootSamRef,     (*it)[i][j].transitions.distSamRef()   );
-    // 	addIfNotInfinity( &transversionsBootSamRef,   (*it)[i][j].transversions.distSamRef() );
-    // 	addIfNotInfinity( &noDamageBootSamRef,        (*it)[i][j].noDamage.distSamRef()      );
+    // 	addReplicate( &allBootSamRef,             (*it)[i][j].all.distSamRef()           );
+    // 	addReplicate( &nocpgBootSamRef,           (*it)[i][j].noCpg.distSamRef()         );
+    // 	addReplicate( &onlycpgBootSamRef,         (*it)[i][j].onlyCpg.distSamRef()       );
+    // 	addReplicate( &transitionsBootSamRef,     (*it)[i][j].transitions.distSamRef()   );
+    // 	addReplicate( &transversionsBootSamRef,   (*it)[i][j].transversions.distSamRef() );
+    // 	addReplicate( &noDamageBootSamRef,        (*it)[i][j].noDamage.distSamRef()      );
 
 					    
     // }

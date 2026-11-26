@@ -6,6 +6,7 @@
  */
 
 #include "AvgCoaResult.h"
+#include "SafeJackknife.h"
 
 AvgCoaResult::AvgCoaResult(){
     all.reinitializedCounters();
@@ -33,10 +34,8 @@ string AvgCoaResult::getHeader(){
 	noDamage.getHeader("noDam");
 }
 
-void AvgCoaResult::addIfNotInfinity( vector<double> * target , double val ){
-    if(val != std::numeric_limits<double>::infinity()){
-	target->push_back(val);
-    }
+void AvgCoaResult::addReplicate( vector<double> * target , double val ){
+    target->push_back(val);
 }
 
 string AvgCoaResult::printWithJacknife(const vector<const  AvgCoaResult * >  * jacknife){
@@ -63,19 +62,19 @@ string AvgCoaResult::printWithJacknife(const vector<const  AvgCoaResult * >  * j
     //for (vector< AvgCoaResult * > ::iterator it=jacknife->begin(); it != jacknife->end(); it++){
     for (unsigned int k=0;k<jacknife->size(); k++){
 	//cout<<"jack "<<jacknife->at(k)->all.avgCoaRefSam()<<endl;
-	addIfNotInfinity( &allBootRefSam,             jacknife->at(k)->all.avgCoaRefSam()              );
-	addIfNotInfinity( &nocpgBootRefSam,           jacknife->at(k)->noCpg.avgCoaRefSam()            );
-	addIfNotInfinity( &onlycpgBootRefSam,         jacknife->at(k)->onlyCpg.avgCoaRefSam()          );
-	addIfNotInfinity( &transitionsBootRefSam,     jacknife->at(k)->transitions.avgCoaRefSam()      );
-	addIfNotInfinity( &transversionsBootRefSam,   jacknife->at(k)->transversions.avgCoaRefSam()    );
-	addIfNotInfinity( &noDamageBootRefSam,        jacknife->at(k)->noDamage.avgCoaRefSam()         );
+	addReplicate( &allBootRefSam,             jacknife->at(k)->all.avgCoaRefSam()              );
+	addReplicate( &nocpgBootRefSam,           jacknife->at(k)->noCpg.avgCoaRefSam()            );
+	addReplicate( &onlycpgBootRefSam,         jacknife->at(k)->onlyCpg.avgCoaRefSam()          );
+	addReplicate( &transitionsBootRefSam,     jacknife->at(k)->transitions.avgCoaRefSam()      );
+	addReplicate( &transversionsBootRefSam,   jacknife->at(k)->transversions.avgCoaRefSam()    );
+	addReplicate( &noDamageBootRefSam,        jacknife->at(k)->noDamage.avgCoaRefSam()         );
 
-	addIfNotInfinity( &allBootSamRef,             jacknife->at(k)->all.avgCoaSamRef()           );
-	addIfNotInfinity( &nocpgBootSamRef,           jacknife->at(k)->noCpg.avgCoaSamRef()         );
-	addIfNotInfinity( &onlycpgBootSamRef,         jacknife->at(k)->onlyCpg.avgCoaSamRef()       );
-	addIfNotInfinity( &transitionsBootSamRef,     jacknife->at(k)->transitions.avgCoaSamRef()   );
-	addIfNotInfinity( &transversionsBootSamRef,   jacknife->at(k)->transversions.avgCoaSamRef() );
-	addIfNotInfinity( &noDamageBootSamRef,        jacknife->at(k)->noDamage.avgCoaSamRef()      );
+	addReplicate( &allBootSamRef,             jacknife->at(k)->all.avgCoaSamRef()           );
+	addReplicate( &nocpgBootSamRef,           jacknife->at(k)->noCpg.avgCoaSamRef()         );
+	addReplicate( &onlycpgBootSamRef,         jacknife->at(k)->onlyCpg.avgCoaSamRef()       );
+	addReplicate( &transitionsBootSamRef,     jacknife->at(k)->transitions.avgCoaSamRef()   );
+	addReplicate( &transversionsBootSamRef,   jacknife->at(k)->transversions.avgCoaSamRef() );
+	addReplicate( &noDamageBootSamRef,        jacknife->at(k)->noDamage.avgCoaSamRef()      );
 
 	// counterReferenceB.push_back(jacknife->at(k)->all.counterReference);
 	// counterBothB.push_back(jacknife->at(k)->all.counterReference+jacknife->at(k)->all.counterCommon);
@@ -98,19 +97,19 @@ string AvgCoaResult::printWithJacknife(const vector<const  AvgCoaResult * >  * j
     // pair<double,double> transversionsDEVSamRef =  computeMeanSTDDEV(transversionsBootSamRef);
     // pair<double,double> noDamageDEVSamRef      =  computeMeanSTDDEV(transversionsBootSamRef);
 
-    pair<double,double> allDEVRefSamJK           =  computeJackknifeConfIntervals(all.avgCoaRefSam(),allBootRefSam);
-    pair<double,double> noCpgDEVRefSamJK         =  computeJackknifeConfIntervals(noCpg.avgCoaRefSam(),nocpgBootRefSam);
-    pair<double,double> onlyCpgDEVRefSamJK       =  computeJackknifeConfIntervals(onlyCpg.avgCoaRefSam(),onlycpgBootRefSam);
-    pair<double,double> transitionsDEVRefSamJK   =  computeJackknifeConfIntervals(transitions.avgCoaRefSam(),transitionsBootRefSam);
-    pair<double,double> transversionsDEVRefSamJK =  computeJackknifeConfIntervals(transversions.avgCoaRefSam(),transversionsBootRefSam);
-    pair<double,double> noDamageDEVRefSamJK      =  computeJackknifeConfIntervals(noDamage.avgCoaRefSam(),noDamageBootRefSam);
+    pair<double,double> allDEVRefSamJK           =  jackknifeOrNan(all.avgCoaRefSam(),allBootRefSam);
+    pair<double,double> noCpgDEVRefSamJK         =  jackknifeOrNan(noCpg.avgCoaRefSam(),nocpgBootRefSam);
+    pair<double,double> onlyCpgDEVRefSamJK       =  jackknifeOrNan(onlyCpg.avgCoaRefSam(),onlycpgBootRefSam);
+    pair<double,double> transitionsDEVRefSamJK   =  jackknifeOrNan(transitions.avgCoaRefSam(),transitionsBootRefSam);
+    pair<double,double> transversionsDEVRefSamJK =  jackknifeOrNan(transversions.avgCoaRefSam(),transversionsBootRefSam);
+    pair<double,double> noDamageDEVRefSamJK      =  jackknifeOrNan(noDamage.avgCoaRefSam(),noDamageBootRefSam);
 
-    pair<double,double> allDEVSamRefJK           =  computeJackknifeConfIntervals(all.avgCoaSamRef(),allBootSamRef);
-    pair<double,double> noCpgDEVSamRefJK         =  computeJackknifeConfIntervals(noCpg.avgCoaSamRef(),nocpgBootSamRef);
-    pair<double,double> onlyCpgDEVSamRefJK       =  computeJackknifeConfIntervals(onlyCpg.avgCoaSamRef(),onlycpgBootSamRef);
-    pair<double,double> transitionsDEVSamRefJK   =  computeJackknifeConfIntervals(transitions.avgCoaSamRef(),transitionsBootSamRef);
-    pair<double,double> transversionsDEVSamRefJK =  computeJackknifeConfIntervals(transversions.avgCoaSamRef(),transversionsBootSamRef);
-    pair<double,double> noDamageDEVSamRefJK      =  computeJackknifeConfIntervals(noDamage.avgCoaSamRef(),noDamageBootSamRef);
+    pair<double,double> allDEVSamRefJK           =  jackknifeOrNan(all.avgCoaSamRef(),allBootSamRef);
+    pair<double,double> noCpgDEVSamRefJK         =  jackknifeOrNan(noCpg.avgCoaSamRef(),nocpgBootSamRef);
+    pair<double,double> onlyCpgDEVSamRefJK       =  jackknifeOrNan(onlyCpg.avgCoaSamRef(),onlycpgBootSamRef);
+    pair<double,double> transitionsDEVSamRefJK   =  jackknifeOrNan(transitions.avgCoaSamRef(),transitionsBootSamRef);
+    pair<double,double> transversionsDEVSamRefJK =  jackknifeOrNan(transversions.avgCoaSamRef(),transversionsBootSamRef);
+    pair<double,double> noDamageDEVSamRefJK      =  jackknifeOrNan(noDamage.avgCoaSamRef(),noDamageBootSamRef);
 
 
     // pair<double,double> ppp     = computeJackknifeConfIntervals(all.avgCoaRefSam(),                        allBootRefSam);
@@ -174,19 +173,19 @@ string AvgCoaResult::printWithBootstrap(list< vector< vector< AvgCoaResult >  > 
 	 it != boostraps.end(); it++){
 
 
-	addIfNotInfinity( &allBootRefSam,             (*it)[i][j].all.avgCoaRefSam()              );
-	addIfNotInfinity( &nocpgBootRefSam,           (*it)[i][j].noCpg.avgCoaRefSam()            );
-	addIfNotInfinity( &onlycpgBootRefSam,         (*it)[i][j].onlyCpg.avgCoaRefSam()          );
-	addIfNotInfinity( &transitionsBootRefSam,     (*it)[i][j].transitions.avgCoaRefSam()      );
-	addIfNotInfinity( &transversionsBootRefSam,   (*it)[i][j].transversions.avgCoaRefSam()    );
-	addIfNotInfinity( &noDamageBootRefSam,        (*it)[i][j].noDamage.avgCoaRefSam()         );
+	addReplicate( &allBootRefSam,             (*it)[i][j].all.avgCoaRefSam()              );
+	addReplicate( &nocpgBootRefSam,           (*it)[i][j].noCpg.avgCoaRefSam()            );
+	addReplicate( &onlycpgBootRefSam,         (*it)[i][j].onlyCpg.avgCoaRefSam()          );
+	addReplicate( &transitionsBootRefSam,     (*it)[i][j].transitions.avgCoaRefSam()      );
+	addReplicate( &transversionsBootRefSam,   (*it)[i][j].transversions.avgCoaRefSam()    );
+	addReplicate( &noDamageBootRefSam,        (*it)[i][j].noDamage.avgCoaRefSam()         );
 
-	addIfNotInfinity( &allBootSamRef,             (*it)[i][j].all.avgCoaSamRef()           );
-	addIfNotInfinity( &nocpgBootSamRef,           (*it)[i][j].noCpg.avgCoaSamRef()         );
-	addIfNotInfinity( &onlycpgBootSamRef,         (*it)[i][j].onlyCpg.avgCoaSamRef()       );
-	addIfNotInfinity( &transitionsBootSamRef,     (*it)[i][j].transitions.avgCoaSamRef()   );
-	addIfNotInfinity( &transversionsBootSamRef,   (*it)[i][j].transversions.avgCoaSamRef() );
-	addIfNotInfinity( &noDamageBootSamRef,        (*it)[i][j].noDamage.avgCoaSamRef()      );
+	addReplicate( &allBootSamRef,             (*it)[i][j].all.avgCoaSamRef()           );
+	addReplicate( &nocpgBootSamRef,           (*it)[i][j].noCpg.avgCoaSamRef()         );
+	addReplicate( &onlycpgBootSamRef,         (*it)[i][j].onlyCpg.avgCoaSamRef()       );
+	addReplicate( &transitionsBootSamRef,     (*it)[i][j].transitions.avgCoaSamRef()   );
+	addReplicate( &transversionsBootSamRef,   (*it)[i][j].transversions.avgCoaSamRef() );
+	addReplicate( &noDamageBootSamRef,        (*it)[i][j].noDamage.avgCoaSamRef()      );
 
 					    
     }

@@ -6,6 +6,7 @@
  */
 
 #include "F2Result.h"
+#include "SafeJackknife.h"
 
 F2Result::F2Result(){
     all.reinitializedCounters();
@@ -74,10 +75,8 @@ string F2Result::printWithBootstrap(list<vector< vector< vector<F2Result> >  > >
     return toreturn.str();
 }
 
-void F2Result::addIfNotInfinity( vector<double> * target , double val ){
-    if(val != std::numeric_limits<double>::infinity()){
-	target->push_back(val);
-    }
+void F2Result::addReplicate( vector<double> * target , double val ){
+    target->push_back(val);
 }
 
 string F2Result::printWithJacknife(const vector<const  F2Result * >  * jacknife){
@@ -98,23 +97,23 @@ string F2Result::printWithJacknife(const vector<const  F2Result * >  * jacknife)
     //for (vector< AvgCoaResult * > ::iterator it=jacknife->begin(); it != jacknife->end(); it++){
     for (unsigned int k=0;k<jacknife->size(); k++){
 	//cout<<"jack "<<jacknife->at(k)->all.avgCoaRefSam()<<endl;
-	addIfNotInfinity( &allBoot,             jacknife->at(k)->all.computeF2()              );
-	addIfNotInfinity( &nocpgBoot,           jacknife->at(k)->noCpg.computeF2()            );
-	addIfNotInfinity( &onlycpgBoot,         jacknife->at(k)->onlyCpg.computeF2()          );
-	addIfNotInfinity( &transitionsBoot,     jacknife->at(k)->transitions.computeF2()      );
-	addIfNotInfinity( &transversionsBoot,   jacknife->at(k)->transversions.computeF2()    );
-	addIfNotInfinity( &noDamageBoot,        jacknife->at(k)->noDamage.computeF2()         );
+	addReplicate( &allBoot,             jacknife->at(k)->all.computeF2()              );
+	addReplicate( &nocpgBoot,           jacknife->at(k)->noCpg.computeF2()            );
+	addReplicate( &onlycpgBoot,         jacknife->at(k)->onlyCpg.computeF2()          );
+	addReplicate( &transitionsBoot,     jacknife->at(k)->transitions.computeF2()      );
+	addReplicate( &transversionsBoot,   jacknife->at(k)->transversions.computeF2()    );
+	addReplicate( &noDamageBoot,        jacknife->at(k)->noDamage.computeF2()         );
 
 
     }
 
 
-    pair<double,double> allJK           =  computeJackknifeConfIntervals(all.computeF2(),          allBoot          );
-    pair<double,double> noCpgJK         =  computeJackknifeConfIntervals(noCpg.computeF2(),        nocpgBoot        );
-    pair<double,double> onlyCpgJK       =  computeJackknifeConfIntervals(onlyCpg.computeF2(),      onlycpgBoot      );
-    pair<double,double> transitionsJK   =  computeJackknifeConfIntervals(transitions.computeF2(),  transitionsBoot  );
-    pair<double,double> transversionsJK =  computeJackknifeConfIntervals(transversions.computeF2(),transversionsBoot);
-    pair<double,double> noDamageJK      =  computeJackknifeConfIntervals(noDamage.computeF2(),     noDamageBoot);
+    pair<double,double> allJK           =  jackknifeOrNan(all.computeF2(),          allBoot          );
+    pair<double,double> noCpgJK         =  jackknifeOrNan(noCpg.computeF2(),        nocpgBoot        );
+    pair<double,double> onlyCpgJK       =  jackknifeOrNan(onlyCpg.computeF2(),      onlycpgBoot      );
+    pair<double,double> transitionsJK   =  jackknifeOrNan(transitions.computeF2(),  transitionsBoot  );
+    pair<double,double> transversionsJK =  jackknifeOrNan(transversions.computeF2(),transversionsBoot);
+    pair<double,double> noDamageJK      =  jackknifeOrNan(noDamage.computeF2(),     noDamageBoot);
 
 
     

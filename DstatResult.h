@@ -51,7 +51,7 @@ class DstatResult{
 	this->noDamage        = other.noDamage;
 	return *this;
     }
-    void addIfNotInfinity( vector<double> * target , double val );
+    void addReplicate( vector<double> * target , double val );
     string printWithBootstrap(list<vector< vector< vector<DstatResult> >  > >  & boostraps,unsigned int i,unsigned int j,unsigned int k,unsigned int numberOfBootstraps);
     string printWithJacknife(const vector< const DstatResult * >  * jacknife);
 
