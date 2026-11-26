@@ -2,6 +2,10 @@
   glactools: command-line toolset for the management of Genotype Likelihoods and Allele Counts
 ==========================================================
 
+[![GitHub release](https://img.shields.io/github/v/release/grenaud/glactools)](https://github.com/grenaud/glactools/releases/latest)
+[![License](https://img.shields.io/github/license/grenaud/glactools)](LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-10.1093%2Fbioinformatics%2Fbtx749-blue.svg)](https://doi.org/10.1093/bioinformatics/btx749)
+
 QUESTIONS :
    gabriel [dot] reno [ at sign ] gmail [dot] com
 
@@ -10,6 +14,30 @@ About
 ----------------------
 
 glactools is a set of command-line tools for the management of Genotype Likelihood (GL) and Allele Counts (AC).
+
+
+## How to cite
+
+If you use glactools in your work, please cite:
+
+> Renaud G. glactools: a command-line toolset for the management of genotype likelihoods and allele counts. *Bioinformatics* 2018;34(8):1398–1400. [doi:10.1093/bioinformatics/btx749](https://doi.org/10.1093/bioinformatics/btx749)
+
+BibTeX:
+
+```bibtex
+@article{Renaud2018glactools,
+  author    = {Renaud, Gabriel},
+  title     = {{{glactools}: a command-line toolset for the management of genotype likelihoods and allele counts}},
+  journal   = {Bioinformatics},
+  year      = {2018},
+  volume    = {34},
+  number    = {8},
+  pages     = {1398--1400},
+  publisher = {Oxford University Press},
+  doi       = {10.1093/bioinformatics/btx749},
+  url       = {https://doi.org/10.1093/bioinformatics/btx749}
+}
+```
 
 
 Description
