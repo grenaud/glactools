@@ -52,7 +52,7 @@ class F3Counter{
 	double meanhzy    = ct.hzy/ct.nsnp; 
 
 	double t=  	meanhzy / (4.0* meannInds);
-	os<<ct.f3Sum<<"\t"<<ct.counterSites<<"\t"<<f3unscaled<<"\t"<<ct.nInds<<"\t"<<ct.hzy<<"\t"<<ct.nsnp<<"\t"<<t<<"\t"<<(f3unscaled-t)<<"\t";
+	os<<ct.f3Sum<<"\t"<<ct.counterSites<<"\t"<<f3unscaled<<"\t"<<ct.nInds<<"\t"<<ct.hzy<<"\t"<<ct.nsnp<<"\t"<<t<<"\t"<<ct.computeF3()<<"\t";
 	return os;
     }
 

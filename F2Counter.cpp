@@ -55,9 +55,17 @@ string F2Counter::headerForCount() const {
 // }
 
 
+//f2 with the correction for the sampling variance of the allele frequencies. This is the value printed
+//and the one the jackknife is computed on
 double F2Counter::computeF2() const{
-    double f2= (f2Sum)/(double(counterSites));
-    return f2;    
+    //mean number of individuals (alleles/2) of each population over the sites
+    double meanNind1   = nInds1/double(counterSites);
+    double meanNind2   = nInds2/double(counterSites);
+
+    double meanHZ1     = hz1/(2*meanNind1);
+    double meanHZ2     = hz2/(2*meanNind2);
+
+    return ( f2Sum - meanHZ1 - meanHZ2 )  / double(counterSites);
 }
 
 //update allele counts for the target

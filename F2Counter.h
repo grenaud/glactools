@@ -72,17 +72,7 @@ class F2Counter{
 	/* return toreturn; */
     //taken from countData from treemix
     friend ostream& operator<<(ostream& os, const F2Counter & ct){
-	double f2unscaled = double(ct.f2Sum);///double(ct.counterSites);
-
-	double meanNind1   = double(ct.nInds1)/double(ct.nsnp);
-	double meanNind2   = double(ct.nInds2)/double(ct.nsnp);
-
-	double meanHZ1     = double(ct.hz1)/double(2*meanNind1);
-	double meanHZ2     = double(ct.hz2)/double(2*meanNind2);
-
-	double f2=  ( f2unscaled - meanHZ1 - meanHZ2 )  / double(ct.nsnp);
-	//  324.75	  9344	    324.75	9304.5	9335	227.5	217.25	9344	0.0108933
-	//  324.75	         9344	               9304.5	          9335	         227.5         217.25	     9344	0.0108933
+	double f2 = ct.computeF2();
 	os<<ct.f2Sum<<"\t"<<ct.counterSites<<"\t"<<ct.nInds1<<"\t"<<ct.nInds2<<"\t"<<ct.hz1<<"\t"<<ct.hz2<<"\t"<<ct.nsnp<<"\t"<<f2<<"\t";
 	return os;
     }

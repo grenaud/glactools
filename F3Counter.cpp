@@ -53,9 +53,14 @@ string F3Counter::headerForCount() const {
 // }
 
 
+//f3 with the correction for the sampling variance of the target allele frequency. This is the value
+//printed and the one the jackknife is computed on
 double F3Counter::computeF3() const{
-    double f3= (f3Sum)/(double(counterSites));
-    return f3;    
+    double f3unscaled = f3Sum/double(counterSites);
+    double meannInds  = nInds/double(counterSites);
+    double meanhzy    = hzy/double(counterSites);
+
+    return f3unscaled - meanhzy / (4.0* meannInds);
 }
 
 //update allele counts for the target
