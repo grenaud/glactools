@@ -180,13 +180,12 @@ double DistAlleleCounter::dist(const string & dnaDistMode) const{
     }
 
     if(dnaDistMode == "JC69"){	
-	double P = double(getMutations())   / double( getIdent() );
-	double inLog=(1.0-P*double(4.0)/double(3.0));
-	
-	if (inLog != 0.0 )
-	    return ( -0.75*log(inLog) );
+	//proportion of compared sites that differ
+	double P = double(getMutations())   / double( getIdent()+getMutations() );
+	if (P == 0.0 )
+	    return ( 0.0 );
 
-	return ( 0.0 );
+	return ( -0.75*log(1.0-P*double(4.0)/double(3.0)) );
     }
 
 
