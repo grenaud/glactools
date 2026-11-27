@@ -547,6 +547,23 @@ string GlacCompute::usage() const{
 
 
 
+//number of values after the name on a row of --noboot output: six categories of sites
+static unsigned int valuesPerResultRow(const string & program){
+    if(program == "dstat")	return 6*5;
+    if(program == "paircoa")	return 6*10;
+    if(program == "dist")	return 6*19;
+    return 6*8;//f2 and f3
+}
+
+static unsigned int countValues(const string & row){
+    vector<string> fields = allTokens(row,'\t');
+    unsigned int values=0;
+    for(unsigned int i=1;i<fields.size();i++)//the first field is the name
+	if(!fields[i].empty())
+	    values++;
+    return values;
+}
+
 template <class STAT> //type 
 void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
     
@@ -555,6 +572,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
     ////////////////////////////////
     vector<STAT * > * results=new vector<STAT *>();
     //cerr<<"bootFromResults"<<endl;
+    unsigned int expectedRows=0;//every block has one row per combination of populations
     for(unsigned int i=0;i<arguments->size();i++){
 	igzstream myfileResults;
 	myfileResults.open(arguments->at(i).c_str(), ios::in);
@@ -568,6 +586,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	string strResults;
 	string lineResults;
 	unsigned int blocksInFile=0;
+	unsigned int rowsInBlock=0;
 	bool moreLines=true;
 	while(moreLines){
 	    moreLines = bool(getline(myfileResults,lineResults));
@@ -577,11 +596,25 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 		exit(1);
 	    }
 	    if(moreLines && !isSeparator){
-		if(!lineResults.empty())
+		if(!lineResults.empty()){
+		    //a truncated file or the results of another statistic would otherwise be read as numbers
+		    if(countValues(lineResults) != valuesPerResultRow(program)){
+			cerr<<"GlacCompute: ERROR: "<<arguments->at(i)<<" is truncated or does not contain -p "<<program<<" results, expected "<<valuesPerResultRow(program)<<" values on the row starting with \""<<lineResults.substr(0,40)<<"\""<<endl;
+			exit(1);
+		    }
 		    strResults+=lineResults+"\n";
+		    rowsInBlock++;
+		}
 		continue;
 	    }
 	    if(!strResults.empty()){
+		if(expectedRows == 0)
+		    expectedRows = rowsInBlock;
+		if(rowsInBlock != expectedRows){
+		    cerr<<"GlacCompute: ERROR: a block in "<<arguments->at(i)<<" has "<<rowsInBlock<<" rows instead of "<<expectedRows<<", the file is truncated or has other populations"<<endl;
+		    exit(1);
+		}
+		rowsInBlock=0;
 		STAT * statComputer = new STAT();
 		statComputer->read(strResults);
 		results->push_back(statComputer);
