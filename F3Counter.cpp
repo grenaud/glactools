@@ -53,31 +53,22 @@ string F3Counter::headerForCount() const {
 // }
 
 
-//f3 with the correction for the sampling variance of the target allele frequency. This is the value
-//printed and the one the jackknife is computed on
+//f3 with the correction for the sampling variance of the target allele frequency, applied site by site:
+//the mean over sites of (c-a)(c-b) - c(1-c)/(N-1). This is the value printed and the one the jackknife
+//is computed on
 double F3Counter::computeF3() const{
-    double f3unscaled = f3Sum/double(counterSites);
-    double meannInds  = nInds/double(counterSites);
-    double meanhzy    = hzy/double(counterSites);
-
-    return f3unscaled - meanhzy / (4.0* meannInds);
+    return ( f3Sum - hzy ) / double(counterSites);
 }
 
 //update allele counts for the target
 void F3Counter::addAlleleCounts(int c1,int c2){
-    //cerr<<"c1 "<<c1<<" c2 "<<endl;
-    //taken from CountData.cpp from treemx
-    double f = (double) c1 / ( (double) c1 + (double) c2 );
-    nInds   += ((double) c1+ (double) c2)/2.0;//number of individuals
-
-    double tmp2 = (double) c2 / ((double) c1+ (double) c2 - 1.0);
-    double tmphzy = 2* f * tmp2;
-
-    if((c1+c2) < 2){
-	tmphzy = 2*f*(1-f);
+    int n = c1 + c2;
+    nInds   += double(n)/2.0;//number of individuals
+    //hzy is the sum over sites of f*(1-f)/(N-1), as in F2Counter; nothing is added for a single allele
+    if(n >= 2){
+	double f = double(c1) / double(n);
+	hzy += f*(1-f) / double(n-1);
     }
-    ///cerr<<"c1 "<<c1<<" c2 "<<c2<<" "<<tmphzy<<endl;
-    hzy += tmphzy; //2*f*(1-f);
     nsnp++;
 }
 

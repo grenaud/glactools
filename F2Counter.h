@@ -16,6 +16,7 @@
 #include <stdlib.h>
 
 #include "libgab.h"
+#include "CheckPrintedValue.h"
 
 //#include <iostream>
 //#include <fstream>
@@ -80,8 +81,9 @@ class F2Counter{
     friend istream &operator>>(istream &is , F2Counter &ct){
 	is>>ct.f2Sum>>ct.counterSites>>ct.nInds1>>ct.nInds2>>ct.hz1>>ct.hz2>>ct.nsnp;
 
-	string derived; //f2, recomputed from the sums
-	is>>derived;
+	string printed; //f2, recomputed from the sums
+	is>>printed;
+	checkPrintedValue("f2",printed,ct.computeF2(),(std::fabs(ct.f2Sum)+ct.hz1+ct.hz2)/double(ct.counterSites));
 
 	return is;
     }

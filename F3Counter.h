@@ -16,6 +16,7 @@
 #include <stdlib.h>
 
 #include "libgab.h"
+#include "CheckPrintedValue.h"
 
 //#include <iostream>
 //#include <fstream>
@@ -48,19 +49,18 @@ class F3Counter{
 
     friend ostream& operator<<(ostream& os, const F3Counter & ct){
 	double f3unscaled = double(ct.f3Sum)/double(ct.counterSites);
-	double meannInds  = ct.nInds/ct.nsnp;
-	double meanhzy    = ct.hzy/ct.nsnp; 
+	double t          = double(ct.hzy)/double(ct.counterSites);//mean correction term
 
-	double t=  	meanhzy / (4.0* meannInds);
 	os<<ct.f3Sum<<"\t"<<ct.counterSites<<"\t"<<f3unscaled<<"\t"<<ct.nInds<<"\t"<<ct.hzy<<"\t"<<ct.nsnp<<"\t"<<t<<"\t"<<ct.computeF3()<<"\t";
 	return os;
     }
 
     friend istream &operator>>(istream &is , F3Counter &ct){
 	//the derived columns are recomputed from the sums
-	string derived;
+	string derived,printed;
 	is>>ct.f3Sum>>ct.counterSites>>derived;      //uncorrected f3
-	is>>ct.nInds>>ct.hzy>>ct.nsnp>>derived>>derived; //correction term, corrected f3
+	is>>ct.nInds>>ct.hzy>>ct.nsnp>>derived>>printed; //correction term, corrected f3
+	checkPrintedValue("f3",printed,ct.computeF3(),(std::fabs(ct.f3Sum)+ct.hzy)/double(ct.counterSites));
 
 	return is;
     }

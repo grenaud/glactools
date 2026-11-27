@@ -55,17 +55,11 @@ string F2Counter::headerForCount() const {
 // }
 
 
-//f2 with the correction for the sampling variance of the allele frequencies. This is the value printed
-//and the one the jackknife is computed on
+//f2 with the correction for the sampling variance of the allele frequencies, applied site by site:
+//the mean over sites of (f1-f2)^2 - f1(1-f1)/(N1-1) - f2(1-f2)/(N2-1). This is the value printed and the
+//one the jackknife is computed on
 double F2Counter::computeF2() const{
-    //mean number of individuals (alleles/2) of each population over the sites
-    double meanNind1   = nInds1/double(counterSites);
-    double meanNind2   = nInds2/double(counterSites);
-
-    double meanHZ1     = hz1/(2*meanNind1);
-    double meanHZ2     = hz2/(2*meanNind2);
-
-    return ( f2Sum - meanHZ1 - meanHZ2 )  / double(counterSites);
+    return ( f2Sum - hz1 - hz2 )  / double(counterSites);
 }
 
 //update allele counts for the target
@@ -79,15 +73,14 @@ void F2Counter::addAlleleCounts(int c1_1,int c2_1,double f_1,int c1_2,int c2_2,d
     // double f_1 = (double) c1_1 / ( (double) c1_1 + (double) c2_1 );
     // double f_2 = (double) c1_2 / ( (double) c1_2 + (double) c2_2 );
 
-    //as in F3Counter: f*(1-f)*N/(N-1) for N sampled alleles, so that the correction below subtracts the
-    //unbiased estimate f*(1-f)/(N-1) of the sampling variance of f. With fewer than two alleles it cannot
-    //be estimated and nothing is added (f is then 0 or 1)
+    //hz is the sum over sites of f*(1-f)/(N-1), the unbiased estimate of the sampling variance of f for N
+    //sampled alleles. With a single allele it cannot be estimated and nothing is added (f is then 0 or 1)
     int n1 = c1_1 + c2_1;
     int n2 = c1_2 + c2_2;
     if(n1 >= 2)
-	hz1 +=  (f_1*(1-f_1)) * double(n1)/double(n1-1);
+	hz1 +=  (f_1*(1-f_1)) / double(n1-1);
     if(n2 >= 2)
-	hz2 +=  (f_2*(1-f_2)) * double(n2)/double(n2-1);
+	hz2 +=  (f_2*(1-f_2)) / double(n2-1);
     // cerr<<"f_1 "<<f_1<<" f_2 "<<f_2<<endl;
     // cerr<<"hz1 "<<hz1<<" hz2 "<<hz2<<endl;
 
