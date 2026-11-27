@@ -501,13 +501,13 @@ The summary stats in glactools compute are reported as such:
 
 For f2 and f3 no assumption is made about which allele is ancestral, so "no damage" contains the same sites as "transversions".
 
-For dist, sites where the two individuals are identical are counted for both transitions and transversions, so these two rates add up to the rate for all sites.
+For dist, sites where the two individuals are identical are counted for both transitions and transversions. The transition rate is the number of transition differences divided by identical sites plus transition differences, and likewise for transversions. These two rates therefore do not add up to the rate for all sites. With --model JC69, only the jackknife interval is corrected: the rate column is the uncorrected proportion.
 
 A jackknife interval is reported as nan when it cannot be computed, for instance when a category has no site.
 
 ### How are f2 and f3 corrected for sample size?
 
-For each population, the bias due to the sampling of the allele frequency f is estimated with f(1-f)/(N-1), where N is the number of sampled alleles (as an average over sites weighted by N when it varies). f3 subtracts it for the target population, f2 for both populations. With a single allele (e.g. pseudo-haploid data) it cannot be estimated and nothing is subtracted. The value in the last column and its jackknife interval both refer to the corrected statistic.
+For each population, the bias due to the sampling of the allele frequency f is estimated with f(1-f)/(N-1), where N is the number of sampled alleles. f3 subtracts it for the target population, f2 for both populations. When N varies between sites, the term subtracted is the sum of f(1-f)N/(N-1) divided by the sum of N: this is only unbiased when N is the same at every site, and otherwise it subtracts too little. With a single allele (e.g. pseudo-haploid data) it cannot be estimated and nothing is subtracted. The value in the last column and its jackknife interval both refer to the corrected statistic.
 
 ### How do I combine results computed separately, for instance per chromosome?
 

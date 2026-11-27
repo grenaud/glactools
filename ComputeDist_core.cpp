@@ -52,7 +52,8 @@ void computeDist(const char allel_anc,const char allel_1,const char allel_2,bool
 	divr->noCpg.addAllelePair(allePairIndex);
 
     //an identical pair is a compared site without a transition and without a transversion, so it counts in
-    //the denominator of both rates; the two rates then add up to the rate for all sites
+    //both categories. Each rate is over the sites of its own category, which leaves out the other kind of
+    //difference: the two rates do not add up to the rate for all sites
     if(allel_1 == allel_2){
 	divr->transitions.addAllelePair(allePairIndex);
 	divr->transversions.addAllelePair(allePairIndex);
