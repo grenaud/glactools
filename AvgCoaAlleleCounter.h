@@ -99,7 +99,7 @@ class AvgCoaAlleleCounter{
 
 		//cerr<<"#"<<c<<"#"<<dStr<<"#"<<endl;
 	    }
-	    if(dStr == "nan"){
+	    if(dStr == "nan" || dStr == "-nan"){
 		d =  numeric_limits<double>::quiet_NaN();
 	    }else{
 		d =  destringify<double>(dStr);

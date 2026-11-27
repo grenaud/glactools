@@ -82,7 +82,7 @@ class DstatCounter{
 	    dstStr+=c;
 	    //cerr<<"#"<<c<<"#"<<endl;
 	}
-	if(dstStr == "-nan"){
+	if(dstStr == "-nan" || dstStr == "nan"){
 	    dst = -1.0*numeric_limits<double>::quiet_NaN();
 	}else{
 	    dst =  destringify<double>(dstStr);

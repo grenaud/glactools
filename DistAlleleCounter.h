@@ -129,7 +129,7 @@ class DistAlleleCounter{
 	    distStr+=c;
 	    //cerr<<"#"<<c<<"#"<<endl;
 	}
-	if(distStr == "-nan"){
+	if(distStr == "-nan" || distStr == "nan"){
 	    dist = -1.0*numeric_limits<double>::quiet_NaN();
 	}else{
 	    dist =  destringify<double>(distStr);
