@@ -708,7 +708,7 @@ int GlacCompute::run(int argc, char *argv[]){
 
     bool dnaDistModeSpecified=false;
     dnaDistMode              ="none";
-    int lastOpt=1;
+    int lastOpt=argc-1;//index of the first file for --boot, the last argument if there is only one
 
     for(int i=1;i<(argc-1);i++){ 
 	//cerr<<i<<" "<<string(argv[i])<<endl;
