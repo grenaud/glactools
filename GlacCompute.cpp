@@ -799,6 +799,12 @@ int GlacCompute::run(int argc, char *argv[]){
 
     }
     
+    if(dnaDistMode != "none" && dnaDistMode != "JC69"){
+	cerr<<"GlacCompute: ERROR: unknown model for --model: "<<dnaDistMode<<", use none or JC69"<<endl;
+	return 1;
+    }
+    DistAlleleCounter::printModel = dnaDistMode;
+
     if( dnaDistModeSpecified ){
 	if(program != "dist"){
 	    cerr<<"GlacCompute: ERROR: Cannot specify --model if the option \"dist\" is not used "<<endl;

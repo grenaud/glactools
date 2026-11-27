@@ -28,6 +28,8 @@ const string    DistAlleleCounter::dimers[16] = {
     "TG",
     "TT"};
 
+string DistAlleleCounter::printModel = "none";
+
 DistAlleleCounter::DistAlleleCounter(){
     reinitializedCounters();
 

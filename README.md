@@ -501,7 +501,7 @@ The summary stats in glactools compute are reported as such:
 
 For f2 and f3 no assumption is made about which allele is ancestral, so "no damage" contains the same sites as "transversions".
 
-For dist, sites where the two individuals are identical are counted for both transitions and transversions. The transition rate is the number of transition differences divided by identical sites plus transition differences, and likewise for transversions. These two rates therefore do not add up to the rate for all sites. With --model JC69, only the jackknife interval is corrected: the rate column is the uncorrected proportion.
+For dist, sites where the two individuals are identical are counted for both transitions and transversions. The transition rate is the number of transition differences divided by identical sites plus transition differences, and likewise for transversions. These two rates therefore do not add up to the rate for all sites. With --model JC69, the rate column and its jackknife interval are both Jukes-Cantor distances (nan or inf when the proportion of differences is 0.75 or more).
 
 A jackknife interval is reported as nan when it cannot be computed, for instance when a category has no site.
 

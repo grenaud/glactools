@@ -26,6 +26,7 @@ class DistAlleleCounter{
 
  public:
     unsigned int count[16];
+    static string printModel;//distance printed in the last column, set by --model
     //vector<string> dimers ;
     static const string dimers[16];
 
@@ -88,7 +89,7 @@ class DistAlleleCounter{
 	for(int i=0;i<15;i++){
 	    os<<ct.count[i]<<"\t";
 	}
-	os<<ct.count[15]<<"\t"<<ident<<"\t"<<mutations<<"\t"<<double(mutations) /double(mutations+ident);
+	os<<ct.count[15]<<"\t"<<ident<<"\t"<<mutations<<"\t"<<ct.dist(DistAlleleCounter::printModel);
 
 	/* os<<ct.counterSame<<"\t" */
 	/*   <<ct.counterCommon<<"\t" */
@@ -109,37 +110,13 @@ class DistAlleleCounter{
     //os<<ct.count[15]<<"\t"<<ident<<"\t"<<mutations<<"\t"<<double(mutations) /double(mutations+ident);
 
     friend istream &operator>>(istream &is , DistAlleleCounter &ct){
-	//cerr<<"DstatCounter in"<<endl;
-	//double dst;
 	for(int i=0;i<=15;i++){
 	    is>>ct.count[i];
 	}
-	double ident; double mutations;
-	is>>ident>>mutations;
-	double dist;//<<"\t"<<double(mutations) /double(mutations+ident);
-	string distStr;
-	char c;
-	is.get(c);
-	if(c != '\t'){
-	    cerr<<"A single dist should have 19 fields"<<endl;
-	}
+	//identical, different and the distance are recomputed from the counts
+	string derived;
+	is>>derived>>derived>>derived;
 
-	while (is.get(c)){          // loop getting single characters
-	    if(c == '\t') break;
-	    distStr+=c;
-	    //cerr<<"#"<<c<<"#"<<endl;
-	}
-	if(distStr == "-nan" || distStr == "nan"){
-	    dist = -1.0*numeric_limits<double>::quiet_NaN();
-	}else{
-	    dist =  destringify<double>(distStr);
-	}
-
-	/* //cerr<<"#"; */
-	/* for(int i=0;i<=15;i++){ */
-	/*     cerr<<ct.count[i]<<" "; */
-	/* } */
-	/* cerr<<"i:"<<ident<<" m:"<<mutations<<" d:"<<dist<<"# "; */
 	return is;
     }
 
