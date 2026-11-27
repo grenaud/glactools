@@ -82,6 +82,13 @@ check f2      8  "1 2 3 4 5 6 7" "8:9"
 check f3      8  "1 2 4 5 6"     "8:9"
 
 # --boot: two files of --noboot results with three blocks each must give what a direct run on all the data gives
+# the same numbers as direct.txt, within the rounding of the --noboot files
+same_numbers() {
+    paste direct.txt "$1" | awk -F'\t' '
+      $1!=$2 { if($1 !~ /^-?[0-9.]+(e[-+]?[0-9]+)?$/){ if(!($1 ~ /nan/ && $2 ~ /nan/)) bad=1 }
+               else { d=$1-$2; if(d<0) d=-d; m=$1<0?-$1:$1; if(d > 1e-4*(m>1?m:1)) bad=1 } }
+      END { exit bad }'
+}
 combined() { sed -n '/ALL/,$p' | grep -v -- '---' | tr '\t' '\n' | grep -v '^$'; }
 { header X Y Z; block; block | awk 'BEGIN{FS=OFS="\t"} {$2+=500000; print}'; } > twice.txt; binary twice
 { header X Y Z; block | awk 'BEGIN{FS=OFS="\t"} {$2+=500000; print}'; } > second.txt; binary second
@@ -91,10 +98,14 @@ for stat in dstat paircoa dist f2 f3; do
     compute -p $stat -s "$sites" --noboot second.acf.gz > res2.txt
     compute -p $stat --boot res1.txt res2.txt | combined > boot.txt || fail "$stat --boot does not run"
     [ -s direct.txt ] && [ "$(wc -l < direct.txt)" = "$(wc -l < boot.txt)" ] || fail "$stat --boot: output size differs"
-    paste direct.txt boot.txt | awk -F'\t' '
-      $1!=$2 { if($1 !~ /^-?[0-9.]+(e[-+]?[0-9]+)?$/){ if(!($1 ~ /nan/ && $2 ~ /nan/)) bad=1 }
-               else { d=$1-$2; if(d<0) d=-d; m=$1<0?-$1:$1; if(d > 1e-4*(m>1?m:1)) bad=1 } }
-      END { exit bad }' || fail "$stat --boot differs from the direct run"
+    same_numbers boot.txt || fail "$stat --boot differs from the direct run"
+    # a single file with several blocks
+    compute -p $stat -s "$sites" --noboot twice.acf.gz > whole.txt
+    compute -p $stat --boot whole.txt | combined > one.txt || fail "$stat --boot with one file does not run"
+    [ "$(wc -l < direct.txt)" = "$(wc -l < one.txt)" ] && same_numbers one.txt || fail "$stat --boot with one file differs"
+    # a truncated file must be rejected
+    head -c $(( $(wc -c < res2.txt) - 150 )) res2.txt > cut.txt
+    if compute -p $stat --boot res1.txt cut.txt > /dev/null; then fail "$stat --boot accepts a truncated file"; fi
 done
 
 # dist, sites without an alternative allele: the result cannot depend on the record before them
