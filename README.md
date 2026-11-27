@@ -507,15 +507,15 @@ A jackknife interval is reported as nan when it cannot be computed, for instance
 
 ### How are f2 and f3 corrected for sample size?
 
-At each site, and for each population, the bias due to the sampling of the allele frequency f is estimated with f(1-f)/(N-1), where N is the number of sampled alleles at that site. f3 subtracts it for the target population, f2 for both populations, and the result is averaged over sites. The estimate is unbiased even when N varies between sites. The value in the last column and its jackknife interval both refer to the corrected statistic.
+At each site, and for each population, the bias due to the sampling of the allele frequency f is estimated with f(1-f)/(N-1), where N is the number of sampled alleles at that site. f3 subtracts it for the target population, f2 for both populations, and the result is averaged over sites. For sites with at least two alleles, the estimate is unbiased even when N varies between sites. The value in the last column and its jackknife interval both refer to the corrected statistic.
 
-With a single allele the bias cannot be estimated: the site is kept and nothing is subtracted for that population. Sites like this (e.g. pseudo-haploid data) therefore remain biased upwards, for f2 and for an f3 whose target has them. This includes comparisons with the reference sequence, which is a single allele at every site.
+With a single allele the bias cannot be estimated: the site is kept and nothing is subtracted for that population. Sites like this (e.g. pseudo-haploid data) therefore remain biased upwards, for f2 and for an f3 whose target has them. This includes comparisons with the reference sequence, which is a single allele at every site. The remaining bias is upwards, so for f3 it can hide a negative value but not create one, and with mixed coverage, f2 values of populations with different proportions of such sites are not directly comparable.
 
-The columns hz1, hz2 (f2) and hzy (f3) are the sums over sites of these terms. Their meaning differs in versions 1.0.10 and earlier, so --noboot files made with those versions must be computed again before using --boot.
+The columns hz1, hz2 (f2) and hzy (f3) are the sums over sites of these terms.
 
 ### How do I combine results computed separately, for instance per chromosome?
 
-Run "glactools compute --noboot" on each file, then give the outputs to "glactools compute --boot" with the same -p option. Every block (see -s) in every file is one jackknife block. For dstat, paircoa and dist, population names must not contain "-" (nor "@" for dstat) to use --boot; "glactools rename" can change them.
+Run "glactools compute --noboot" on each file, then give the outputs to "glactools compute --boot" with the same -p option. Every block (see -s) in every file is one jackknife block. --boot only reads files whose block separators name the current format: files made with version 1.0.10 or earlier, for any statistic, must be computed again with --noboot. For dstat, paircoa and dist, population names must not contain "-" (nor "@" for dstat) to use --boot; "glactools rename" can change them.
  
 
 ### I get: "Error, missing data in the EPO file" when adding the ancestral alleles, why?

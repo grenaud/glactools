@@ -4,6 +4,12 @@
 
 using namespace std;
 
+//Written before each block of results. --boot requires the format name: earlier versions wrote the same
+//columns with other contents (and wrong values), which cannot be told apart from the numbers alone.
+//Change the number if the meaning of the columns changes.
+static const string resultFormat   = "compute-format=2";
+static const string blockSeparator = "--------------------------- "+resultFormat;
+
 typedef struct{
     char * buffer;
     unsigned int sizeRecordsRead;
@@ -465,7 +471,7 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 	for (unsigned int i=0; i<results->size() ; ++i) {    
 	    // cout<<i<<"\n#####\n"<<endl;
 	    //	cout<<results->at(i)<<endl;
-	    cout<<"---------------------------"<<endl;
+	    cout<<blockSeparator<<endl;
 	    cout<<results->at(i)->print()<<endl;
 	    //	cout<<i<<"\n#####\n"<<endl;
 	}
@@ -497,7 +503,7 @@ void parallelP<STAT>::launchThreads(const string & filename,int numberOfThreads,
 	}
     }else{
 	if( !performBoot ){
-	    cout<<"---------------------------"<<endl;
+	    cout<<blockSeparator<<endl;
 	    cout<<results->at(0)->print()<<endl;
 	}else{//need to perform boot
 	    cerr<<"GlacCompute: There is only a single bin, cannot perform a jacknife, please run with more data"<<endl;
@@ -602,6 +608,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	string lineResults;
 	unsigned int blocksInFile=0;
 	unsigned int rowsInBlock=0;
+	bool inCurrentFormat=false;//whether the last separator line names the current format
 	bool moreLines=true;
 	while(moreLines){
 	    moreLines = bool(getline(myfileResults,lineResults));
@@ -610,8 +617,14 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 		cerr<<"GlacCompute: ERROR: "<<arguments->at(i)<<" already contains combined results, --boot needs the output of --noboot"<<endl;
 		exit(1);
 	    }
+	    if(isSeparator)
+		inCurrentFormat = lineResults.find(resultFormat) != string::npos;
 	    if(moreLines && !isSeparator){
 		if(!lineResults.empty()){
+		    if(!inCurrentFormat){
+			cerr<<"GlacCompute: ERROR: "<<arguments->at(i)<<" was not written with \"compute --noboot\" by this version of glactools. Version 1.0.10 and earlier wrote results that cannot be combined correctly: run \"glactools compute --noboot\" again with this version"<<endl;
+			exit(1);
+		    }
 		    //a truncated file or the results of another statistic would otherwise be read as numbers
 		    if(countValues(lineResults) != valuesPerResultRow(program)){
 			cerr<<"GlacCompute: ERROR: "<<arguments->at(i)<<" is truncated or does not contain -p "<<program<<" results, expected "<<valuesPerResultRow(program)<<" values on the row starting with \""<<lineResults.substr(0,40)<<"\""<<endl;
@@ -699,7 +712,7 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 	delete(allResults);
     }else{
 	if( !performBoot ){
-	    cout<<"---------------------------"<<endl;
+	    cout<<blockSeparator<<endl;
 	    cout<<results->at(0)->print()<<endl;
 	}else{//need to perform boot
 	    cerr<<"GlacCompute: There is only a single bin, cannot perform a jacknife, please run with more data"<<endl;

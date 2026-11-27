@@ -111,7 +111,7 @@ for stat in dstat paircoa dist f2 f3; do
     if compute -p $stat --boot res1.txt cut.txt > /dev/null; then fail "$stat --boot accepts a truncated file"; fi
 done
 
-# f2 and f3 results whose sums do not give the printed value, as written by earlier versions, are rejected
+# f2 and f3 rows whose sums do not give the printed value are rejected
 for stat in f2 f3; do
     compute -p $stat -s "$sites" --noboot blocks.acf.gz | awk 'BEGIN{FS=OFS="\t"} NF>1 {$6+=$3} {print}' > other.res
     if compute -p $stat --boot other.res > /dev/null; then fail "$stat --boot accepts sums that do not give the printed value"; fi
@@ -124,6 +124,14 @@ done
 compute -p dist --noboot jc.acf.gz > jc.out;               equals "dist proportion of differences" "$(field 'X-Y' 19 < jc.out)" 0.5
 compute -p dist --model JC69 --noboot jc.acf.gz > jc.out;  equals "dist JC69 distance" "$(field 'X-Y' 19 < jc.out)" 0.823959    # -3/4 ln(1 - 4/3 * 0.5)
 if compute -p dist --model K80 jc.acf.gz > /dev/null; then fail "an unknown --model should be rejected"; fi
+
+# results of earlier versions (a plain separator line) are rejected for every statistic
+for stat in dstat paircoa dist f2 f3; do
+    compute -p $stat -s "$sites" --noboot blocks.acf.gz | sed 's/^\(---*\) compute-format=2$/\1/' > plain.res
+    if grep -q compute-format plain.res; then fail "$stat: test could not remove the format name"; fi
+    msg=$("$G" compute -p $stat --boot plain.res 2>&1) && fail "$stat --boot accepts results without the format name"
+    grep -q "again with this version" <<<"$msg" || fail "$stat --boot: message for results of an earlier version"
+done
 
 # a "-" in a population name: --boot must give the right result (f2, f3) or stop (the others)
 sed '6s/\tX\tY\tZ$/\tHan-N\tY\tZ/' twice.txt > hyphen.txt; binary hyphen
