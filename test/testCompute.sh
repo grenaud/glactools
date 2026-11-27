@@ -29,8 +29,9 @@ equals "f3(P1;P2,P3) corrected" "$(field 'P1 ; P2 , P3' 8 < f3.out)" -0.1875
 { cat one.txt; printf '1\t200\tA,C\t1,0:0\t1,0:0\t2,2:0\t1,1:0\t0,0:0\n'; } > undef.txt; binary undef
 compute -u -p f2 --noboot undef.acf.gz > f2u.out
 equals "-u f2(P1,P2) sites"     "$(field 'P1 - P2' 2 < f2u.out)" 2
-# the second site adds 0.25*4/3 to hz(P1) (4 alleles) and 0.25*2 to hz(P2) (2 alleles)
-equals "-u f2(P1,P2) corrected" "$(field 'P1 - P2' 8 < f2u.out)" -0.0729167   # (0.25 - (0.25+1/3)/4 - 0.75/3)/2
+# the correction is applied site by site, here with different sample sizes. Site 1: 0.25 - 2*0.1875/3 = 0.125.
+# Site 2: 0 - 0.25/3 (P1, 4 alleles) - 0.25/1 (P2, 2 alleles) = -1/3. Their mean is -0.1041667.
+equals "-u f2(P1,P2) corrected" "$(field 'P1 - P2' 8 < f2u.out)" -0.1041667
 equals "-u f2(P1,P3) sites"     "$(field 'P1 - P3' 2 < f2u.out)" 1
 equals "-u f2(P1,P3) corrected" "$(field 'P1 - P3' 8 < f2u.out)" 0
 
@@ -55,9 +56,10 @@ block() {  # every combination of substitution, CpG flag, ancestral allele and d
 }
 { header X Y Z; block; } > blocks.txt; binary blocks
 sites=$(( $(block | wc -l) / 3 ))
-# check STAT VALUES_PER_CATEGORY "additive columns" "column:interval_column ..." (columns are 1-based within a category)
+# check STAT VALUES_PER_CATEGORY "additive columns" "column:interval_column ..." [options]
+# (columns are 1-based within a category)
 check() {
-    compute -p "$1" -s "$sites" blocks.acf.gz > "$1.out" || fail "$1 does not run"
+    compute -p "$1" ${5:-} -s "$sites" blocks.acf.gz > "$1.out" || fail "$1 does not run"
     awk -F'\t' -v stat="$1" -v w="$2" -v counts="$3" -v pairs="$4" '
       function abs(x){ return x<0?-x:x }
       function differ(x,y){ return abs(x-y) > 2e-5*(abs(y)>1?abs(y):1) }
@@ -71,13 +73,14 @@ check() {
         for(cat=0;cat<6;cat++){
           for(j=1;j<=nc;j++){ i=C[j]; if(differ(v[cat*width+i], 3*first[name,cat*w+i])){ print stat, name, "category", cat+1, "count", i, "is", v[cat*width+i], "not 3 x", first[name,cat*w+i]; bad=1 } }
           for(k=1;k<=np;k++){ split(P[k],q,":"); est=v[cat*width+q[1]]; lo=v[cat*width+q[2]]; hi=v[cat*width+q[2]+1]
-            if(est ~ /nan/) continue   # a category that this pair cannot have
+            if(est ~ /nan|inf/) continue   # a category that this pair cannot have
             if(abs(lo-est)>1e-4 || abs(hi-est)>1e-4){ print stat, name, "category", cat+1, "estimate", est, "interval", lo, hi; bad=1 } } } }
       END { if(nb!=3 || rows==0){ print stat, "unexpected output: blocks", nb, "rows", rows; bad=1 } exit bad }' "$1.out" >&2 || fail "$1 jackknife"
 }
 check dstat   5  "1 2 3 4"       "5:6"
 check paircoa 10 "1 2 3 4"       "5:11 8:13"
 check dist    19 "$(seq -s' ' 1 18)" "19:20"
+check dist    19 "$(seq -s' ' 1 18)" "19:20" "--model JC69"
 check f2      8  "1 2 3 4 5 6 7" "8:9"
 check f3      8  "1 2 4 5 6"     "8:9"
 
@@ -107,6 +110,20 @@ for stat in dstat paircoa dist f2 f3; do
     head -c $(( $(wc -c < res2.txt) - 150 )) res2.txt > cut.txt
     if compute -p $stat --boot res1.txt cut.txt > /dev/null; then fail "$stat --boot accepts a truncated file"; fi
 done
+
+# f2 and f3 results whose sums do not give the printed value, as written by earlier versions, are rejected
+for stat in f2 f3; do
+    compute -p $stat -s "$sites" --noboot blocks.acf.gz | awk 'BEGIN{FS=OFS="\t"} NF>1 {$6+=$3} {print}' > other.res
+    if compute -p $stat --boot other.res > /dev/null; then fail "$stat --boot accepts sums that do not give the printed value"; fi
+    msg=$("$G" compute -p $stat --boot other.res 2>&1 || true)
+    grep -q "does not match the sums" <<<"$msg" || fail "$stat --boot: message for mismatched sums"
+done
+
+# dist --model JC69 prints the corrected distance: X and Y differ at one site of two
+{ header X Y; printf '1\t10\tA,C\t2,0:0\t2,0:0\t2,0:0\t2,0:0\n1\t20\tA,C\t2,0:0\t2,0:0\t2,0:0\t0,2:0\n'; } > jc.txt; binary jc
+compute -p dist --noboot jc.acf.gz > jc.out;               equals "dist proportion of differences" "$(field 'X-Y' 19 < jc.out)" 0.5
+compute -p dist --model JC69 --noboot jc.acf.gz > jc.out;  equals "dist JC69 distance" "$(field 'X-Y' 19 < jc.out)" 0.823959    # -3/4 ln(1 - 4/3 * 0.5)
+if compute -p dist --model K80 jc.acf.gz > /dev/null; then fail "an unknown --model should be rejected"; fi
 
 # a "-" in a population name: --boot must give the right result (f2, f3) or stop (the others)
 sed '6s/\tX\tY\tZ$/\tHan-N\tY\tZ/' twice.txt > hyphen.txt; binary hyphen
