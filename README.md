@@ -511,7 +511,7 @@ For each population, the bias due to the sampling of the allele frequency f is e
 
 ### How do I combine results computed separately, for instance per chromosome?
 
-Run "glactools compute --noboot" on each file, then give the outputs to "glactools compute --boot" with the same -p option. Every block (see -s) in every file is one jackknife block.
+Run "glactools compute --noboot" on each file, then give the outputs to "glactools compute --boot" with the same -p option. Every block (see -s) in every file is one jackknife block. For dstat, paircoa and dist, population names must not contain "-" (nor "@" for dstat) to use --boot; "glactools rename" can change them.
  
 
 ### I get: "Error, missing data in the EPO file" when adding the ancestral alleles, why?

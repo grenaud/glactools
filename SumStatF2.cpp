@@ -143,18 +143,14 @@ void SumStatF2::read(const string & res){
 	    indsIds+=lines[i][j];
 	}
 
-	string ind1;
-	string ind2;
-	unsigned int k=0;
-	while(k<indsIds.size()){
-	    if(indsIds[k] == '-') break;
-	    ind1+=indsIds[k++];  
+	//rows are named "pop1 - pop2"; names may themselves contain "-"
+	size_t separator = indsIds.find(" - ");
+	if(separator == string::npos){
+	    cerr<<"SumStatF2.cpp read(): cannot parse the f2 row \""<<indsIds<<"\""<<endl;
+	    exit(1);
 	}
-	k++;
-	while(k<indsIds.size()){
-	    if(indsIds[k] == '\t') break;
-	    ind2+=indsIds[k++];	   
-	}
+	string ind1 = indsIds.substr(0,separator);
+	string ind2 = indsIds.substr(separator+3);
 
 	//cout<<ind1<<" "<<ind2<<" "<<src<<endl;
 	trimWhiteSpacesBothEnds(&ind1);
@@ -198,21 +194,15 @@ void SumStatF2::read(const string & res){
 	    indsIds+=lines[i][j];
 	}
 	
-	string ind1;
-	string ind2;
-	
-	unsigned int k=0;
-	while(k<indsIds.size()){
-	    if(indsIds[k] == '-')		break;	   	    
-	    ind1+=indsIds[k++];  
+	//rows are named "pop1 - pop2"; names may themselves contain "-"
+	size_t separator = indsIds.find(" - ");
+	if(separator == string::npos){
+	    cerr<<"SumStatF2.cpp read(): cannot parse the f2 row \""<<indsIds<<"\""<<endl;
+	    exit(1);
 	}
-	k++;
-	//cerr<<"#l "<<ind1<<"# #"<<ind2<<"# "<<endl;
-	while(k<indsIds.size()){
-	    if(indsIds[k] == '\t')		break;	    
-	    ind2+=indsIds[k++];	   
-	}
-	k++;
+	string ind1 = indsIds.substr(0,separator);
+	string ind2 = indsIds.substr(separator+3);
+
 	trimWhiteSpacesBothEnds(&ind1);
 	trimWhiteSpacesBothEnds(&ind2);
 	//cerr<<"#m "<<ind1<<"# #"<<ind2<<"# "<<endl;

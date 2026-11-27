@@ -108,6 +108,18 @@ for stat in dstat paircoa dist f2 f3; do
     if compute -p $stat --boot res1.txt cut.txt > /dev/null; then fail "$stat --boot accepts a truncated file"; fi
 done
 
+# a "-" in a population name: --boot must give the right result (f2, f3) or stop (the others)
+sed '6s/\tX\tY\tZ$/\tHan-N\tY\tZ/' twice.txt > hyphen.txt; binary hyphen
+for stat in dstat paircoa dist f2 f3; do
+    compute -p $stat -s "$sites" --noboot hyphen.acf.gz > hy.res
+    case $stat in
+        f2|f3) compute -p $stat -s "$sites" hyphen.acf.gz | combined > direct.txt
+               compute -p $stat --boot hy.res | combined > hy.txt || fail "$stat --boot with a hyphenated name does not run"
+               [ "$(wc -l < direct.txt)" = "$(wc -l < hy.txt)" ] && same_numbers hy.txt || fail "$stat --boot with a hyphenated name differs" ;;
+        *)     if compute -p $stat --boot hy.res > /dev/null; then fail "$stat --boot accepts ambiguous population names"; fi ;;
+    esac
+done
+
 # dist, sites without an alternative allele: the result cannot depend on the record before them
 for anc in C G; do
     { header X Y; printf '1\t10\t%s,A\t2,0:0\t2,0:0\t0,2:0\t2,0:0\n' $anc

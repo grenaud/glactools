@@ -564,6 +564,21 @@ static unsigned int countValues(const string & row){
     return values;
 }
 
+static unsigned int occurrences(const string & text,const string & pattern){
+    unsigned int count=0;
+    for(size_t at=text.find(pattern); at!=string::npos; at=text.find(pattern,at+pattern.size()))
+	count++;
+    return count;
+}
+
+//whether the population names on a row of --noboot output can be told apart
+static bool unambiguousRowName(const string & program,const string & name){
+    if(program == "dstat")	return occurrences(name,"-") == 1 && occurrences(name,"@") == 1;
+    if(program == "f3")		return occurrences(name,";") == 1 && occurrences(name,",") == 1;
+    if(program == "f2")		return occurrences(name," - ") == 1;
+    return occurrences(name,"-") == 1;//paircoa and dist
+}
+
 template <class STAT> //type 
 void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
     
@@ -600,6 +615,11 @@ void GlacCompute::bootFromResults(vector<string> * arguments,STAT * stattouse ){
 		    //a truncated file or the results of another statistic would otherwise be read as numbers
 		    if(countValues(lineResults) != valuesPerResultRow(program)){
 			cerr<<"GlacCompute: ERROR: "<<arguments->at(i)<<" is truncated or does not contain -p "<<program<<" results, expected "<<valuesPerResultRow(program)<<" values on the row starting with \""<<lineResults.substr(0,40)<<"\""<<endl;
+			exit(1);
+		    }
+		    string rowName = lineResults.substr(0,lineResults.find('\t'));
+		    if(!unambiguousRowName(program,rowName)){
+			cerr<<"GlacCompute: ERROR: cannot split \""<<rowName<<"\" into population names. --boot -p "<<program<<" cannot read names containing the characters that separate them (\"-\", or for dstat also \"@\", for f3 \";\" and \",\"); see \"glactools rename\""<<endl;
 			exit(1);
 		    }
 		    strResults+=lineResults+"\n";
