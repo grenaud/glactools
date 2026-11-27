@@ -498,6 +498,20 @@ The summary stats in glactools compute are reported as such:
 * transitions: only transitions are considered        
 * transversions: only transversions are considered        
 * no damage: sites that are potentially damaged are ignored. The difference between transversions is that ancestral C -> derived T is ignored but not ancestral T -> derived C.
+
+For f2 and f3 no assumption is made about which allele is ancestral, so "no damage" contains the same sites as "transversions".
+
+For dist, sites where the two individuals are identical are counted for both transitions and transversions, so these two rates add up to the rate for all sites.
+
+A jackknife interval is reported as nan when it cannot be computed, for instance when a category has no site.
+
+### How are f2 and f3 corrected for sample size?
+
+For each population, the bias due to the sampling of the allele frequency f is estimated with f(1-f)/(N-1), where N is the number of sampled alleles (as an average over sites weighted by N when it varies). f3 subtracts it for the target population, f2 for both populations. With a single allele (e.g. pseudo-haploid data) it cannot be estimated and nothing is subtracted. The value in the last column and its jackknife interval both refer to the corrected statistic.
+
+### How do I combine results computed separately, for instance per chromosome?
+
+Run "glactools compute --noboot" on each file, then give the outputs to "glactools compute --boot" with the same -p option. Every block (see -s) in every file is one jackknife block.
  
 
 ### I get: "Error, missing data in the EPO file" when adding the ancestral alleles, why?
